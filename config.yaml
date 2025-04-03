@@ -54,23 +54,23 @@ covariates:
   - genetic_PC_20
 
 rare_variant_annotations:
-  # plof:
-  #   - is_plof
-  #   - loftee_hc
-  #   - loftee_lc
-  #   - Consequence_frameshift_variant
-  #   - Consequence_start_lost
-  #   - Consequence_start_lost_next_in_frame
-  #   - Consequence_stop_gained
-  #   - Consequence_stop_lost
-  #   - CADD_PHRED
-  #   - CADD_raw
-  # missense:
-  #   - alphamissense
-  #   - PrimateAI_score
-  #   - sift_score
-  #   - Consequence_missense_variant
-  #   - Consequence_protein_altering_variant
+  plof:
+    - is_plof
+    - loftee_hc
+    - loftee_lc
+    - Consequence_frameshift_variant
+    - Consequence_start_lost
+    - Consequence_start_lost_next_in_frame
+    - Consequence_stop_gained
+    - Consequence_stop_lost
+    - CADD_PHRED
+    - CADD_raw
+  missense:
+    - alphamissense
+    - PrimateAI_score
+    - sift_score
+    - Consequence_missense_variant
+    - Consequence_protein_altering_variant
   splicing:
     - Consequence_splice_acceptor_variant
     - Consequence_splice_donor_variant
@@ -80,17 +80,17 @@ rare_variant_annotations:
     - model_22_max
     - AbSplice_DNA
     - SpliceAI_delta_score
-  # regulatory:
-  #   - influence_score_downstream
-  #   - influence_score_upstream
-  #   - GPN_MSA_score
-  #   - abexp_min_with_testis_score
-  #   - abexp_min_wo_testis_score
-  #   - condel_score
-  #   - polyphen_score
-  # misc:
-  #   - MAFbeta
-  #   - MAFmb
-  #   - relative_cds_position
-  #   - Consequence_inframe_deletion
-  #   - Consequence_inframe_insertion
+  regulatory:
+    - influence_score_downstream
+    - influence_score_upstream
+    - GPN_MSA_score
+    - abexp_min_with_testis_score
+    - abexp_min_wo_testis_score
+    - condel_score
+    - polyphen_score
+  misc:
+    - MAFbeta
+    - MAFmb
+    - relative_cds_position
+    - Consequence_inframe_deletion
+    - Consequence_inframe_insertion
