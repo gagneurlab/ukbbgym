@@ -1,0 +1,96 @@
+anngeno_file: /s/project/deeprvat/deeprvat_input/ukb_200k_wes_anngeno.ag
+prs_pheno_map_file: /s/project/deeprvat/deeprvat_input/prs_pheno_map_clean.csv
+prs_file: /s/project/deeprvat/deeprvat_input/PRS.parquet
+association_testing_maf: 0.001
+
+annotation_file: /s/project/deeprvat/ukb_gym/absplice2/annotations_trait_gym_absplice_max_all.parquet
+phenotypes_for_association_testing:
+  - Apolipoprotein_A
+  - Apolipoprotein_B
+  - Calcium
+  - Cholesterol_statin_corrected
+  - Red_blood_cell_erythrocyte_count
+  - HDL_cholesterol
+  - IGF_1
+  - LDL_direct_statin_corrected
+  - Lymphocyte_percentage
+  - Mean_platelet_thrombocyte_volume
+  - Mean_corpuscular_volume
+  - Mean_reticulocyte_volume
+  - Neutrophill_count
+  - Platelet_count
+  - Platelet_crit
+  - Platelet_distribution_width
+  - SHBG
+  - Standing_height
+  - Total_bilirubin
+  - Triglycerides
+  - Urate
+
+covariates: 
+  - age
+  - age2
+  - age_sex
+  - genetic_sex
+  - genetic_PC_1
+  - genetic_PC_2
+  - genetic_PC_3
+  - genetic_PC_4
+  - genetic_PC_5
+  - genetic_PC_6
+  - genetic_PC_7
+  - genetic_PC_8
+  - genetic_PC_9
+  - genetic_PC_10
+  - genetic_PC_11
+  - genetic_PC_12
+  - genetic_PC_13
+  - genetic_PC_14
+  - genetic_PC_15
+  - genetic_PC_16
+  - genetic_PC_17
+  - genetic_PC_18
+  - genetic_PC_19
+  - genetic_PC_20
+
+rare_variant_annotations:
+  # plof:
+  #   - is_plof
+  #   - loftee_hc
+  #   - loftee_lc
+  #   - Consequence_frameshift_variant
+  #   - Consequence_start_lost
+  #   - Consequence_start_lost_next_in_frame
+  #   - Consequence_stop_gained
+  #   - Consequence_stop_lost
+  #   - CADD_PHRED
+  #   - CADD_raw
+  # missense:
+  #   - alphamissense
+  #   - PrimateAI_score
+  #   - sift_score
+  #   - Consequence_missense_variant
+  #   - Consequence_protein_altering_variant
+  splicing:
+    - Consequence_splice_acceptor_variant
+    - Consequence_splice_donor_variant
+    - Consequence_splice_region_variant
+    - pangolin_score
+    - AbSplice_DNA_max
+    - model_22_max
+    - AbSplice_DNA
+    - SpliceAI_delta_score
+  # regulatory:
+  #   - influence_score_downstream
+  #   - influence_score_upstream
+  #   - GPN_MSA_score
+  #   - abexp_min_with_testis_score
+  #   - abexp_min_wo_testis_score
+  #   - condel_score
+  #   - polyphen_score
+  # misc:
+  #   - MAFbeta
+  #   - MAFmb
+  #   - relative_cds_position
+  #   - Consequence_inframe_deletion
+  #   - Consequence_inframe_insertion
