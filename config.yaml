@@ -1,9 +1,11 @@
+# anngeno_file: PATH_TO_FILE
 anngeno_file: PATH_TO_FILE
+associations_df_path: PATH_TO_FILE
 prs_pheno_map_file: PATH_TO_FILE
 prs_file: PATH_TO_FILE
 association_testing_maf: 0.001
 
-annotation_file: PATH_TO_FILE
+# annotation_file: PATH_TO_FILE
 phenotypes_for_association_testing:
   - Apolipoprotein_A
   - Apolipoprotein_B
@@ -75,11 +77,11 @@ rare_variant_annotations:
     - Consequence_splice_acceptor_variant
     - Consequence_splice_donor_variant
     - Consequence_splice_region_variant
-    - pangolin_score
-    - AbSplice_DNA_max
-    - model_22_max
-    - AbSplice_DNA
     - SpliceAI_delta_score
+    - AbSplice_DNA
+    # - pangolin_score
+    # - model_22_max
+    # - AbSplice_DNA_max
   regulatory:
     - influence_score_downstream
     - influence_score_upstream
@@ -88,6 +90,9 @@ rare_variant_annotations:
     - abexp_min_wo_testis_score
     - condel_score
     - polyphen_score
+    - flashzoi_abs_max
+    - flashzoi_abs_mean
+    - flashzoi_mean
   misc:
     - MAFbeta
     - MAFmb
