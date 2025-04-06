@@ -1,9 +1,11 @@
-anngeno_file: /s/project/deeprvat/deeprvat_input/ukb_200k_wes_anngeno.ag
+# anngeno_file: /s/project/deeprvat/deeprvat_input/ukb_200k_wes_anngeno.ag
+anngeno_file: /s/project/deeprvat/ukb_gym/anngeno/anngeno_test.ag
+associations_df_path: /s/project/deeprvat/ukb_gym/161k_plof_associations.pq
 prs_pheno_map_file: /s/project/deeprvat/deeprvat_input/prs_pheno_map_clean.csv
 prs_file: /s/project/deeprvat/deeprvat_input/PRS.parquet
 association_testing_maf: 0.001
 
-annotation_file: /s/project/deeprvat/ukb_gym/absplice2/annotations_trait_gym_absplice_max_all.parquet
+# annotation_file: /s/project/deeprvat/ukb_gym/absplice2/annotations_trait_gym_absplice_max_all.parquet
 phenotypes_for_association_testing:
   - Apolipoprotein_A
   - Apolipoprotein_B
@@ -75,11 +77,11 @@ rare_variant_annotations:
     - Consequence_splice_acceptor_variant
     - Consequence_splice_donor_variant
     - Consequence_splice_region_variant
-    - pangolin_score
-    - AbSplice_DNA_max
-    - model_22_max
-    - AbSplice_DNA
     - SpliceAI_delta_score
+    - AbSplice_DNA
+    # - pangolin_score
+    # - model_22_max
+    # - AbSplice_DNA_max
   regulatory:
     - influence_score_downstream
     - influence_score_upstream
@@ -88,6 +90,9 @@ rare_variant_annotations:
     - abexp_min_wo_testis_score
     - condel_score
     - polyphen_score
+    - flashzoi_abs_max
+    - flashzoi_abs_mean
+    - flashzoi_mean
   misc:
     - MAFbeta
     - MAFmb
