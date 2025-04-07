@@ -73,7 +73,8 @@ def get_burdens_array(
     associations_df_path, 
     annotation_list,
     anno_scores_df=None, 
-    max_burden=False
+    max_burden=False,
+    only_snps=False,
 ):
     maf = config.get("association_testing_maf")
 
@@ -87,6 +88,11 @@ def get_burdens_array(
     print(f"Filtering for variants with MAF < {maf}")
     variants_to_keep = set(ag.annotations.query("MAF < @maf & region in @genes")["id"])
     ag.subset_variants(variants_to_keep)
+
+    if only_snps:
+        print(f"Filtering for SNPs only")
+        snp_variants = set(ag.annotations.query("(ref.str.len()==1) & (alt.str.len()==1)")["id"])
+        ag.subset_variants(snp_variants)
 
     if anno_scores_df is not None:
         # TODO improve this (subset anngeno)
@@ -123,6 +129,7 @@ def compute_burdens(
     config_path,
     output_zarr,
     max_burden=False,
+    only_snps=False,
     overwrite=False, # TODO add function to overwrite zarr file
 ):
     with open(config_path) as f:
@@ -144,6 +151,10 @@ def compute_burdens(
         print(
             f"Zarr file exists at {zarr_file_path}, checking for new annotations."
         )
+
+        if only_snps:
+            print(f"only_snps is True, adding annotations only for SNPs.")
+
         # Open the zarr group in read/write mode ('r+')
         root = zarr.group(zarr_file_path)
         sum_burdens = root["sum_burdens"]
@@ -156,7 +167,7 @@ def compute_burdens(
 
         if new_annotation_list:
             print(f"New annotations found: {new_annotation_list}")
-            new_gene_burdens_sum_df, new_gene_burdens_max_df, _, _ = get_burdens_array(config, associations_df_path, new_annotation_list, max_burden=max_burden)
+            new_gene_burdens_sum_df, new_gene_burdens_max_df, _, _ = get_burdens_array(config, associations_df_path, new_annotation_list, max_burden=max_burden, only_snps=only_snps)
 
             current_shape = sum_burdens.shape
             new_shape = (
@@ -193,7 +204,7 @@ def compute_burdens(
     else:
         print(f"Zarr file does not exist at {zarr_file_path}, creating a new one.")
 
-        gene_burdens_sum_df, gene_burdens_max_df, sample_id_arr, gene_id_list = get_burdens_array(config, associations_df_path, all_annotation_list, max_burden=max_burden)
+        gene_burdens_sum_df, gene_burdens_max_df, sample_id_arr, gene_id_list = get_burdens_array(config, associations_df_path, all_annotation_list, max_burden=max_burden, only_snps=only_snps)
 
         root = zarr.group(zarr_file_path)
         sum_burdens = root.create_array(
