@@ -102,7 +102,7 @@ def get_burdens_array(
         new_cols = list(set(anno_scores_df.columns) - set(ag.annotations.columns))
         print(f"Adding new annotations to anngeno: {new_cols}")
         merged = ag.annotations\
-            .merge(anno_scores_df[["chrom", "pos", "ref", "alt", *new_cols]], how = "left", on = ["chrom", "pos", "ref", "alt"])
+            .merge(anno_scores_df[["chrom", "pos", "ref", "alt", "region", *new_cols]], how = "left", on = ["chrom", "pos", "ref", "alt", "region"])
         ag._set_annotations(merged)
 
     gene_id_list = list(genes)
@@ -158,7 +158,6 @@ def compute_burdens(
         # Open the zarr group in read/write mode ('r+')
         root = zarr.group(zarr_file_path)
         sum_burdens = root["sum_burdens"]
-        max_burdens = root["max_burdens"]
 
         existing_annotations = list(root["annotations"][:])
         new_annotation_list = [
@@ -179,6 +178,7 @@ def compute_burdens(
             sum_burdens[:, :, current_shape[2] :] = (new_gene_burdens_sum_df)
 
             if max_burden:
+                max_burdens = root["max_burdens"]
                 print("Max burden is True, appending max_burdens array.")
                 max_burdens.resize(new_shape)  # Resize along axis 2 to accommodate new annotations
                 max_burdens[:, :, current_shape[2] :] = (new_gene_burdens_max_df)
@@ -248,7 +248,7 @@ def compute_burdens(
         print("Created new zarr array 'gene_burdens', 'samples', 'genes', 'annotations' and metadata.")
 
 
-def create_new_anno_burdens(
+def add_new_anno_burdens(
     config_path,
     output_zarr,
     anno_scores_path,
@@ -262,7 +262,7 @@ def create_new_anno_burdens(
 
     anno_scores_df = pd.read_parquet(anno_scores_path)
     # TODO add assertions to check if anno_scores_df is valid
-    all_annotation_list = list(set(anno_scores_df.columns) - set(["chrom", "pos", "ref", "alt"]))
+    all_annotation_list = list(set(anno_scores_df.columns) - set(["chrom", "pos", "ref", "alt", "region"]))
 
     # --- Zarr Writing and Metadata ---
     # Define the path to the zarr file

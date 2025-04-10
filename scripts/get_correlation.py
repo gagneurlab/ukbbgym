@@ -91,7 +91,7 @@ def compute_correlations(
         config = yaml.safe_load(f)
 
     anngeno_file = config.get("anngeno_file")
-    annotation_list = config.get("rare_variant_annotations")
+    # annotation_cats = config.get("rare_variant_annotations")
     associations_df_path = config.get("associations_df_path")
     phenotypes = config.get("phenotypes_for_association_testing")
     covs = config.get("covariates")
@@ -119,6 +119,8 @@ def compute_correlations(
 
     rho_df_sum_list = []
     rho_df_max_list = []
+    print(f"Starting correlation computation for {len(annotation_list)} annotations")
+    print(annotation_list)
     for anno in tqdm(annotation_list):
         anno_idx = np.where(annotation_list == anno)[0][0]
         sum_burdens = zarr_group["sum_burdens"][:, :, anno_idx]
