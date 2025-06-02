@@ -41,7 +41,7 @@ def cov_prs_correction(all_df, phenotypes, covariates, prs_pheno_map):
     return cov_prs_corrected_phenos
 
 
-def pheno_burden_spearman(assoc_df, gt_df, annotation):
+def pheno_burden_correlation(assoc_df, gt_df, annotation, correlation_type):
     rank_corr_list = []
     for trait in assoc_df.phenotype.unique():
         gene_list = list(assoc_df.query("phenotype == @trait").gene.astype(str))
@@ -49,15 +49,20 @@ def pheno_burden_spearman(assoc_df, gt_df, annotation):
         for gene in gene_list:
             try:
                 correlation = (
-                    gt_df[[gene, pheno]].dropna().corr(method="spearman").iloc[0, 1]
+                    gt_df[[gene, pheno]].dropna().corr(method=correlation_type).iloc[0, 1]
                 )
                 # Calculate the correlation only for non-zero values
                 gis_mode = gt_df[gene].mode()[0]
                 correlation_non_zero = (
                     gt_df[gt_df[gene] != gis_mode][[gene, pheno]]
                     .dropna()
-                    .corr(method="spearman")
+                    .corr(method=correlation_type)
                     .iloc[0, 1]
+                )
+            except ValueError:
+                print("Wrong correlation type specified. Reverting to spearman")
+                correlation = (
+                    gt_df[[gene, pheno]].dropna().corr(method="spearman").iloc[0, 1]
                 )
             except Exception as e:
                 print(
@@ -72,8 +77,8 @@ def pheno_burden_spearman(assoc_df, gt_df, annotation):
                         "annotation": annotation,
                         "phenotype": trait,
                         "gene": gene,
-                        "spearman_correlation": correlation,
-                        "spearman_correlation_non_zero": correlation_non_zero,
+                        "correlation": correlation,
+                        # "correlation_non_zero": correlation_non_zero,
                     },
                     index=[0],
                 )
@@ -86,6 +91,7 @@ def compute_correlations(
     zarr_burdens_path,
     genes_to_keep=None,
     max_burden=False,
+    correlation_type='spearman',
 ):
     with open(config_path) as f:
         config = yaml.safe_load(f)
@@ -127,13 +133,13 @@ def compute_correlations(
         gt_df_sum = pd.DataFrame(
             sum_burdens, index=sample_list, columns=gene_list
         ).merge(pheno_corrected_df, left_index=True, right_on="sample")
-        rho_df_sum_list.append(pheno_burden_spearman(assoc_df, gt_df_sum, anno))
+        rho_df_sum_list.append(pheno_burden_correlation(assoc_df, gt_df_sum, anno, correlation_type))
         if max_burden:
             max_burdens_zarr = zarr_group["max_burdens"][:, :, anno_idx]
             gt_df_max = pd.DataFrame(
                 max_burdens_zarr, index=sample_list, columns=gene_list
             ).merge(pheno_corrected_df, left_index=True, right_on="sample")
-            rho_df_max_list.append(pheno_burden_spearman(assoc_df, gt_df_max, anno))
+            rho_df_max_list.append(pheno_burden_correlation(assoc_df, gt_df_max, anno, correlation_type))
 
     rho_df_sum = pd.concat(rho_df_sum_list)
     rho_df_sum["aggregation"] = "sum"

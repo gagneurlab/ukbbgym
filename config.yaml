@@ -1,6 +1,7 @@
-# anngeno_file: PATH_TO_FILE
 anngeno_file: PATH_TO_FILE
+# anngeno_file: PATH_TO_FILE
 associations_df_path: PATH_TO_FILE
+# associations_df_path: PATH_TO_FILE
 prs_pheno_map_file: PATH_TO_FILE
 prs_file: PATH_TO_FILE
 association_testing_maf: 0.001
@@ -78,7 +79,9 @@ rare_variant_annotations:
     - Consequence_splice_donor_variant
     - Consequence_splice_region_variant
     - SpliceAI_delta_score
-    - AbSplice_DNA
+    # - AbSplice_DNA_max
+    # - AbSplice2_max
+    # - pangolin_score
     # - pangolin_score
     # - model_22_max
     # - AbSplice_DNA_max
@@ -90,9 +93,12 @@ rare_variant_annotations:
     - abexp_min_wo_testis_score
     - condel_score
     - polyphen_score
-    - flashzoi_abs_max
-    - flashzoi_abs_mean
-    - flashzoi_mean
+    # - flashzoi_abs_max
+    # - flashzoi_abs_mean
+    # - flashzoi_mean
+    # - flashzoi_ag_abs_max
+    # - flashzoi_ag_abs_mean
+    # - flashzoi_ag_mean
   misc:
     - MAFbeta
     - MAFmb
