@@ -1,34 +1,46 @@
 anngeno_file: PATH_TO_FILE
 # anngeno_file: PATH_TO_FILE
-associations_df_path: PATH_TO_FILE
 # associations_df_path: PATH_TO_FILE
+associations_df_path: PATH_TO_FILE
 prs_pheno_map_file: PATH_TO_FILE
 prs_file: PATH_TO_FILE
-association_testing_maf: 0.001
+maf_upper_bound: 0.001
 
 # annotation_file: PATH_TO_FILE
-phenotypes_for_association_testing:
+phenotypes_for_testing:
   - Apolipoprotein_A
   - Apolipoprotein_B
   - Calcium
-  - Cholesterol_statin_corrected
+  - Cholesterol
   - Red_blood_cell_erythrocyte_count
   - HDL_cholesterol
   - IGF_1
-  - LDL_direct_statin_corrected
+  - LDL_direct
   - Lymphocyte_percentage
-  - Mean_platelet_thrombocyte_volume
   - Mean_corpuscular_volume
   - Mean_reticulocyte_volume
+  - Mean_platelet_thrombocyte_volume
   - Neutrophill_count
   - Platelet_count
   - Platelet_crit
   - Platelet_distribution_width
   - SHBG
   - Standing_height
-  - Total_bilirubin
   - Triglycerides
   - Urate
+  - Total_bilirubin
+  - Body_mass_index_BMI
+  - Glucose
+  - Vitamin_D
+  - Albumin
+  - Total_protein
+  - Cystatin_C
+  - Gamma_glutamyltransferase
+  - Alkaline_phosphatase
+  - Creatinine
+  - Whole_body_fat_free_mass
+  - Forced_expiratory_volume_in_1_second_FEV1
+  - Glycated_haemoglobin_HbA1c
 
 covariates: 
   - age
@@ -66,42 +78,59 @@ rare_variant_annotations:
     - Consequence_start_lost_next_in_frame
     - Consequence_stop_gained
     - Consequence_stop_lost
+    - Consequence_splice_acceptor_variant
+    - Consequence_splice_donor_variant
     - CADD_PHRED
     - CADD_raw
   missense:
     - alphamissense
     - PrimateAI_score
     - sift_score
+    - condel_score
+    - polyphen_score
     - Consequence_missense_variant
     - Consequence_protein_altering_variant
   splicing:
-    - Consequence_splice_acceptor_variant
-    - Consequence_splice_donor_variant
     - Consequence_splice_region_variant
     - SpliceAI_delta_score
-    # - AbSplice_DNA_max
+    - AbSplice_DNA
     # - AbSplice2_max
     # - pangolin_score
-    # - pangolin_score
-    # - model_22_max
-    # - AbSplice_DNA_max
   regulatory:
     - influence_score_downstream
     - influence_score_upstream
     - GPN_MSA_score
     - abexp_min_with_testis_score
     - abexp_min_wo_testis_score
-    - condel_score
-    - polyphen_score
     # - flashzoi_abs_max
     # - flashzoi_abs_mean
     # - flashzoi_mean
-    # - flashzoi_ag_abs_max
-    # - flashzoi_ag_abs_mean
-    # - flashzoi_ag_mean
   misc:
     - MAFbeta
     - MAFmb
     - relative_cds_position
     - Consequence_inframe_deletion
     - Consequence_inframe_insertion
+
+phenotypes_old:
+  - Apolipoprotein_A
+  - Apolipoprotein_B
+  - Calcium
+  - Cholesterol_statin_corrected
+  - Red_blood_cell_erythrocyte_count
+  - HDL_cholesterol
+  - IGF_1
+  - LDL_direct_statin_corrected
+  - Lymphocyte_percentage
+  - Mean_platelet_thrombocyte_volume
+  - Mean_corpuscular_volume
+  - Mean_reticulocyte_volume
+  - Neutrophill_count
+  - Platelet_count
+  - Platelet_crit
+  - Platelet_distribution_width
+  - SHBG
+  - Standing_height
+  - Total_bilirubin
+  - Triglycerides
+  - Urate
