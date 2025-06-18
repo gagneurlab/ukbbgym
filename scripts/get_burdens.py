@@ -2,51 +2,105 @@ import os
 import sys
 import yaml
 import zarr
+import click
+import shutil
 import pandas as pd
 import polars as pl
 import numpy as np
+
+import torch
 from tqdm import tqdm
 from anngeno import AnnGeno
-
-import click
+from joblib import Parallel, delayed
 
 def get_gene_burdens(
-    anngeno_obj, gene_num, annotation_list, max_burden=False
+    region_genotypes,
+    region_annotations,
+    annotation_list, 
+    max_burden=False
 ):
-    try:
-        gene = anngeno_obj.get_region(gene_num)
-    except Exception as e:
-        print(f"Cannot find {gene_num} in AnnGeno, Returning NaNs. Error: {e}")
-        nan_gis = np.zeros((len(anngeno_obj.samples), len(annotation_list))) * np.nan
-        return nan_gis, nan_gis
-    
-    geno = gene["genotypes"]
-    no_variant_mask = geno.sum(axis = 1) == 0
+
+    no_variant_mask = region_genotypes.sum(axis = 1) == 0
 
     try:
-        var_scores = gene["annotations"][annotation_list].fillna(0).to_numpy().astype(np.float32)
+        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32)
     except Exception as e:
-        print(f"Cannot find {annotation_list} in AnnGeno, Returning NaNs. Error: {e}")
-        nan_gis = np.zeros((len(anngeno_obj.samples), len(annotation_list))) * np.nan
+        print(f"Error: {e}\nReturning NaNs.")
+        nan_gis = np.zeros((len(region_genotypes), len(annotation_list))) * np.nan
         return nan_gis, nan_gis
     
     # Calculate sum burden directly
-    gis_sum = np.dot(geno, var_scores)
+    gis_sum = np.dot(region_genotypes, var_scores)
     gis_sum[no_variant_mask, :] = np.nan
 
     # If max_burden is False, return sum burden
     if not max_burden:
-        return gis_sum, np.nan
-
-    # For max calculation
+        return gis_sum, np.nan # Still return a tuple to maintain consistent return type
+    
     gis_max = []
-    for a in tqdm(range(var_scores.shape[1])):
-        gis_max.append(np.max(geno*var_scores[:, a], axis=1))
-    gis_max = np.stack(gis_max, axis=1)
+    gis_top2_sum = []
+    for a in range(var_scores.shape[1]):
+        burden = np.abs(region_genotypes * var_scores[:, a])  # shape: (samples, variants)
+
+        # Get top-k values per sample
+        top2 = np.partition(burden, -2, axis=1)[:, -2:]  # shape: (samples, k)
+
+        # Compute max (top-1) and sum of top-k
+        max_vals = np.max(top2, axis=1)
+        # max_vals = top2[:, -1]  # Get the maximum value (top-1)
+        top2_sum = np.sum(top2, axis=1)
+
+        gis_max.append(max_vals)
+        gis_top2_sum.append(top2_sum)
+
+    gis_max = np.stack(gis_max, axis=1)    # shape: (samples, annotations)
+    gis_top2 = np.stack(gis_top2_sum, axis=1)
+    
+    # Handle no-variant case
     gis_max[no_variant_mask, :] = np.nan
+    gis_top2[no_variant_mask, :] = np.nan
 
-    return gis_sum, gis_max
+    return gis_sum, gis_max, gis_top2
 
+
+def get_gene_burdens_torch(
+    region_genotypes,
+    region_annotations,
+    annotation_list,
+    max_burden=False,
+    device="cuda"
+):
+    with torch.no_grad():
+        G = torch.tensor(region_genotypes, dtype=torch.float32, device=device)  # (samples, variants)
+        A = torch.tensor(region_annotations[annotation_list].fill_nan(0).to_numpy(), dtype=torch.float32, device=device)  # (variants, annotations)
+
+        no_variant_mask = G.sum(dim=1) == 0
+        gis_sum = (G @ A)
+        gis_sum[no_variant_mask] = float('nan')
+
+        if not max_burden:
+            return gis_sum.cpu().numpy(), None, None
+
+        gis_max = []
+        gis_top2 = []
+
+        for a in range(A.shape[1]):
+            scores = torch.abs(G * A[:, a])  # (samples, variants)
+            scores[G == 0] = float('-inf')
+
+            top2_vals, _ = torch.topk(scores, k=2, dim=1, largest=True, sorted=False)
+            gis_max.append(torch.max(top2_vals, dim=1).values)
+            gis_top2.append(top2_vals.sum(dim=1))
+
+            torch.cuda.empty_cache()
+            
+        gis_max = torch.stack(gis_max, dim=1)
+        gis_top2 = torch.stack(gis_top2, dim=1)
+
+        gis_max[no_variant_mask] = float('nan')
+        gis_top2[no_variant_mask] = float('nan')
+
+        return gis_sum.cpu().numpy(), gis_max.cpu().numpy(), gis_top2.cpu().numpy()
 
 def get_burdens_array(
     config,
@@ -55,88 +109,80 @@ def get_burdens_array(
     new_anno_df=None,
     max_burden=False,
     only_snps=False,
-    debug=False
+    debug=False,
+    n_jobs=-1,
+    batch_size=100,
+    device="cuda" if torch.cuda.is_available() else "cpu",
 ):
-    maf = config.get("association_testing_maf")
+    maf = config.get("maf_upper_bound")
+
+    print("Loading AnnGeno file")
+    anngeno_file = config.get("anngeno_file")
+    ag = AnnGeno(filename=anngeno_file, filemode="r", low_mem=True)
+
+    print(f"Filtering for variants with MAF < {maf}")
+
+    variants_to_keep_df = ag.annotations.filter((pl.col('MAF') < maf))
+    ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect()['id']))
+
+    if only_snps:
+        print(f"Filtering for SNPs only")
+        snp_variants = ag.annotations.filter(
+            (pl.col("ref").str.len_chars() == 1) & 
+            (pl.col("alt").str.len_chars() == 1)
+        )
+        ag.subset_variants(snp_variants.select(pl.col('id')))
 
     associations_df = pl.read_parquet(associations_df_path)
     if debug:
         print("Debug is True, using only 5 associations")
         associations_df = associations_df.head()
-    genes = associations_df['gene'].unique()
-
-    print("Loading AnnGeno file")
-    anngeno_file = config.get("anngeno_file")
-    ag = AnnGeno(filename=anngeno_file, filemode="r")
-
-    print(f"Filtering for variants with MAF < {maf}")
-
-    # --- MODIFIED LINE START ---
-    # Convert Polars Series to a Python list for direct use in isin() with pandas
-    genes_list = genes.to_list()
-    variants_to_keep_df = ag.annotations[
-        (ag.annotations['MAF'] < maf) & (ag.annotations['region'].isin(genes_list))
-    ]
-    variants_to_keep = set(variants_to_keep_df["id"])
-    # --- MODIFIED LINE END ---
-
-    ag.subset_variants(variants_to_keep)
-
-    if only_snps:
-        print(f"Filtering for SNPs only")
-        # Ensure that `ag.annotations` is still a pandas DataFrame after subsetting
-        snp_variants = set(ag.annotations.query("(ref.str.len()==1) & (alt.str.len()==1)")["id"])
-        ag.subset_variants(snp_variants)
-
-    if new_anno_df is not None:
-        # TODO improve this (subset anngeno)
-        ## CAUTION very hacky and not stable
-        print("Adding annotations to AnnGeno file")
-        # new_cols = list(set(annos.columns) - set(ag.annotations.columns))
-        new_cols = list(set(new_anno_df.columns) - set(ag.annotations.columns))
-        print(f"Adding new annotations to anngeno: {new_cols}")
-        merged = ag.annotations\
-            .merge(new_anno_df[["chrom", "pos", "ref", "alt", "region", *new_cols]], how = "left", on = ["chrom", "pos", "ref", "alt", "region"])
-        ag._set_annotations(merged)
+    genes = associations_df['region'].unique()
 
     gene_id_list = list(genes)
+    valid_genes = [g for g in gene_id_list if g in ag.region_ids]
+    invalid_regions = [g for g in gene_id_list if g not in ag.region_ids]
+    if invalid_regions:
+        print(f"Regions not found. Skipping regions {invalid_regions}")
+
+    # Get regions in batches
+    results = []
+    for batch_genes in tqdm([valid_genes[i:i + batch_size] for i in range(0, len(valid_genes), batch_size)], desc="Loading region batches"):
+        regions_dict = ag.get_many_regions(batch_genes)
+        
+        if device == "cuda":
+            print("Using CUDA for computations.")
+            batch_results = [get_gene_burdens_torch(regions_dict[gene]['genotypes'], regions_dict[gene]['annotations'], annotation_list, max_burden) for gene in tqdm(batch_genes, desc="Getting gene burdens")]
+
+        else:
+            print("Using CPU for computations.")
+            results = Parallel(n_jobs=n_jobs, verbose=10)(
+                delayed(get_gene_burdens)(regions_dict[gene]['genotypes'], regions_dict[gene]['annotations'], annotation_list, max_burden)
+                for gene in tqdm(batch_genes) # tqdm for overall progress
+            )
+        
+        results.extend(batch_results)
+
     gene_burdens_sum = []
     gene_burdens_max = []
-    print(f"Starting to compute gene burdens for {len(genes)} genes")
-    for gene in tqdm(gene_id_list):
-        gis_sum, gis_max = get_gene_burdens(ag, gene, annotation_list, max_burden)
+    gene_burdens_top2 = []
+
+    for gis_sum, gis_max, gis_top2 in results:
         gene_burdens_sum.append(gis_sum)
         if max_burden:
             gene_burdens_max.append(gis_max)
+            gene_burdens_top2.append(gis_top2)
 
     gene_burdens_sum_df = np.stack(gene_burdens_sum, axis=1)  # (n_samples, n_genes, n_annotations)
     if max_burden:
         gene_burdens_max_df = np.stack(gene_burdens_max, axis=1)  # (n_samples, n_genes, n_annotations)
-        print("Returning sum and max burden.")
-        return gene_burdens_sum_df, gene_burdens_max_df, ag.samples, gene_id_list
+        gene_burdens_top2_df = np.stack(gene_burdens_top2, axis=1)  # (n_samples, n_genes, n_annotations)
+        print("Returning burdens: sum, max, and sum of top2")
+        return gene_burdens_sum_df, gene_burdens_max_df, gene_burdens_top2_df, ag.samples, gene_id_list
 
     print("Max burden is False, returning only sum burden.")
-    return gene_burdens_sum_df, gene_burdens_sum_df, ag.samples, gene_id_list
+    return gene_burdens_sum_df, gene_burdens_sum_df, gene_burdens_sum_df, ag.samples, gene_id_list
 
-
-# Example usage
-# To compute burdens based on the config's rare_variant_annotations:
-# compute_and_store_burdens(
-#     config_path="your_config.yaml",
-#     output_zarr="output.zarr",
-#     max_burden=True,
-#     only_snps=True,
-#     overwrite=False,
-# )
-
-# To add new annotations from an annotation scores file:
-# compute_and_store_burdens(
-#     config_path="your_config.yaml",
-#     output_zarr="output.zarr",
-#     anno_scores_path="annotation_scores.parquet",
-#     max_burden=False,
-#     overwrite=False,
-# )
 
 def compute_and_store_burdens(
     config_path,
@@ -157,7 +203,7 @@ def compute_and_store_burdens(
         anno_scores_path (str, optional): Path to a Parquet file containing annotation scores.
                                           If provided, new annotations from this file will be added.
                                           Defaults to None.
-        max_burden (bool, optional): Whether to compute and store the maximum burden.
+        max_burden (bool, optional): Whether to compute and store the maximum and sum(top2) burdens.
                                      Defaults to False.
         only_snps (bool, optional): Whether to consider only SNPs for burden calculation.
                                    Defaults to False.
@@ -183,68 +229,74 @@ def compute_and_store_burdens(
     zarr_file_path = output_zarr
     anno_chunk_size = 1
 
+    if os.path.exists(zarr_file_path) and overwrite:
+        print(f"Overwriting existing Zarr file at {zarr_file_path}.")
+        try:
+            shutil.rmtree(zarr_file_path)
+        except Exception as e:
+            print(f"Error deleting existing Zarr file: {e}")
+            sys.exit(1)
+
     if os.path.exists(zarr_file_path):
-        if overwrite:
-            print(f"Overwriting existing Zarr file at {zarr_file_path}.")
-            try:
-                zarr.rmtree(zarr_file_path)
-            except Exception as e:
-                print(f"Error deleting existing Zarr file: {e}")
+        print(f"Zarr file exists at {zarr_file_path}, checking for new annotations.")
+        try:
+            root = zarr.group(zarr_file_path, mode='r+')
+            sum_burdens = root.get("sum_burdens")
+            zarr_annotations = root.get("annotations")
+            max_burdens = root.get("max_burdens")
+            top2_burdens = root.get("top2_burdens")
+
+            if sum_burdens is None or zarr_annotations is None:
+                print("Existing Zarr file is incomplete. Consider overwriting or creating a new one.")
                 sys.exit(1)
-        else:
-            print(f"Zarr file exists at {zarr_file_path}, checking for new annotations.")
-            try:
-                root = zarr.group(zarr_file_path, mode='r+')
-                sum_burdens = root.get("sum_burdens")
-                zarr_annotations = root.get("annotations")
-                max_burdens = root.get("max_burdens")
 
-                if sum_burdens is None or zarr_annotations is None:
-                    print("Existing Zarr file is incomplete. Consider overwriting or creating a new one.")
-                    sys.exit(1)
+            existing_annotations = list(zarr_annotations[:])
+            new_annotation_list = list(set(all_annotation_list) - set(existing_annotations))
+            union_annotation_list = existing_annotations + new_annotation_list
 
-                existing_annotations = list(zarr_annotations[:])
-                new_annotation_list = list(set(all_annotation_list) - set(existing_annotations))
-                union_annotation_list = existing_annotations + new_annotation_list
+            if new_annotation_list:
+                print(f"New annotations found: {new_annotation_list}")
+                get_burdens_kwargs = {
+                    "config": config,
+                    "associations_df_path": associations_df_path,
+                    "annotation_list": new_annotation_list,
+                    "max_burden": max_burden,
+                    "only_snps": only_snps,
+                    "debug": debug,
+                }
+                if anno_scores_path:
+                    get_burdens_kwargs["new_anno_df"] = anno_scores_df
 
-                if new_annotation_list:
-                    print(f"New annotations found: {new_annotation_list}")
-                    get_burdens_kwargs = {
-                        "config": config,
-                        "associations_df_path": associations_df_path,
-                        "annotation_list": new_annotation_list,
-                        "max_burden": max_burden,
-                        "only_snps": only_snps,
-                        "debug": debug,
-                    }
-                    if anno_scores_path:
-                        get_burdens_kwargs["new_anno_df"] = anno_scores_df
+                new_gene_burdens_sum_df, new_gene_burdens_max_df, new_gene_burdens_top2_df, _, _ = get_burdens_array(**get_burdens_kwargs)
 
-                    new_gene_burdens_sum_df, new_gene_burdens_max_df, _, _ = get_burdens_array(**get_burdens_kwargs)
+                current_shape = sum_burdens.shape
+                new_shape = (current_shape[0], current_shape[1], current_shape[2] + len(new_annotation_list))
+                sum_burdens.resize(new_shape)
+                sum_burdens[:, :, current_shape[2]:] = new_gene_burdens_sum_df
 
-                    current_shape = sum_burdens.shape
-                    new_shape = (current_shape[0], current_shape[1], current_shape[2] + len(new_annotation_list))
-                    sum_burdens.resize(new_shape)
-                    sum_burdens[:, :, current_shape[2]:] = new_gene_burdens_sum_df
+                if max_burden and max_burdens is not None:
+                    print("Max burden is True, appending max_burdens array.")
+                    max_burdens.resize(new_shape)
+                    max_burdens[:, :, current_shape[2]:] = new_gene_burdens_max_df
+                
+                if max_burden and top2_burdens is not None:
+                    print("Max burden is True, appending top2_burdens array.")
+                    top2_burdens.resize(new_shape)
+                    top2_burdens[:, :, current_shape[2]:] = new_gene_burdens_top2_df
 
-                    if max_burden and max_burdens is not None:
-                        print("Max burden is True, appending max_burdens array.")
-                        max_burdens.resize(new_shape)
-                        max_burdens[:, :, current_shape[2]:] = new_gene_burdens_max_df
+                if zarr_annotations is not None:
+                    zarr_annotations_new_shape = (len(union_annotation_list),)
+                    if zarr_annotations.shape != zarr_annotations_new_shape:
+                        zarr_annotations.resize(zarr_annotations_new_shape)
+                    zarr_annotations[:] = union_annotation_list
+                    print("Updated 'annotations' array.")
+                print(f"Appended data for new annotations: {new_annotation_list}")
+            else:
+                print("No new annotations to add.\nExiting.")
 
-                    if zarr_annotations is not None:
-                        zarr_annotations_new_shape = (len(union_annotation_list),)
-                        if zarr_annotations.shape != zarr_annotations_new_shape:
-                            zarr_annotations.resize(zarr_annotations_new_shape)
-                        zarr_annotations[:] = union_annotation_list
-                        print("Updated 'annotations' array.")
-                    print(f"Appended data for new annotations: {new_annotation_list}")
-                else:
-                    print("No new annotations to add.\nExiting.")
-
-            except Exception as e:
-                print(f"Error accessing or updating existing Zarr file: {e}")
-                sys.exit(1)
+        except Exception as e:
+            print(f"Error accessing or updating existing Zarr file: {e}")
+            sys.exit(1)
 
     else:
         print(f"Zarr file does not exist at {zarr_file_path}, creating a new one.")
@@ -259,7 +311,7 @@ def compute_and_store_burdens(
         if anno_scores_path:
             get_burdens_kwargs["new_anno_df"] = anno_scores_df
 
-        gene_burdens_sum_df, gene_burdens_max_df, sample_id_arr, gene_id_list = get_burdens_array(**get_burdens_kwargs)
+        gene_burdens_sum_df, gene_burdens_max_df, gene_burdens_top2_df, sample_id_arr, gene_id_list = get_burdens_array(**get_burdens_kwargs)
 
         try:
             root = zarr.group(zarr_file_path)
@@ -280,10 +332,19 @@ def compute_and_store_burdens(
                     overwrite=overwrite,
                 )[:] = gene_burdens_max_df
 
+                root.create_array(
+                    "top2_burdens",
+                    shape=gene_burdens_top2_df.shape,
+                    dtype=gene_burdens_top2_df.dtype,
+                    chunks=(gene_burdens_top2_df.shape[0], gene_burdens_top2_df.shape[1], anno_chunk_size),
+                    overwrite=overwrite,
+                )[:] = gene_burdens_top2_df
+
             root.create_array("samples", shape=sample_id_arr.shape, dtype="str", overwrite=overwrite)[:] = sample_id_arr
             root.create_array("genes", shape=len(gene_id_list), dtype="str", overwrite=overwrite)[:] = gene_id_list
             root.create_array("annotations", shape=len(all_annotation_list), dtype="str", overwrite=overwrite)[:] = all_annotation_list
-            print("Created new zarr array 'sum_burdens', 'samples', 'genes', and 'annotations'.")
+            
+            print(f"Created new zarr array sum_burdens, {'max_burdens,' if max_burden else ''} samples, genes, and annotations.")
 
         except Exception as e:
             print(f"Error creating new Zarr file: {e}")
@@ -300,7 +361,7 @@ def cli():
 @click.option("--max-burden", is_flag=True, default=False, help="Compute burdens using max scores")
 @click.option("--only-snps", is_flag=True, default=False, help="Use only SNPs to compute burdens")
 @click.option("--overwrite", is_flag=True, default=False, help="Overwrite old zarr file") #TODO
-@click.option("--debug", is_flag=True, default=False, help="Use only 5 associaitons to debug code")
+@click.option("--debug", is_flag=True, default=False, help="Use only 5 associations to debug code")
 def compute_burdens(
     config_path: str,
     output_zarr: str,
