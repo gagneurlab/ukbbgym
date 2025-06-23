@@ -13,6 +13,9 @@ from tqdm import tqdm
 from anngeno import AnnGeno
 from joblib import Parallel, delayed
 
+from numba import njit, prange
+import multiprocessing
+
 def get_gene_burdens(
     region_genotypes,
     region_annotations,
@@ -60,6 +63,71 @@ def get_gene_burdens(
 
     return gis_sum, gis_max, gis_top2
 
+
+@njit(parallel=True)
+def compute_max_and_top2_chunked(var_scores, region_genotypes, chunk_size):
+    n_samples = region_genotypes.shape[1]
+    n_chunks = (n_samples + chunk_size - 1) // chunk_size
+    
+    n_annotations = var_scores.shape[0]
+    max_vals = np.empty((n_samples, n_annotations), dtype=np.float32)
+    top2_sums = np.empty((n_samples, n_annotations), dtype=np.float32)
+
+    for a in tqdm(range(var_scores.shape[0])):
+        for c in prange(n_chunks):
+            start = c * chunk_size
+            end = min(start + chunk_size, n_samples)
+            for s in range(start, end):
+                burden = np.abs(var_scores[a, :] * region_genotypes[:, s])
+                if len(burden) >= 2:
+                    top2 = np.partition(burden, -2)[-2:]
+                    max_vals[s, a] = top2.max()
+                    top2_sums[s, a] = top2.sum()
+                elif len(burden) == 1:
+                    max_vals[s, a] = burden[0]
+                    top2_sums[s, a] = burden[0]
+                else:
+                    max_vals[s, a] = 0.0
+                    top2_sums[s, a] = 0.0
+
+    return max_vals, top2_sums
+
+def get_gene_burdens_numba(
+    region_genotypes,
+    region_annotations,
+    annotation_list, 
+    max_burden=False,
+    chunk_size=None,
+):
+    no_variant_mask = region_genotypes.sum(axis = 0) == 0
+
+    try:
+        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).transpose()  # shape: (annotations, variants)
+    except Exception as e:
+        print(f"Error: {e}\nReturning NaNs.")
+        return np.nan, np.nan, np.nan
+
+    # Calculate sum burden directly
+    gis_sum = np.dot(var_scores, region_genotypes).transpose()  # shape: (samples, annotations)
+    gis_sum[no_variant_mask, :] = np.nan
+    
+    # If max_burden is False, return sum burden
+    if not max_burden:
+        return gis_sum, np.nan, np.nan # Still return a tuple to maintain consistent return type
+    
+    # Determine chunk size if not provided
+    if chunk_size is None:
+        num_cores = multiprocessing.cpu_count()
+        chunk_size = max(1, region_genotypes.shape[1] // (num_cores * 2))
+    
+    print(f"Numba: Computing max and top2sum using chunk size: {chunk_size}")
+    # Compute max + top2 via numba
+    gis_max, gis_top2 = compute_max_and_top2_chunked(var_scores, region_genotypes, chunk_size)
+
+    gis_max[no_variant_mask, :] = np.nan
+    gis_top2[no_variant_mask, :] = np.nan
+
+    return gis_sum, gis_max, gis_top2
 
 def get_gene_burdens_torch(
     region_genotypes,
@@ -151,10 +219,11 @@ def get_burdens_array(
 
         else:
             print("Using CPU for computations.")
-            batch_results = Parallel(n_jobs=n_jobs, verbose=10)(
-                delayed(get_gene_burdens)(regions_dict[gene]['genotypes'], regions_dict[gene]['annotations'], annotation_list, max_burden)
-                for gene in tqdm(batch_genes) # tqdm for overall progress
-            )
+            batch_results = [get_gene_burdens_numba(regions_dict[gene]['genotypes'], regions_dict[gene]['annotations'], annotation_list, max_burden) for gene in tqdm(batch_genes, desc="Getting gene burdens")]
+            # batch_results = Parallel(n_jobs=n_jobs, verbose=10)(
+            #     delayed(get_gene_burdens)(regions_dict[gene]['genotypes'], regions_dict[gene]['annotations'], annotation_list, max_burden)
+            #     for gene in tqdm(batch_genes) # tqdm for overall progress
+            # )
         
         results.extend(batch_results)
 
