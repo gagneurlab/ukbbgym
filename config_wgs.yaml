@@ -1,0 +1,111 @@
+# anngeno_file: /s/project/deeprvat/deeprvat_input/ukb_200k_wes_anngeno.ag
+# associations_df_path: /s/project/deeprvat/ukb_gym/genebass_assocs_33_phenos.parquet
+# prs_pheno_map_file: /s/project/deeprvat/deeprvat_input/prs_pheno_map_clean.csv
+# prs_file: /s/project/deeprvat/deeprvat_input/PRS.parquet
+maf_upper_bound: 0.001
+
+# annotation_file: /s/project/deeprvat/ukb_gym/absplice2/annotations_trait_gym_absplice_max_all.parquet
+phenotypes_for_testing:
+  - Alkaline_phosphatase  
+  - Apolipoprotein_A
+  - Apolipoprotein_B
+  - Calcium
+  - Cholesterol
+  - Creatinine
+  - Red_blood_cell_erythrocyte_count
+  - HDL_cholesterol
+  - IGF_1
+  - LDL_direct
+  - Lymphocyte_percentage
+  - Mean_corpuscular_volume
+  - Mean_reticulocyte_volume
+  - Mean_platelet_thrombocyte_volume
+  - Neutrophill_count
+  - Platelet_count
+  - Platelet_crit
+  - Platelet_distribution_width
+  - SHBG
+  - Standing_height
+  - Triglycerides
+  - Urate
+  - Total_bilirubin
+  - Body_mass_index_BMI
+  - Glucose
+  - Vitamin_D
+  - Albumin
+  - Total_protein
+  - Cystatin_C
+  - Gamma_glutamyltransferase
+  - Whole_body_fat_free_mass
+  - Forced_expiratory_volume_in_1_second_FEV1
+  - Glycated_haemoglobin_HbA1c
+
+covariates: 
+  - age
+  - age2
+  - age_sex
+  - genetic_sex
+  - genetic_PC_1
+  - genetic_PC_2
+  - genetic_PC_3
+  - genetic_PC_4
+  - genetic_PC_5
+  - genetic_PC_6
+  - genetic_PC_7
+  - genetic_PC_8
+  - genetic_PC_9
+  - genetic_PC_10
+  - genetic_PC_11
+  - genetic_PC_12
+  - genetic_PC_13
+  - genetic_PC_14
+  - genetic_PC_15
+  - genetic_PC_16
+  - genetic_PC_17
+  - genetic_PC_18
+  - genetic_PC_19
+  - genetic_PC_20
+
+rare_variant_annotations:
+  plof:
+    - is_plof
+    - loftee_hc
+    - loftee_lc
+    - Consequence_frameshift_variant
+    - Consequence_start_lost
+    - Consequence_start_lost_next_in_frame
+    - Consequence_stop_gained
+    - Consequence_stop_lost
+    - Consequence_splice_acceptor_variant
+    - Consequence_splice_donor_variant
+    - CADD_PHRED
+    - CADD_raw
+  missense:
+    - alphamissense
+    - PrimateAI_score
+    - sift_score
+    - Consequence_missense_variant
+    - Consequence_protein_altering_variant
+  splicing:
+    - Consequence_splice_region_variant
+    - SpliceAI_delta_score
+    - AbSplice_DNA
+    # - AbSplice2_max
+    # - pangolin_score
+  regulatory:
+    - influence_score_downstream
+    - influence_score_upstream
+    - GPN_MSA_score
+    - abexp_min_with_testis_score
+    - abexp_min_wo_testis_score
+    - condel_score
+    - polyphen_score
+    # - flashzoi_abs_max
+    # - flashzoi_abs_mean
+    # - flashzoi_mean
+  misc:
+    - AFbeta_ukb
+    # - MAFmb
+    - relative_cds_position
+    - Consequence_inframe_deletion
+    - Consequence_inframe_insertion
