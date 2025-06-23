@@ -65,7 +65,7 @@ def get_gene_burdens(
 
 
 @njit(parallel=True)
-def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size):
+def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask):
     n_variants, n_samples = region_genotypes.shape
     n_chunks = (n_samples + chunk_size - 1) // chunk_size
 
@@ -76,6 +76,12 @@ def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size):
         start = c * chunk_size
         end = min(start + chunk_size, n_samples)
         for s in range(start, end):
+            if no_variant_mask[s]:
+                    # Skip computation, set NaN
+                    max_vals[s] = np.nan
+                    top2_sums[s] = np.nan
+                    continue
+            
             burden = np.abs(score_vec * region_genotypes[:, s])
             if len(burden) >= 2:
                 top2 = np.partition(burden, -2)[-2:]
@@ -97,7 +103,7 @@ def get_gene_burdens_numba(
     max_burden=False,
     chunk_size=None,
 ):
-    no_variant_mask = region_genotypes.sum(axis = 0) == 0
+    no_variant_mask = region_genotypes.sum(axis = 0) == 0 # (samples, )
 
     try:
         var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).transpose()  # shape: (annotations, variants)
@@ -124,7 +130,7 @@ def get_gene_burdens_numba(
     gis_top2_sum_list = []
     for a in tqdm(range(var_scores.shape[0])):
         score_vec = var_scores[a, :]
-        max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size)
+        max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask)
         gis_max_list.append(max_vals)
         gis_top2_sum_list.append(top2_sum)
 
