@@ -69,11 +69,11 @@ def get_gene_burdens_torch(
     device="cuda"
 ):
     with torch.no_grad():
-        G = torch.tensor(region_genotypes, dtype=torch.float32, device=device)  # (samples, variants)
-        A = torch.tensor(region_annotations[annotation_list].fill_nan(0).to_numpy(), dtype=torch.float32, device=device)  # (variants, annotations)
+        G = torch.tensor(region_genotypes, dtype=torch.float32, device=device)  # (variants, samples)
+        A = torch.tensor(region_annotations[annotation_list].fill_nan(0).to_numpy(), dtype=torch.float32, device=device).transpose(0,1)  # (annotations, variants)
 
-        no_variant_mask = G.sum(dim=1) == 0
-        gis_sum = (G @ A)
+        no_variant_mask = G.sum(dim=0) == 0
+        gis_sum = (A @ G).transpose(0,1) # shape: (samples, annotations)
         gis_sum[no_variant_mask] = float('nan')
 
         if not max_burden:
@@ -82,18 +82,18 @@ def get_gene_burdens_torch(
         gis_max = []
         gis_top2 = []
 
-        for a in range(A.shape[1]):
-            scores = torch.abs(G * A[:, a])  # (samples, variants)
+        for a in range(A.shape[0]):
+            scores = torch.abs(A[a, :] * G)  # (variants, samples)
             scores[G == 0] = float('-inf')
 
-            top2_vals, _ = torch.topk(scores, k=2, dim=1, largest=True, sorted=False)
-            gis_max.append(torch.max(top2_vals, dim=1).values)
-            gis_top2.append(top2_vals.sum(dim=1))
+            top2_vals, _ = torch.topk(scores, k=2, dim=0, largest=True, sorted=False)  # (k, samples)
+            gis_max.append(torch.max(top2_vals, dim=0).values)
+            gis_top2.append(top2_vals.sum(dim=0))
 
             torch.cuda.empty_cache()
             
-        gis_max = torch.stack(gis_max, dim=1)
-        gis_top2 = torch.stack(gis_top2, dim=1)
+        gis_max = torch.stack(gis_max, dim=0).transpose(0,1)   # (samples, annotations)
+        gis_top2 = torch.stack(gis_top2, dim=0).transpose(0,1) # (samples, annotations)
 
         gis_max[no_variant_mask] = float('nan')
         gis_top2[no_variant_mask] = float('nan')
