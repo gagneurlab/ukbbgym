@@ -103,8 +103,9 @@ def get_gene_burdens_torch(
         return gis_sum.cpu().numpy(), gis_max.cpu().numpy(), gis_top2.cpu().numpy()
 
 def get_burdens_array(
-    config,
+    anngeno_path,   
     associations_df_path,
+    maf,
     annotation_list,
     new_anno_df=None,
     max_burden=False,
@@ -114,14 +115,10 @@ def get_burdens_array(
     n_jobs=32,
     device="cuda" if torch.cuda.is_available() else "cpu",
 ):
-    maf = config.get("maf_upper_bound")
-
     print("Loading AnnGeno file")
-    anngeno_file = config.get("anngeno_file")
-    ag = AnnGeno(filename=anngeno_file, filemode="r", low_mem=True)
-
+    ag = AnnGeno(filename=anngeno_path, filemode="r", low_mem=True)
+    
     print(f"Filtering for variants with MAF < {maf}")
-
     variants_to_keep_df = ag.annotations.filter((pl.col('MAF') < maf))
     ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect()['id']))
 
@@ -217,7 +214,6 @@ def compute_and_store_burdens(
 
     associations_df_path = config.get("associations_df_path")
     all_annotation_list = []
-
     if anno_scores_path:
         anno_scores_df = pl.read_parquet(anno_scores_path)
         available_annotations = list(set(anno_scores_df.columns) - set(["chrom", "pos", "ref", "alt", "region"]))
@@ -259,8 +255,9 @@ def compute_and_store_burdens(
             if new_annotation_list:
                 print(f"New annotations found: {new_annotation_list}")
                 get_burdens_kwargs = {
-                    "config": config,
+                    "anngeno_path": config.get("anngeno_file"),
                     "associations_df_path": associations_df_path,
+                    "maf": config.get("maf_upper_bound"),
                     "annotation_list": new_annotation_list,
                     "max_burden": max_burden,
                     "only_snps": only_snps,
