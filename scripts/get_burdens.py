@@ -151,7 +151,7 @@ def get_burdens_array(
 
         else:
             print("Using CPU for computations.")
-            results = Parallel(n_jobs=n_jobs, verbose=10)(
+            batch_results = Parallel(n_jobs=n_jobs, verbose=10)(
                 delayed(get_gene_burdens)(regions_dict[gene]['genotypes'], regions_dict[gene]['annotations'], annotation_list, max_burden)
                 for gene in tqdm(batch_genes) # tqdm for overall progress
             )
