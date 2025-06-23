@@ -65,30 +65,28 @@ def get_gene_burdens(
 
 
 @njit(parallel=True)
-def compute_max_and_top2_chunked(var_scores, region_genotypes, chunk_size):
-    n_samples = region_genotypes.shape[1]
+def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size):
+    n_variants, n_samples = region_genotypes.shape
     n_chunks = (n_samples + chunk_size - 1) // chunk_size
-    
-    n_annotations = var_scores.shape[0]
-    max_vals = np.empty((n_samples, n_annotations), dtype=np.float32)
-    top2_sums = np.empty((n_samples, n_annotations), dtype=np.float32)
 
-    for a in tqdm(range(var_scores.shape[0])):
-        for c in prange(n_chunks):
-            start = c * chunk_size
-            end = min(start + chunk_size, n_samples)
-            for s in range(start, end):
-                burden = np.abs(var_scores[a, :] * region_genotypes[:, s])
-                if len(burden) >= 2:
-                    top2 = np.partition(burden, -2)[-2:]
-                    max_vals[s, a] = top2.max()
-                    top2_sums[s, a] = top2.sum()
-                elif len(burden) == 1:
-                    max_vals[s, a] = burden[0]
-                    top2_sums[s, a] = burden[0]
-                else:
-                    max_vals[s, a] = 0.0
-                    top2_sums[s, a] = 0.0
+    max_vals = np.empty(n_samples, dtype=np.float32)
+    top2_sums = np.empty(n_samples, dtype=np.float32)
+
+    for c in prange(n_chunks):
+        start = c * chunk_size
+        end = min(start + chunk_size, n_samples)
+        for s in range(start, end):
+            burden = np.abs(score_vec * region_genotypes[:, s])
+            if len(burden) >= 2:
+                top2 = np.partition(burden, -2)[-2:]
+                max_vals[s] = top2.max()
+                top2_sums[s] = top2.sum()
+            elif len(burden) == 1:
+                max_vals[s] = burden[0]
+                top2_sums[s] = burden[0]
+            else:
+                max_vals[s] = 0.0
+                top2_sums[s] = 0.0
 
     return max_vals, top2_sums
 
@@ -122,7 +120,16 @@ def get_gene_burdens_numba(
     
     print(f"Numba: Computing max and top2sum using chunk size: {chunk_size}")
     # Compute max + top2 via numba
-    gis_max, gis_top2 = compute_max_and_top2_chunked(var_scores, region_genotypes, chunk_size)
+    gis_max_list = []
+    gis_top2_sum_list = []
+    for a in tqdm(range(var_scores.shape[0])):
+        score_vec = var_scores[a, :]
+        max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size)
+        gis_max_list.append(max_vals)
+        gis_top2_sum_list.append(top2_sum)
+
+    gis_max = np.stack(gis_max_list, axis=0).T         # (samples, annotations)
+    gis_top2 = np.stack(gis_top2_sum_list, axis=0).T   # (samples, annotations)
 
     gis_max[no_variant_mask, :] = np.nan
     gis_top2[no_variant_mask, :] = np.nan
