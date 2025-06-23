@@ -28,10 +28,8 @@ def get_gene_burdens(
         print(f"Error: {e}\nReturning NaNs.")
         return np.nan, np.nan, np.nan
 
-    print(var_scores.shape, region_genotypes.shape)
     # Calculate sum burden directly
     gis_sum = np.dot(var_scores, region_genotypes).transpose()  # shape: (samples, annotations)
-    print(gis_sum.shape, no_variant_mask.shape)
     gis_sum[no_variant_mask, :] = np.nan
 
     # If max_burden is False, return sum burden
@@ -41,7 +39,6 @@ def get_gene_burdens(
     gis_max_list = []
     gis_top2_sum_list = []
     for a in range(var_scores.shape[0]):
-        print(np.expand_dims(var_scores[a, :], axis=1).shape, region_genotypes.shape)
         burden = np.abs(np.expand_dims(var_scores[a, :], axis=1) * region_genotypes)  # shape: (variants, samples)
 
         # Get top-k values per sample
