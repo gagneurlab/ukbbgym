@@ -20,40 +20,42 @@ def get_gene_burdens(
     max_burden=False
 ):
 
-    no_variant_mask = region_genotypes.sum(axis = 1) == 0
+    no_variant_mask = region_genotypes.sum(axis = 0) == 0
 
     try:
-        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32)
+        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).transpose()  # shape: (annotations, variants)
     except Exception as e:
         print(f"Error: {e}\nReturning NaNs.")
         return np.nan, np.nan, np.nan
-    
+
+    print(var_scores.shape, region_genotypes.shape)
     # Calculate sum burden directly
-    gis_sum = np.dot(region_genotypes, var_scores)
+    gis_sum = np.dot(var_scores, region_genotypes).transpose()  # shape: (samples, annotations)
+    print(gis_sum.shape, no_variant_mask.shape)
     gis_sum[no_variant_mask, :] = np.nan
 
     # If max_burden is False, return sum burden
     if not max_burden:
         return gis_sum, np.nan, np.nan # Still return a tuple to maintain consistent return type
     
-    gis_max = []
-    gis_top2_sum = []
-    for a in range(var_scores.shape[1]):
-        burden = np.abs(region_genotypes * var_scores[:, a])  # shape: (samples, variants)
+    gis_max_list = []
+    gis_top2_sum_list = []
+    for a in range(var_scores.shape[0]):
+        print(np.expand_dims(var_scores[a, :], axis=1).shape, region_genotypes.shape)
+        burden = np.abs(np.expand_dims(var_scores[a, :], axis=1) * region_genotypes)  # shape: (variants, samples)
 
         # Get top-k values per sample
-        top2 = np.partition(burden, -2, axis=1)[:, -2:]  # shape: (samples, k)
+        top2 = np.partition(burden, -2, axis=0)[-2:, :]  # shape: (k, samples)
 
         # Compute max (top-1) and sum of top-k
-        max_vals = np.max(top2, axis=1)
-        # max_vals = top2[:, -1]  # Get the maximum value (top-1)
-        top2_sum = np.sum(top2, axis=1)
+        max_vals = np.max(top2, axis=0)
+        top2_sum = np.sum(top2, axis=0)
 
-        gis_max.append(max_vals)
-        gis_top2_sum.append(top2_sum)
+        gis_max_list.append(max_vals)
+        gis_top2_sum_list.append(top2_sum)
 
-    gis_max = np.stack(gis_max, axis=1)    # shape: (samples, annotations)
-    gis_top2 = np.stack(gis_top2_sum, axis=1)
+    gis_max = np.stack(gis_max_list, axis=0).transpose()    # shape: (samples, annotations)
+    gis_top2 = np.stack(gis_top2_sum_list, axis=0).transpose()
     
     # Handle no-variant case
     gis_max[no_variant_mask, :] = np.nan
