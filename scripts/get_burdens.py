@@ -110,8 +110,8 @@ def get_burdens_array(
     max_burden=False,
     only_snps=False,
     debug=False,
-    n_jobs=-1,
-    batch_size=100,
+    batch_size=32,
+    n_jobs=32,
     device="cuda" if torch.cuda.is_available() else "cpu",
 ):
     maf = config.get("maf_upper_bound")
@@ -192,6 +192,8 @@ def compute_and_store_burdens(
     only_snps=False,
     overwrite=False,
     debug=False,
+    batch_size=32,
+    n_jobs=32,
 ):
     """
     Computes and stores variant burdens in a Zarr array, handling both initial creation
@@ -263,6 +265,8 @@ def compute_and_store_burdens(
                     "max_burden": max_burden,
                     "only_snps": only_snps,
                     "debug": debug,
+                    "batch_size": batch_size,
+                    "n_jobs": n_jobs,
                 }
                 if anno_scores_path:
                     get_burdens_kwargs["new_anno_df"] = anno_scores_df
@@ -307,6 +311,8 @@ def compute_and_store_burdens(
             "max_burden": max_burden,
             "only_snps": only_snps,
             "debug": debug,
+            "batch_size": batch_size,
+            "n_jobs": n_jobs,
         }
         if anno_scores_path:
             get_burdens_kwargs["new_anno_df"] = anno_scores_df
@@ -369,6 +375,8 @@ def compute_burdens(
     only_snps: bool = False,
     overwrite: bool = False,
     debug: bool = False,
+    batch_size: int = 32,
+    n_jobs: int = 32,
 ):
     print('You are running the script to compute gene burdens')
 
@@ -378,7 +386,9 @@ def compute_burdens(
         max_burden=max_burden,
         only_snps=only_snps,
         overwrite=overwrite,
-        debug=debug
+        debug=debug,
+        batch_size=batch_size,
+        n_jobs=n_jobs,
     )
 
     print('Gene burdens have been computed and stored')
