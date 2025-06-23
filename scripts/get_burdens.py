@@ -26,8 +26,7 @@ def get_gene_burdens(
         var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32)
     except Exception as e:
         print(f"Error: {e}\nReturning NaNs.")
-        nan_gis = np.zeros((len(region_genotypes), len(annotation_list))) * np.nan
-        return nan_gis, nan_gis
+        return np.nan, np.nan, np.nan
     
     # Calculate sum burden directly
     gis_sum = np.dot(region_genotypes, var_scores)
@@ -35,7 +34,7 @@ def get_gene_burdens(
 
     # If max_burden is False, return sum burden
     if not max_burden:
-        return gis_sum, np.nan # Still return a tuple to maintain consistent return type
+        return gis_sum, np.nan, np.nan # Still return a tuple to maintain consistent return type
     
     gis_max = []
     gis_top2_sum = []
