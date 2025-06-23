@@ -119,7 +119,7 @@ def get_burdens_array(
     ag = AnnGeno(filename=anngeno_path, filemode="r", low_mem=True)
     
     print(f"Filtering for variants with MAF < {maf}")
-    variants_to_keep_df = ag.annotations.filter((pl.col('MAF') < maf))
+    variants_to_keep_df = ag.annotations.filter((pl.col('AF_ukb') < maf))
     ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect()['id']))
 
     if only_snps:
@@ -134,7 +134,7 @@ def get_burdens_array(
     if debug:
         print("Debug is True, using only 5 associations")
         associations_df = associations_df.head()
-    genes = associations_df['region'].unique()
+    genes = associations_df['gene_id'].unique()
 
     gene_id_list = list(genes)
     valid_genes = [g for g in gene_id_list if g in ag.region_ids]
