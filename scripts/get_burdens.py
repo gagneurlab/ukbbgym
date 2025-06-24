@@ -1,4 +1,5 @@
 import os
+import gc
 import sys
 import yaml
 import zarr
@@ -133,6 +134,9 @@ def get_gene_burdens_numba(
         max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask)
         gis_max_list.append(max_vals)
         gis_top2_sum_list.append(top2_sum)
+        
+        del max_vals, top2_sum
+        gc.collect()
 
     gis_max = np.stack(gis_max_list, axis=0).T         # (samples, annotations)
     gis_top2 = np.stack(gis_top2_sum_list, axis=0).T   # (samples, annotations)
@@ -223,27 +227,23 @@ def get_burdens_array(
 
     # Get regions in batches
     results = []
-    for batch_genes in tqdm([valid_genes[i:i + batch_size] for i in range(0, len(valid_genes), batch_size)], desc="Loading region batches"):
+    for batch_genes in tqdm([valid_genes[i:i + batch_size] for i in range(0, len(valid_genes), batch_size)]):
         regions_dict = ag.get_many_regions(batch_genes)
         
         if device == "cuda":
             print("Using CUDA for computations.")
             batch_results = [get_gene_burdens_torch(regions_dict[gene]['genotypes'], regions_dict[gene]['annotations'], annotation_list, max_burden) for gene in tqdm(batch_genes, desc="Getting gene burdens")]
+            results.extend(batch_results)
 
         else:
             print("Using CPU for computations.")
-            batch_results = [get_gene_burdens_numba(regions_dict[gene]['genotypes'], regions_dict[gene]['annotations'], annotation_list, max_burden) for gene in tqdm(batch_genes, desc="Getting gene burdens")]
-            # batch_results = Parallel(n_jobs=n_jobs, verbose=10)(
-            #     delayed(get_gene_burdens)(regions_dict[gene]['genotypes'], regions_dict[gene]['annotations'], annotation_list, max_burden)
-            #     for gene in tqdm(batch_genes) # tqdm for overall progress
-            # )
-        
-        results.extend(batch_results)
+            for gene in tqdm(batch_genes, desc="Getting gene burdens"):
+                results.append(get_gene_burdens_numba(regions_dict[gene]['genotypes'], regions_dict[gene]['annotations'], annotation_list, max_burden))
+                gc.collect()
 
     gene_burdens_sum = []
     gene_burdens_max = []
     gene_burdens_top2 = []
-
     for gis_sum, gis_max, gis_top2 in results:
         gene_burdens_sum.append(gis_sum)
         if max_burden:
