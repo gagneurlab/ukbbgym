@@ -134,6 +134,7 @@ def compute_and_store_burdens(
     associations_df_path,
     output_zarr,
     only_snps=False,
+    sample_set=None,
     gene_batch_size=2,
     device="cpu",
 ):
@@ -159,6 +160,10 @@ def compute_and_store_burdens(
             (pl.col("alt").str.len_chars() == 1)
         )
         ag.subset_variants(snp_variants.select(pl.col('id')))
+    
+    if sample_set:
+        print(f"Filtering for samples. Restricting to {len(sample_set)} samples")
+        ag.subset_samples(sample_set)
 
     all_annotation_list = []
     rare_variant_annotations_dict = config.get('rare_variant_annotations')
