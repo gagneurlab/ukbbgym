@@ -192,7 +192,7 @@ def compute_and_store_burdens(
         gene_offset = sum_burdens.shape[1]
         genes_completed = zarr_root["genes"][:]
         valid_genes = set(valid_genes) - set(genes_completed)  # Remove already processed genes
-        print(f"Genes completed in existing zarr: {len(genes_completed)}\n Extending with {len(valid_genes)} new genes")
+        print(f"Genes completed in existing zarr: {len(genes_completed)}\nExtending with {len(valid_genes)} new genes")
 
         # Handle annotation extension if needed
         if n_annos > sum_burdens.shape[2]:
