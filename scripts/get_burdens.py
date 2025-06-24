@@ -103,7 +103,6 @@ def get_burdens_array_streaming(
     anngeno,
     gene_id_list,
     annotation_list,
-    gene_batch_size=2,
     max_burden=True,
     device="cpu",
 ):
@@ -111,23 +110,20 @@ def get_burdens_array_streaming(
     Generator yielding (gene, sum_burden, max_burden, top2_burden) for each gene.
     """
 
-    for i in tqdm(range(0, len(gene_id_list), gene_batch_size)):
-        batch_genes = gene_id_list[i : i + gene_batch_size]
-        regions_dict = anngeno.get_many_regions(batch_genes)
-
-        for gene in batch_genes:
-            burdens = get_gene_burdens_numba(
-                regions_dict[gene]["genotypes"],
-                regions_dict[gene]["annotations"],
-                annotation_list=annotation_list,
-                max_burden=True,
-            )
-            yield gene, *burdens
-            del burdens
-            gc.collect()
-        
-        del regions_dict
+    for gene in gene_id_list:
+        region = anngeno.get_region(gene)
+        burdens = get_gene_burdens_numba(
+            region["genotypes"],
+            region["annotations"],
+            annotation_list=annotation_list,
+            max_burden=True,
+        )
+        yield gene, *burdens
+        del burdens
         gc.collect()
+    
+    del regions_dict
+    gc.collect()
 
 def compute_and_store_burdens(
     config_path,
@@ -259,7 +255,7 @@ def compute_and_store_burdens(
 
         # TODO fix new annotations logic (in the for loop)
         for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
-            ag, valid_genes, all_annotation_list, gene_batch_size, device
+            ag, valid_genes, all_annotation_list, device
         ):
             idx = gene_idx_map[gene]
             sum_burdens[:, idx, :] = s_burden
