@@ -8,62 +8,14 @@ import shutil
 import pandas as pd
 import polars as pl
 import numpy as np
+from numcodecs import Blosc
 
-import torch
 from tqdm import tqdm
 from anngeno import AnnGeno
 from joblib import Parallel, delayed
 
 from numba import njit, prange
 import multiprocessing
-
-def get_gene_burdens(
-    region_genotypes,
-    region_annotations,
-    annotation_list, 
-    max_burden=False
-):
-
-    no_variant_mask = region_genotypes.sum(axis = 0) == 0
-
-    try:
-        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).transpose()  # shape: (annotations, variants)
-    except Exception as e:
-        print(f"Error: {e}\nReturning NaNs.")
-        return np.nan, np.nan, np.nan
-
-    # Calculate sum burden directly
-    gis_sum = np.dot(var_scores, region_genotypes).transpose()  # shape: (samples, annotations)
-    gis_sum[no_variant_mask, :] = np.nan
-
-    # If max_burden is False, return sum burden
-    if not max_burden:
-        return gis_sum, np.nan, np.nan # Still return a tuple to maintain consistent return type
-    
-    gis_max_list = []
-    gis_top2_sum_list = []
-    for a in range(var_scores.shape[0]):
-        burden = np.abs(np.expand_dims(var_scores[a, :], axis=1) * region_genotypes)  # shape: (variants, samples)
-
-        # Get top-k values per sample
-        top2 = np.partition(burden, -2, axis=0)[-2:, :]  # shape: (k, samples)
-
-        # Compute max (top-1) and sum of top-k
-        max_vals = np.max(top2, axis=0)
-        top2_sum = np.sum(top2, axis=0)
-
-        gis_max_list.append(max_vals)
-        gis_top2_sum_list.append(top2_sum)
-
-    gis_max = np.stack(gis_max_list, axis=0).transpose()    # shape: (samples, annotations)
-    gis_top2 = np.stack(gis_top2_sum_list, axis=0).transpose()
-    
-    # Handle no-variant case
-    gis_max[no_variant_mask, :] = np.nan
-    gis_top2[no_variant_mask, :] = np.nan
-
-    return gis_sum, gis_max, gis_top2
-
 
 @njit(parallel=True)
 def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask):
@@ -146,45 +98,6 @@ def get_gene_burdens_numba(
 
     return gis_sum, gis_max, gis_top2
 
-def get_gene_burdens_torch(
-    region_genotypes,
-    region_annotations,
-    annotation_list,
-    max_burden=False,
-    device="cuda"
-):
-    with torch.no_grad():
-        G = torch.tensor(region_genotypes, dtype=torch.float32, device=device)  # (variants, samples)
-        A = torch.tensor(region_annotations[annotation_list].fill_nan(0).to_numpy(), dtype=torch.float32, device=device).transpose(0,1)  # (annotations, variants)
-
-        no_variant_mask = G.sum(dim=0) == 0
-        gis_sum = (A @ G).transpose(0,1) # shape: (samples, annotations)
-        gis_sum[no_variant_mask] = float('nan')
-
-        if not max_burden:
-            return gis_sum.cpu().numpy(), None, None
-
-        gis_max = []
-        gis_top2 = []
-
-        for a in range(A.shape[0]):
-            scores = torch.abs(A[a, :] * G)  # (variants, samples)
-            scores[G == 0] = float('-inf')
-
-            top2_vals, _ = torch.topk(scores, k=2, dim=0, largest=True, sorted=False)  # (k, samples)
-            gis_max.append(torch.max(top2_vals, dim=0).values)
-            gis_top2.append(top2_vals.sum(dim=0))
-
-            torch.cuda.empty_cache()
-            
-        gis_max = torch.stack(gis_max, dim=0).transpose(0,1)   # (samples, annotations)
-        gis_top2 = torch.stack(gis_top2, dim=0).transpose(0,1) # (samples, annotations)
-
-        gis_max[no_variant_mask] = float('nan')
-        gis_top2[no_variant_mask] = float('nan')
-
-        return gis_sum.cpu().numpy(), gis_max.cpu().numpy(), gis_top2.cpu().numpy()
-
 def get_burdens_array(
     anngeno_path,   
     associations_df_path,
@@ -259,7 +172,6 @@ def get_burdens_array(
 
     print("Max burden is False, returning only sum burden.")
     return gene_burdens_sum_df, gene_burdens_sum_df, gene_burdens_sum_df, ag.samples, gene_id_list
-
 
 def compute_and_store_burdens(
     config_path,
