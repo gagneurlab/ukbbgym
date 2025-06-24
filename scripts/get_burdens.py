@@ -195,7 +195,8 @@ def compute_and_store_burdens(
 
         # Handle annotation extension if needed
         if n_annos > sum_burdens.shape[2]:
-            new_annos = n_annos - sum_burdens.shape[2]
+            # new_annos = n_annos - sum_burdens.shape[2]
+            new_annos = set(all_annotation_list) - set(zarr_root["annotations"][:])
             sum_burdens.resize((n_samples, sum_burdens.shape[1], n_annos))
             max_burdens.resize((n_samples, max_burdens.shape[1], n_annos))
             top2_burdens.resize((n_samples, top2_burdens.shape[1], n_annos))
@@ -203,7 +204,8 @@ def compute_and_store_burdens(
             # Extend annotation array
             annotations_ds = zarr_root["annotations"]
             annotations_ds.resize(n_annos)
-            annotations_ds[-new_annos:] = np.array(all_annotation_list[-new_annos:], dtype="U50")
+            # TODO fix new annotations logic (even in the for loop below)
+            annotations_ds[-new_annos:] = np.array(all_annotation_list[-len(new_annos):], dtype="U50")
 
         sum_burdens.resize((n_samples, gene_offset + n_genes, n_annos))
         max_burdens.resize((n_samples, gene_offset + n_genes, n_annos))
@@ -236,28 +238,32 @@ def compute_and_store_burdens(
         zarr_root.create_array("annotations", shape=(n_annos,), chunks=(n_annos,), dtype="U50")
         zarr_root.create_array("genes", shape=(n_genes,), chunks=(1,), dtype="U50")
         gene_offset = 0
-
-    # Fill in annotations
-    zarr_root["samples"][:] = sample_ids
-    zarr_root["annotations"][:] = np.array(all_annotation_list, dtype="U50")
-
-    # Fill in gene_ids
-    gene_array = zarr_root["genes"]
-    gene_array.resize(gene_offset + n_genes)
-    gene_array[gene_offset:] = valid_genes
-
-    gene_idx_map = {g: gene_offset + i for i, g in enumerate(valid_genes)}
-
-    for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
-        ag, valid_genes, all_annotation_list, gene_batch_size, device
-    ):
-        idx = gene_idx_map[gene]
-        sum_burdens[:, idx, :] = s_burden
-        max_burdens[:, idx, :] = m_burden
-        top2_burdens[:, idx, :] = t2_burden
-        gc.collect()
     
-    print(f"Stored burdens for {n_genes} genes in Zarr at {output_zarr}")
+    # If there are no new valid genes or no new annotations, we can skip the computation
+    if len(valid_genes) > 0:
+        # Fill in annotations
+        zarr_root["samples"][:] = sample_ids
+        zarr_root["annotations"][:] = np.array(all_annotation_list, dtype="U50")
+
+        # Fill in gene_ids
+        gene_array = zarr_root["genes"]
+        if gene_offset > 0:
+            gene_array.resize(gene_offset + n_genes)
+
+        gene_idx_map = {g: gene_offset + i for i, g in enumerate(valid_genes)}
+
+        # TODO fix new annotations logic (in the for loop)
+        for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
+            ag, valid_genes, all_annotation_list, gene_batch_size, device
+        ):
+            idx = gene_idx_map[gene]
+            sum_burdens[:, idx, :] = s_burden
+            max_burdens[:, idx, :] = m_burden
+            top2_burdens[:, idx, :] = t2_burden
+            gene_array[gene_offset + idx] = gene  # Update gene array
+            gc.collect()
+        
+        print(f"Stored burdens for {n_genes} genes in Zarr at {output_zarr}")
 
 
 
