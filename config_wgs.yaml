@@ -1,8 +1,8 @@
-# anngeno_file: PATH_TO_FILE
+anngeno_file: PATH_TO_FILE
 # associations_df_path: PATH_TO_FILE
 # prs_pheno_map_file: PATH_TO_FILE
 # prs_file: PATH_TO_FILE
-maf_upper_bound: 0.001
+maf: 0.001
 
 # annotation_file: PATH_TO_FILE
 phenotypes_for_testing:
