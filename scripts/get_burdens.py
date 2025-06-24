@@ -133,6 +133,7 @@ def compute_and_store_burdens(
     config_path,
     associations_df_path,
     output_zarr,
+    only_snps=False,
     gene_batch_size=2,
     device="cpu",
 ):
@@ -150,13 +151,21 @@ def compute_and_store_burdens(
     print(f"Filtering for variants with MAF < {maf}")
     variants_to_keep_df = ag.annotations.filter((pl.col('AF_ukb') < maf))
     ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect ()['id']))
+    
+    if only_snps:
+        print(f"Filtering for SNPs only")
+        snp_variants = ag.annotations.filter(
+            (pl.col("ref").str.len_chars() == 1) & 
+            (pl.col("alt").str.len_chars() == 1)
+        )
+        ag.subset_variants(snp_variants.select(pl.col('id')))
 
     all_annotation_list = []
     rare_variant_annotations_dict = config.get('rare_variant_annotations')
     if rare_variant_annotations_dict:
         for category in rare_variant_annotations_dict.values():
             all_annotation_list.extend(category)
-    all_annotation_list = list(set(all_annotation_list).intersection(set(ag.annotations.columns)))  # Ensure unique annotations are present in the AnnGeno object
+    all_annotation_list = list(set(all_annotation_list).intersection(set(ag.annotations.collect_schema().names())))  # Ensure unique annotations are present in the AnnGeno object
     n_annos = len(all_annotation_list)
 
     associations_df = pl.read_parquet(associations_df_path)
