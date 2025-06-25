@@ -106,25 +106,25 @@ def get_burdens_array_streaming(
     Generator yielding (gene, sum_burden, max_burden, top2_burden) for each gene.
     """
     
-    for i in tqdm(range(0, len(gene_id_list), gene_chunk_size)):
-        batch_genes = gene_id_list[i : i + gene_chunk_size]
-        regions_dict = anngeno.get_many_regions(
-            regions=batch_genes, 
-            sample_slice=sample_slice,
-            )
+    # for i in tqdm(range(0, len(gene_id_list), gene_chunk_size)):
+    #     batch_genes = gene_id_list[i : i + gene_chunk_size]
+    #     regions_dict = anngeno.get_many_regions(
+    #         regions=batch_genes, 
+    #         sample_slice=sample_slice,
+    #         )
 
-        for gene in batch_genes:
-            burdens = get_gene_burdens_numba(
-                regions_dict[gene]["genotypes"],
-                regions_dict[gene]["annotations"],
-                annotation_list=annotation_list,
-                max_burden=True,
-            )
-            yield gene, *burdens
-            del burdens
-            gc.collect()
-        del regions_dict
+    for gene in batch_genes:
+        burdens = get_gene_burdens_numba(
+            regions_dict[gene]["genotypes"],
+            regions_dict[gene]["annotations"],
+            annotation_list=annotation_list,
+            max_burden=True,
+        )
+        yield gene, *burdens
+        del burdens
         gc.collect()
+    # del regions_dict
+    # gc.collect()
 
 def compute_and_store_burdens(
     config_path,
@@ -243,23 +243,40 @@ def compute_and_store_burdens(
     annotation_idx_map = {a: i for i, a in enumerate(all_annotations_combined)}
 
     for anno in tqdm(all_annotations_combined):
-        # FIx this
-        for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
-            ag,
-            list(valid_genes),
-            anno,
-            gene_chunk_size=gene_chunk_size,
-            sample_chunk_size=sample_chunk_size,  # pass as slice
-            device=device,
-        ):
-            idx = annotation_idx_map[gene]
-            sum_burdens[:, :, idx] = s_burden
-            max_burdens[:, :, idx] = m_burden
-            top2_burdens[:, :, idx] = t2_burden
-
-            annotation_array[idx] = anno
-
-        gc.collect()
+        # TODO: Fix this
+        for i in tqdm(range(0, len(gene_id_list), gene_chunk_size)):
+            batch_genes = gene_id_list[i : i + gene_chunk_size]
+            regions_dict = anngeno.get_many_regions(
+                regions=batch_genes, 
+                sample_slice=sample_slice,
+                )
+            
+            # TODO: Fix this
+            for start in range(0, n_samples, sample_chunk_size):
+                end = min(start + sample_chunk_size, n_samples)
+                sample_slice = slice(start, end)
         
+                print(f"Processing samples {start}:{end} ({end-start} samples)")
+                sample_ids_slice = sample_ids[start:end]
+                zarr_root["samples"][sample_slice] = sample_ids_slice
+                
+                # TODO: Fix this
+                for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
+                    ag,
+                    list(valid_genes),
+                    anno,
+                    gene_chunk_size=gene_chunk_size,
+                    sample_chunk_size=sample_chunk_size,  # pass as slice
+                    device=device,
+                ):
+                    idx = annotation_idx_map[gene]
+                    sum_burdens[:, :, idx] = s_burden
+                    max_burdens[:, :, idx] = m_burden
+                    top2_burdens[:, :, idx] = t2_burden
+        
+                    annotation_array[idx] = anno
+        
+                gc.collect()
+            
     print(f"Stored burdens in Zarr at {output_zarr}")
-    
+        
