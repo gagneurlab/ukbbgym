@@ -98,14 +98,14 @@ def get_burdens_array_streaming(
     gene_id_list,
     annotation_list,
     gene_chunk_size=50,
-    sample_slice=None,
+    sample_chunk_size=None,
     max_burden=True,  #TODO
     device="cpu",     #TODO
 ):
     """
     Generator yielding (gene, sum_burden, max_burden, top2_burden) for each gene.
     """
-
+    
     for i in tqdm(range(0, len(gene_id_list), gene_chunk_size)):
         batch_genes = gene_id_list[i : i + gene_chunk_size]
         regions_dict = anngeno.get_many_regions(
@@ -242,31 +242,24 @@ def compute_and_store_burdens(
     annotation_array = zarr_root["annotations"]
     annotation_idx_map = {a: i for i, a in enumerate(all_annotations_combined)}
 
-
-
-    for start in range(0, n_samples, sample_chunk_size):
-        end = min(start + sample_chunk_size, n_samples)
-        sample_slice = slice(start, end)
-
-        print(f"Processing samples {start}:{end} ({end-start} samples)")
-        sample_ids_slice = sample_ids[start:end]
-        zarr_root["samples"][sample_slice] = sample_ids_slice
-
+    for anno in tqdm(all_annotations_combined):
+        # FIx this
         for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
             ag,
             list(valid_genes),
-            all_annotation_list,
+            anno,
             gene_chunk_size=gene_chunk_size,
-            sample_slice=sample_slice,  # pass as slice
+            sample_chunk_size=sample_chunk_size,  # pass as slice
             device=device,
         ):
-            idx = gene_idx_map[gene]
-            sum_burdens[sample_slice, idx, :] = s_burden
-            max_burdens[sample_slice, idx, :] = m_burden
-            top2_burdens[sample_slice, idx, :] = t2_burden
+            idx = annotation_idx_map[gene]
+            sum_burdens[:, :, idx] = s_burden
+            max_burdens[:, :, idx] = m_burden
+            top2_burdens[:, :, idx] = t2_burden
 
-            gene_array[idx] = gene
+            annotation_array[idx] = anno
 
         gc.collect()
+        
+    print(f"Stored burdens in Zarr at {output_zarr}")
     
-    print(f"Stored burdens for {n_genes} genes in Zarr at {output_zarr}")
