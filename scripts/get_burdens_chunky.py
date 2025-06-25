@@ -12,85 +12,56 @@ from numba import njit, prange
 import multiprocessing
 
 @njit(parallel=True)
-def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask):
-    n_variants, n_samples = region_genotypes.shape
-    n_chunks = (n_samples + chunk_size - 1) // chunk_size
+def compute_max_and_top2_batch(score_matrix, genotype_tensor, chunk_size, no_variant_mask):
+    n_genes, n_variants, n_samples = genotype_tensor.shape
+    max_vals = np.empty((n_samples, n_genes), dtype=np.float32)
+    top2_sums = np.empty((n_samples, n_genes), dtype=np.float32)
 
-    max_vals = np.empty(n_samples, dtype=np.float32)
-    top2_sums = np.empty(n_samples, dtype=np.float32)
-
-    for c in prange(n_chunks):
-        start = c * chunk_size
-        end = min(start + chunk_size, n_samples)
-        for s in range(start, end):
-            if no_variant_mask[s]:
-                    # Skip computation, set NaN
-                    max_vals[s] = np.nan
-                    top2_sums[s] = np.nan
-                    continue
-            
-            burden = np.abs(score_vec * region_genotypes[:, s])
-            if len(burden) >= 2:
+    for g in prange(n_genes):
+        for s in range(n_samples):
+            if no_variant_mask[g, s]:
+                max_vals[s, g] = np.nan
+                top2_sums[s, g] = np.nan
+                continue
+            burden = np.abs(score_matrix[g, :] * genotype_tensor[g, :, s])
+            if burden.size >= 2:
                 top2 = np.partition(burden, -2)[-2:]
-                max_vals[s] = top2.max()
-                top2_sums[s] = top2.sum()
-            elif len(burden) == 1:
-                max_vals[s] = burden[0]
-                top2_sums[s] = burden[0]
+                max_vals[s, g] = top2.max()
+                top2_sums[s, g] = top2.sum()
+            elif burden.size == 1:
+                max_vals[s, g] = burden[0]
+                top2_sums[s, g] = burden[0]
             else:
-                max_vals[s] = 0.0
-                top2_sums[s] = 0.0
+                max_vals[s, g] = 0.0
+                top2_sums[s, g] = 0.0
 
     return max_vals, top2_sums
 
 def get_gene_burdens_numba(
-    region_genotypes,
-    region_annotations,
-    annotation_list, 
-    max_burden=False,
-    chunk_size=None,
+    region_genotypes_list,
+    region_annotations_list,
+    annotation_name,
 ):
-    no_variant_mask = region_genotypes.sum(axis = 0) == 0 # (samples, )
+    n_genes = len(region_genotypes_list)
+    n_samples = region_genotypes_list[0].shape[1]
 
-    try:
-        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).transpose()  # shape: (annotations, variants)
-    except Exception as e:
-        print(f"Error: {e}\nReturning NaNs.")
-        return np.nan, np.nan, np.nan
+    genotype_tensor = np.stack(region_genotypes_list, axis=0)  # (genes, variants, samples)
+    score_matrix = np.stack([
+        region_annotations[annotation_name].fill_nan(0).to_numpy().astype(np.float32)
+        for region_annotations in region_annotations_list
+    ], axis=0)  # (genes, variants)
 
-    # Calculate sum burden directly
-    gis_sum = np.dot(var_scores, region_genotypes).transpose()  # shape: (samples, annotations)
-    gis_sum[no_variant_mask, :] = np.nan
-    
-    # If max_burden is False, return sum burden
-    if not max_burden:
-        return gis_sum, np.nan, np.nan # Still return a tuple to maintain consistent return type
-    
-    # Determine chunk size if not provided
-    if chunk_size is None:
-        num_cores = multiprocessing.cpu_count()
-        chunk_size = max(1, region_genotypes.shape[1] // (num_cores * 2))
-    
-    print(f"Numba: Computing max and top2sum using chunk size: {chunk_size}")
-    # Compute max + top2 via numba
-    gis_max_list = []
-    gis_top2_sum_list = []
-    for a in tqdm(range(var_scores.shape[0]), desc="Annotations: Computing max and top2"):
-        score_vec = var_scores[a, :]
-        max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask)
-        gis_max_list.append(max_vals)
-        gis_top2_sum_list.append(top2_sum)
-        
-        del max_vals, top2_sum
-        gc.collect()
+    no_variant_mask = np.stack([g.sum(axis=0) == 0 for g in region_genotypes_list], axis=0).T  # (samples, genes)
 
-    gis_max = np.stack(gis_max_list, axis=0).T         # (samples, annotations)
-    gis_top2 = np.stack(gis_top2_sum_list, axis=0).T   # (samples, annotations)
+    # Sum burden
+    sum_burdens = np.tensordot(score_matrix, genotype_tensor, axes=([1], [1])).transpose(2, 0).astype(np.float32)  # (samples, genes)
+    sum_burdens[no_variant_mask] = np.nan
 
-    gis_max[no_variant_mask, :] = np.nan
-    gis_top2[no_variant_mask, :] = np.nan
+    max_burdens, top2_burdens = compute_max_and_top2_batch(score_matrix, genotype_tensor, 512, no_variant_mask)
+    max_burdens[no_variant_mask] = np.nan
+    top2_burdens[no_variant_mask] = np.nan
 
-    return gis_sum, gis_max, gis_top2
+    return sum_burdens, max_burdens, top2_burdens  # (samples, genes)
 
 
 def get_burdens_array_streaming(
