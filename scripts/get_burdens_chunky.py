@@ -242,41 +242,55 @@ def compute_and_store_burdens(
     annotation_array = zarr_root["annotations"]
     annotation_idx_map = {a: i for i, a in enumerate(all_annotations_combined)}
 
-    for anno in tqdm(all_annotations_combined):
-        # TODO: Fix this
-        for i in tqdm(range(0, len(gene_id_list), gene_chunk_size)):
-            batch_genes = gene_id_list[i : i + gene_chunk_size]
-            regions_dict = anngeno.get_many_regions(
-                regions=batch_genes, 
+    for anno in tqdm(new_annotations, desc="Annotations"):
+    anno_idx = annotation_idx_map[anno]
+
+    for g_start in range(0, len(valid_genes), gene_chunk_size):
+        batch_genes = valid_genes[g_start : g_start + gene_chunk_size]
+        gene_slice = slice(g_start, g_start + len(batch_genes))
+
+        for s_start in range(0, n_samples, sample_chunk_size):
+            s_end = min(s_start + sample_chunk_size, n_samples)
+            sample_slice = slice(s_start, s_end)
+
+            regions_dict = ag.get_many_regions(
+                regions=batch_genes,
                 sample_slice=sample_slice,
+            )
+
+            # Preallocate burden arrays for this gene batch
+            sum_b = np.full((s_end - s_start, len(batch_genes)), np.nan, dtype=np.float32)
+            max_b = np.full_like(sum_b, np.nan)
+            top2_b = np.full_like(sum_b, np.nan)
+
+            for g_idx, gene in enumerate(batch_genes):
+                region = regions_dict.get(gene)
+                if region is None:
+                    continue
+
+                # This returns (samples, 1)
+                s, m, t = get_gene_burdens_numba(
+                    region["genotypes"],
+                    region["annotations"],
+                    annotation_list=[anno],
+                    max_burden=True,
                 )
-            
-            # TODO: Fix this
-            for start in range(0, n_samples, sample_chunk_size):
-                end = min(start + sample_chunk_size, n_samples)
-                sample_slice = slice(start, end)
-        
-                print(f"Processing samples {start}:{end} ({end-start} samples)")
-                sample_ids_slice = sample_ids[start:end]
-                zarr_root["samples"][sample_slice] = sample_ids_slice
-                
-                # TODO: Fix this
-                for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
-                    ag,
-                    list(valid_genes),
-                    anno,
-                    gene_chunk_size=gene_chunk_size,
-                    sample_chunk_size=sample_chunk_size,  # pass as slice
-                    device=device,
-                ):
-                    idx = annotation_idx_map[gene]
-                    sum_burdens[:, :, idx] = s_burden
-                    max_burdens[:, :, idx] = m_burden
-                    top2_burdens[:, :, idx] = t2_burden
-        
-                    annotation_array[idx] = anno
-        
+
+                sum_b[:, g_idx] = s[:, 0]
+                max_b[:, g_idx] = m[:, 0]
+                top2_b[:, g_idx] = t[:, 0]
+
+                del region
                 gc.collect()
+
+            # Write to Zarr
+            sum_burdens[sample_slice, gene_slice, anno_idx] = sum_b
+            max_burdens[sample_slice, gene_slice, anno_idx] = max_b
+            top2_burdens[sample_slice, gene_slice, anno_idx] = top2_b
+
+            # Free memory
+            del sum_b, max_b, top2_b
+            gc.collect()
             
     print(f"Stored burdens in Zarr at {output_zarr}")
         
