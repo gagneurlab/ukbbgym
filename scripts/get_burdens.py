@@ -125,7 +125,6 @@ def get_burdens_array_streaming(
             yield gene, *burdens
             del burdens
             gc.collect()
-        
         del regions_dict
         gc.collect()
 
