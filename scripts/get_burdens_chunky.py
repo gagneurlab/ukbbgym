@@ -151,10 +151,10 @@ def compute_and_store_burdens(
     zarr_root["annotations"][:] = np.array(all_annotations_combined, dtype="U50")
     annotation_idx_map = {a: i for i, a in enumerate(all_annotations_combined)}
 
-    for anno in tqdm(new_annotations, desc="Annotations"):
+    for anno in tqdm(new_annotations, desc="Process annotations"):
         anno_idx = annotation_idx_map[anno]
 
-        for g_start in range(0, len(valid_genes), gene_chunk_size):
+        for g_start in tqdm(range(0, len(valid_genes), gene_chunk_size), desc=f"Gene chunks for {anno}", leave=False):
             batch_genes = valid_genes[g_start: g_start + gene_chunk_size]
             gene_slice = slice(g_start, g_start + len(batch_genes))
 
@@ -163,7 +163,7 @@ def compute_and_store_burdens(
             full_max_burdens = np.empty((n_samples, len(batch_genes)), dtype=np.float32)
             full_top2_burdens = np.empty((n_samples, len(batch_genes)), dtype=np.float32)
 
-            for s_start in range(0, n_samples, sample_chunk_size):
+            for s_start in tqdm(range(0, n_samples, sample_chunk_size), desc=f"Sample chunks {anno} [{g_start}:{g_start+gene_chunk_size}]", leave=False):
                 s_end = min(s_start + sample_chunk_size, n_samples)
                 sample_slice = slice(s_start, s_end)
 
