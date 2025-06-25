@@ -75,7 +75,7 @@ def get_gene_burdens_numba(
     # Compute max + top2 via numba
     gis_max_list = []
     gis_top2_sum_list = []
-    for a in tqdm(range(var_scores.shape[0])):
+    for a in tqdm(range(var_scores.shape[0]), desc="Annotations: Computing max and top2"):
         score_vec = var_scores[a, :]
         max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask)
         gis_max_list.append(max_vals)
@@ -97,17 +97,21 @@ def get_burdens_array_streaming(
     anngeno,
     gene_id_list,
     annotation_list,
-    gene_batch_size=2,
-    max_burden=True,
-    device="cpu",
+    gene_chunk_size=50,
+    sample_slice=None,
+    max_burden=True,  #TODO
+    device="cpu",     #TODO
 ):
     """
     Generator yielding (gene, sum_burden, max_burden, top2_burden) for each gene.
     """
 
-    for i in tqdm(range(0, len(gene_id_list), gene_batch_size)):
-        batch_genes = gene_id_list[i : i + gene_batch_size]
-        regions_dict = anngeno.get_many_regions(batch_genes)
+    for i in tqdm(range(0, len(gene_id_list), gene_chunk_size)):
+        batch_genes = gene_id_list[i : i + gene_chunk_size]
+        regions_dict = anngeno.get_many_regions(
+            regions=batch_genes, 
+            sample_slice=sample_slice,
+            )
 
         for gene in batch_genes:
             burdens = get_gene_burdens_numba(
@@ -128,7 +132,8 @@ def compute_and_store_burdens(
     output_zarr,
     only_snps=False,
     sample_set=None,
-    gene_batch_size=2,
+    gene_chunk_size=50,
+    sample_chunk_size=5_000,
     device="cpu",
 ):
     """
@@ -176,6 +181,9 @@ def compute_and_store_burdens(
     n_samples = len(sample_ids)
     n_genes = len(valid_genes)
 
+    if sample_chunk_size is None:
+        sample_chunk_size = n_samples  # no chunking
+
     # compressors = Blosc(cname='zstd', clevel=5, shuffle=Blosc.BITSHUFFLE)
     zarr_root = zarr.open_group(output_zarr, mode="a")
 
@@ -214,21 +222,21 @@ def compute_and_store_burdens(
         sum_burdens = zarr_root.create_array(
             "sum_burdens",
             shape=(n_samples, n_genes, n_annos),
-            chunks=(n_samples, 1, 1),
+            chunks=(sample_chunk_size, 1, 1),
             dtype="f4",
             # compressors=compressors
         )
         max_burdens = zarr_root.create_array(
             "max_burdens",
             shape=(n_samples, n_genes, n_annos),
-            chunks=(n_samples, 1, 1),
+            chunks=(sample_chunk_size, 1, 1),
             dtype="f4",
             # compressors=compressors
         )
         top2_burdens = zarr_root.create_array(
             "top2_burdens",
             shape=(n_samples, n_genes, n_annos),
-            chunks=(n_samples, 1, 1),
+            chunks=(sample_chunk_size, 1, 1),
             dtype="f4",
             # compressors=compressors
         )
@@ -236,32 +244,38 @@ def compute_and_store_burdens(
         zarr_root.create_array("annotations", shape=(n_annos,), chunks=(n_annos,), dtype="U50")
         zarr_root.create_array("genes", shape=(n_genes,), chunks=(1,), dtype="U50")
         gene_offset = 0
-    
-    # If there are no new valid genes or no new annotations, we can skip the computation
-    if len(valid_genes) > 0:
-        # Fill in annotations
-        zarr_root["samples"][:] = sample_ids
-        zarr_root["annotations"][:] = np.array(all_annotation_list, dtype="U50")
 
-        # Fill in gene_ids
-        gene_array = zarr_root["genes"]
-        if gene_offset > 0:
-            gene_array.resize(gene_offset + n_genes)
+    zarr_root["annotations"][:] = np.array(all_annotation_list, dtype="U50")
+    zarr_root["genes"].resize(gene_offset + n_genes)
+    gene_array = zarr_root["genes"]
+    gene_idx_map = {g: gene_offset + i for i, g in enumerate(valid_genes)}
 
-        gene_idx_map = {g: gene_offset + i for i, g in enumerate(valid_genes)}
+    for start in range(0, n_samples, sample_chunk_size):
+        end = min(start + sample_chunk_size, n_samples)
+        sample_slice = slice(start, end)
 
-        # TODO fix new annotations logic (in the for loop)
+        print(f"Processing samples {start}:{end} ({end-start} samples)")
+        sample_ids_slice = sample_ids[start:end]
+        zarr_root["samples"][sample_slice] = sample_ids_slice
+
         for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
-            ag, valid_genes, all_annotation_list, gene_batch_size, device
+            ag,
+            list(valid_genes),
+            all_annotation_list,
+            gene_chunk_size=gene_chunk_size,
+            sample_slice=sample_slice,  # pass as slice
+            device=device,
         ):
             idx = gene_idx_map[gene]
-            sum_burdens[:, idx, :] = s_burden
-            max_burdens[:, idx, :] = m_burden
-            top2_burdens[:, idx, :] = t2_burden
-            gene_array[gene_offset + idx] = gene  # Update gene array
-            gc.collect()
-        
-        print(f"Stored burdens for {n_genes} genes in Zarr at {output_zarr}")
+            sum_burdens[sample_slice, idx, :] = s_burden
+            max_burdens[sample_slice, idx, :] = m_burden
+            top2_burdens[sample_slice, idx, :] = t2_burden
+
+            gene_array[idx] = gene
+
+        gc.collect()
+    
+    print(f"Stored burdens for {n_genes} genes in Zarr at {output_zarr}")
 
 
 
