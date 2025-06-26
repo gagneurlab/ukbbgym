@@ -2,8 +2,6 @@ import os
 import gc
 import sys
 import yaml
-import zarr
-import click
 import polars as pl
 import numpy as np
 
@@ -240,3 +238,47 @@ def compute_and_store_burdens(
         gc.collect()
 
     logger.debug(f"Stored burdens for {n_genes} genes and {n_annos} annotations in {output_dir}")
+
+
+import click
+@click.command()
+@click.option('--config-path', required=True, type=click.Path(exists=True), help="Path to YAML config file.")
+@click.option('--associations-df-path', required=True, type=click.Path(exists=True), help="Path to associations Parquet file.")
+@click.option('--output-dir', required=True, type=click.Path(), help="Directory to write per-gene Parquet files.")
+@click.option('--only-snps', is_flag=True, default=False, help="Filter for SNPs only.")
+@click.option('--sample-set-path', type=click.Path(exists=True), default=None, help="Optional path to text file with sample IDs to include.")
+@click.option('--gene-chunk-size', type=int, default=50, help="Number of genes to process per chunk.")
+@click.option('--sample-chunk-size', type=int, default=5000, help="Number of samples to process per chunk.")
+@click.option('--device', default='cpu', help="Device to use for computation.")
+@click.option('--overwrite', is_flag=True, default=False, help="Whether to overwrite existing gene Parquet files.")
+def cli(
+    config_path,
+    associations_df_path,
+    output_dir,
+    only_snps,
+    sample_set_path,
+    gene_chunk_size,
+    sample_chunk_size,
+    device,
+    overwrite,
+):
+    if sample_set_path:
+        with open(sample_set_path) as f:
+            sample_set = [line.strip() for line in f if line.strip()]
+    else:
+        sample_set = None
+
+    compute_and_store_burdens(
+        config_path=config_path,
+        associations_df_path=associations_df_path,
+        output_dir=output_dir,
+        only_snps=only_snps,
+        sample_set=sample_set,
+        gene_chunk_size=gene_chunk_size,
+        sample_chunk_size=sample_chunk_size,
+        device=device,
+        overwrite=overwrite
+    )
+
+if __name__ == "__main__":
+    cli()
