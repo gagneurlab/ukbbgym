@@ -232,7 +232,7 @@ def compute_and_store_burdens(
                 existing = pl.read_parquet(gene_path).lazy()
                 df_lazy = pl.concat([existing, df_lazy])
 
-            df_lazy.collect(streaming=True).write_parquet(gene_path)
+            df_lazy.sink_parquet(gene_path)
         gc.collect()
 
     logger.debug(f"Stored burdens for {n_genes} genes and {n_annos} annotations in {output_dir}")
