@@ -18,7 +18,8 @@ python your_script_name.py \
     --only-snps \
     --overwrite \
     --gene-chunk-size "$GENE_CHUNK_SIZE" \
-    --sample-chunk-size "$SAMPLE_CHUNK_SIZE"
+    --sample-chunk-size "$SAMPLE_CHUNK_SIZE" \
+    > "$BASE_DIR/stdout.log" 2> "$BASE_DIR/stderr.log"
 
 # === Upload results to DNAnexus ===
 TARGET_FOLDER="project-REDACTED:/processed_data/ukbgym/burdens/$OUTPUT_DIR"
