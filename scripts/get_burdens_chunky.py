@@ -229,7 +229,7 @@ def compute_and_store_burdens(
 
             gene_path = os.path.join(output_dir, f"{gene}.parquet")
             if not overwrite and os.path.exists(gene_path):
-                existing = pl.read_parquet(gene_path).lazy()
+                existing = pl.scan_parquet(gene_path)
                 df_lazy = pl.concat([existing, df_lazy])
 
             df_lazy.sink_parquet(gene_path)
