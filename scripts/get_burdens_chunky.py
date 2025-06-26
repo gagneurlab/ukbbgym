@@ -1,3 +1,4 @@
+import os
 import gc
 import sys
 import yaml
@@ -63,14 +64,14 @@ def get_gene_burdens_numba(
     no_variant_mask = region_genotypes.sum(axis = 0) == 0 # (samples, )
 
     try:
-        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).transpose()  # shape: (annotations, variants)
+        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).T  # shape: (annotations, variants)
     except Exception as e:
-        logger.info(f"Error: {e}\nReturning NaNs.")
+        logger.debug(f"Error: {e}\nReturning NaNs.")
         return np.nan, np.nan, np.nan
 
     # Calculate sum burden directly
-    gis_sum = np.dot(var_scores, region_genotypes).transpose()  # shape: (samples, annotations)
-    gis_sum[no_variant_mask, :] = np.nan
+    gis_sum = np.dot(var_scores, region_genotypes)  # (annotations, samples)
+    gis_sum[:, no_variant_mask] = np.nan
     
     # If max_burden is False, return sum burden
     if not max_burden:
@@ -84,7 +85,7 @@ def get_gene_burdens_numba(
     # Compute max + top2 via numba
     gis_max_list = []
     gis_top2_sum_list = []
-    for a in range(var_scores.shape[0]):
+    for a in tqdm(range(var_scores.shape[0]), desc=f"Computing max and top2, {var_scores.shape[1]} variants"):
         score_vec = var_scores[a, :]
         max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask)
         gis_max_list.append(max_vals)
@@ -93,13 +94,13 @@ def get_gene_burdens_numba(
         del max_vals, top2_sum
         gc.collect()
 
-    gis_max = np.stack(gis_max_list, axis=0).T         # (samples, annotations)
-    gis_top2 = np.stack(gis_top2_sum_list, axis=0).T   # (samples, annotations)
+    gis_max = np.stack(gis_max_list, axis=0)         # (annotations, samples)
+    gis_top2 = np.stack(gis_top2_sum_list, axis=0)   # (annotations, samples)
 
-    gis_max[no_variant_mask, :] = np.nan
-    gis_top2[no_variant_mask, :] = np.nan
+    gis_max[:, no_variant_mask] = np.nan
+    gis_top2[:, no_variant_mask] = np.nan
 
-    return gis_sum, gis_max, gis_top2
+    return gis_sum, gis_max, gis_top2 # (annotations, samples)
 
 
 def get_burdens_array_streaming(
@@ -115,12 +116,14 @@ def get_burdens_array_streaming(
     Generator yielding (gene, sum_burden, max_burden, top2_burden) for each gene.
     """
 
-    for i in tqdm(range(0, len(gene_id_list), gene_chunk_size), position=0, leave=True, desc=f"Genes: Processing chunks of {gene_chunk_size} genes"):
+    for i in range(0, len(gene_id_list), gene_chunk_size):
         batch_genes = gene_id_list[i : i + gene_chunk_size]
+        print(f"Starting loading {gene_chunk_size} regions")
         regions_dict = anngeno.get_many_regions(
             regions=batch_genes, 
             sample_slice=sample_slice,
             )
+        print(f"Done loading {gene_chunk_size} regions")
 
         for gene in batch_genes:
             burdens = get_gene_burdens_numba(
@@ -135,10 +138,12 @@ def get_burdens_array_streaming(
         del regions_dict
         gc.collect()
 
+
+
 def compute_and_store_burdens(
     config_path,
     associations_df_path,
-    output_zarr,
+    output_dir,
     only_snps=False,
     sample_set=None,
     gene_chunk_size=50,
@@ -153,16 +158,16 @@ def compute_and_store_burdens(
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
-    logger.info("Loading AnnGeno file")
+    logger.debug("Loading AnnGeno file")
     ag = AnnGeno(filename=config.get("anngeno_file"), filemode="r", low_mem=True)
     maf = config.get('maf', 0.001)
 
-    logger.info(f"Filtering for variants with MAF < {maf}")
+    logger.debug(f"Filtering for variants with MAF < {maf}")
     variants_to_keep_df = ag.annotations.filter((pl.col('AF_ukb') < maf))
     ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect()['id']))
 
     if only_snps:
-        logger.info(f"Filtering for SNPs only")
+        logger.debug(f"Filtering for SNPs only")
         snp_variants = ag.annotations.filter(
             (pl.col("ref").str.len_chars() == 1) &
             (pl.col("alt").str.len_chars() == 1)
@@ -170,7 +175,7 @@ def compute_and_store_burdens(
         ag.subset_variants(snp_variants.select(pl.col('id')))
 
     if sample_set:
-        logger.info(f"Filtering for samples. Restricting to {len(sample_set)} samples")
+        logger.debug(f"Filtering for samples. Restricting to {len(sample_set)} samples")
         ag.subset_samples(sample_set)
 
     all_annotation_list = []
@@ -185,34 +190,19 @@ def compute_and_store_burdens(
     valid_genes = [g for g in gene_id_list if g in ag.region_ids]
     invalid_regions = [g for g in gene_id_list if g not in ag.region_ids]
     if invalid_regions:
-        logger.info(f"Regions not found. Skipping regions {invalid_regions}")
+        logger.debug(f"Regions not found. Skipping regions {invalid_regions}")
 
     sample_ids = ag.samples
     n_samples = len(sample_ids)
     n_genes = len(valid_genes)
     n_annos = len(all_annotation_list)
 
-    mode = "w" if overwrite else "a"
-    zarr_root = zarr.open_group(output_zarr, mode=mode)
+    logger.info(f"Found {n_genes} valid genes and {n_annos} annotations across {n_samples} samples.")
 
-    logger.info(f"Creating new Zarr arrays at {output_zarr}")
-    sum_burdens = zarr_root.create_array("sum_burdens", shape=(n_samples, n_genes, n_annos), chunks=(sample_chunk_size, 1, 1), dtype="f4")
-    max_burdens = zarr_root.create_array("max_burdens", shape=(n_samples, n_genes, n_annos), chunks=(sample_chunk_size, 1, 1), dtype="f4")
-    top2_burdens = zarr_root.create_array("top2_burdens", shape=(n_samples, n_genes, n_annos), chunks=(sample_chunk_size, 1, 1), dtype="f4")
-    zarr_root.create_array("samples", shape=(n_samples,), dtype="U50")
-    zarr_root.create_array("annotations", shape=(n_annos,), chunks=(n_annos,), dtype="U50")
-    zarr_root.create_array("genes", shape=(n_genes,), chunks=(1,), dtype="U50")
-
-    zarr_root["annotations"][:] = np.array(all_annotation_list, dtype="U50")
-    zarr_root["samples"][:] = sample_ids
-    gene_array = zarr_root["genes"]
-    gene_idx_map = {g: i for i, g in enumerate(valid_genes)}
-
-    for start in range(0, n_samples, sample_chunk_size):
+    for start in tqdm(range(0, n_samples, sample_chunk_size), desc=f"Processing {sample_chunk_size} sample chunks"):
         end = min(start + sample_chunk_size, n_samples)
         sample_slice = slice(start, end)
-
-        logger.info(f"Processing samples {start}:{end} ({end-start} samples)")
+        current_sample_ids = ag.samples[sample_slice.start:sample_slice.stop]
 
         for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
             ag,
@@ -222,12 +212,27 @@ def compute_and_store_burdens(
             sample_slice=sample_slice,
             device=device,
         ):
-            idx_gene = gene_idx_map[gene]
-            sum_burdens[sample_slice, idx_gene, :] = s_burden
-            max_burdens[sample_slice, idx_gene, :] = m_burden
-            top2_burdens[sample_slice, idx_gene, :] = t2_burden
-            gene_array[idx_gene] = gene
+            n_samples_in_chunk = s_burden.shape[1]
+            annotation_ids = np.array(all_annotation_list)
 
+            sample_col = np.tile(current_sample_ids, n_annos)
+            annotation_col = np.repeat(annotation_ids, n_samples_in_chunk)
+
+            df_lazy = pl.LazyFrame({
+                "sample_id": sample_col,
+                "gene_id": [gene] * (n_samples_in_chunk * n_annos),
+                "annotation": annotation_col,
+                "sum": s_burden.flatten(),
+                "max": m_burden.flatten(),
+                "top2": t2_burden.flatten(),
+            })
+
+            gene_path = os.path.join(output_dir, f"{gene}.parquet")
+            if not overwrite and os.path.exists(gene_path):
+                existing = pl.read_parquet(gene_path).lazy()
+                df_lazy = pl.concat([existing, df_lazy])
+
+            df_lazy.collect(streaming=True).write_parquet(gene_path)
         gc.collect()
 
-    logger.info(f"Stored burdens for {n_genes} genes and {n_annos} annotations in Zarr at {output_zarr}")
+    logger.debug(f"Stored burdens for {n_genes} genes and {n_annos} annotations in {output_dir}")
