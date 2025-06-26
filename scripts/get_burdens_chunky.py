@@ -122,6 +122,7 @@ def get_burdens_array_streaming(
         regions_dict = anngeno.get_many_regions(
             regions=batch_genes, 
             sample_slice=sample_slice,
+            observed_only=True,
             )
         print(f"{[datetime.now().strftime('%Y-%m-%d %H:%M:%S')]} Done loading {gene_chunk_size} regions")
 
@@ -231,10 +232,15 @@ def compute_and_store_burdens(
 
             gene_path = os.path.join(output_dir, f"{gene}.parquet")
             if not overwrite and os.path.exists(gene_path):
-                existing = pl.scan_parquet(gene_path)
-                df_lazy = pl.concat([existing, df_lazy])
+                try:
+                    existing = pl.read_parquet(gene_path).lazy()
+                    df_lazy = pl.concat([existing, df_lazy])
+                    df_lazy.sink_parquet(gene_path)
+                except Exception as e:
+                    logger.warning(f"Could not concat {gene}: {e}")
+            else:
+                df_lazy.sink_parquet(gene_path)
 
-            df_lazy.sink_parquet(gene_path)
         gc.collect()
 
     logger.debug(f"Stored burdens for {n_genes} genes and {n_annos} annotations in {output_dir}")
