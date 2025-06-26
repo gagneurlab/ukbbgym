@@ -4,11 +4,11 @@ set -e  # Exit immediately if a command fails
 
 # === Config ===
 BASE_DIR="PATH_TO_FILE"
-CONFIG_PATH="ukbgym/config_wgs.yaml"
+CONFIG_PATH="ukbgym/config_wgs_cadd.yaml"
 ASSOCIATIONS_DF_PATH="small_gene_assocs.pq"
-OUTPUT_DIR="55_small_genes_onlySNP"
+OUTPUT_DIR="55_small_genes_onlySNP_cadd_annotations"
 GENE_CHUNK_SIZE="55"
-SAMPLE_CHUNK_SIZE="20000"
+SAMPLE_CHUNK_SIZE="40000"
 
 # === Run the Python script ===
 python scripts/get_burdens_chunky.py \
