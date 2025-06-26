@@ -201,6 +201,7 @@ def compute_and_store_burdens(
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+    files_overwritten = set() # To track files that have been overwritten
 
     for start in tqdm(range(0, n_samples, sample_chunk_size), desc=f"Processing {sample_chunk_size} sample chunks"):
         end = min(start + sample_chunk_size, n_samples)
@@ -230,17 +231,33 @@ def compute_and_store_burdens(
                 "top2": t2_burden.flatten(),
             })
 
-            gene_path = os.path.join(output_dir, f"{gene}.parquet")
-            if not overwrite and os.path.exists(gene_path):
-                try:
-                    existing = pl.read_parquet(gene_path).lazy()
-                    df_lazy = pl.concat([existing, df_lazy])
-                    df_lazy.sink_parquet(gene_path)
-                except Exception as e:
-                    logger.warning(f"Could not concat {gene}: {e}")
+            gene_file = os.path.join(output_dir, f"{gene}.parquet")
+            if os.path.exists(gene_file):
+                if overwrite:
+                    if gene_file not in files_overwritten:
+                        # Overwrite only once if it existed before
+                        df_lazy.sink_parquet(gene_file)
+                        files_overwritten.add(gene_file)
+                    else:
+                        # File was already overwritten, so we append
+                        try:
+                            existing = pl.read_parquet(gene_file).lazy()
+                            df_lazy = pl.concat([existing, df_lazy])
+                            df_lazy.sink_parquet(gene_file)
+                        except Exception as e:
+                            logger.warning(f"Could not concat {gene}: {e}")
+                else:
+                    # No overwrite allowed, always append
+                    try:
+                        existing = pl.read_parquet(gene_file).lazy()
+                        df_lazy = pl.concat([existing, df_lazy])
+                        df_lazy.sink_parquet(gene_file)
+                    except Exception as e:
+                        logger.warning(f"Could not concat {gene}: {e}")
             else:
-                df_lazy.sink_parquet(gene_path)
-
+                # File doesn't exist; safe to write
+                df_lazy.sink_parquet(gene_file)
+                
         gc.collect()
 
     logger.debug(f"Stored burdens for {n_genes} genes and {n_annos} annotations in {output_dir}")
