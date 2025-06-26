@@ -7,6 +7,8 @@ import click
 import polars as pl
 import numpy as np
 
+from datetime import datetime
+
 from tqdm import tqdm
 from anngeno import AnnGeno
 
@@ -118,12 +120,12 @@ def get_burdens_array_streaming(
 
     for i in range(0, len(gene_id_list), gene_chunk_size):
         batch_genes = gene_id_list[i : i + gene_chunk_size]
-        print(f"Starting loading {gene_chunk_size} regions")
+        print(f"{[datetime.now().strftime('%Y-%m-%d %H:%M:%S')]} Starting loading {gene_chunk_size} regions")
         regions_dict = anngeno.get_many_regions(
             regions=batch_genes, 
             sample_slice=sample_slice,
             )
-        print(f"Done loading {gene_chunk_size} regions")
+        print(f"{[datetime.now().strftime('%Y-%m-%d %H:%M:%S')]} Done loading {gene_chunk_size} regions")
 
         for gene in batch_genes:
             burdens = get_gene_burdens_numba(
@@ -149,7 +151,7 @@ def compute_and_store_burdens(
     gene_chunk_size=50,
     sample_chunk_size=5_000,
     device="cpu",
-    overwrite=True,
+    overwrite=False,
 ):
     """
     Computes and stores gene burdens directly to Zarr in streaming mode.
@@ -198,6 +200,9 @@ def compute_and_store_burdens(
     n_annos = len(all_annotation_list)
 
     logger.info(f"Found {n_genes} valid genes and {n_annos} annotations across {n_samples} samples.")
+
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
 
     for start in tqdm(range(0, n_samples, sample_chunk_size), desc=f"Processing {sample_chunk_size} sample chunks"):
         end = min(start + sample_chunk_size, n_samples)
