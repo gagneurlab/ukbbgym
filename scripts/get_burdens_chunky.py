@@ -66,7 +66,7 @@ def get_gene_burdens_numba(
     try:
         var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).T  # shape: (annotations, variants)
     except Exception as e:
-        logger.debug(f"Error: {e}\nReturning NaNs.")
+        print(f"Error: {e}\nReturning NaNs.")
         return np.nan, np.nan, np.nan
 
     # Calculate sum burden directly
@@ -165,6 +165,10 @@ def compute_and_store_burdens(
     logger.debug(f"Filtering for variants with MAF < {maf}")
     variants_to_keep_df = ag.annotations.filter((pl.col('AF_ukb') < maf))
     ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect()['id']))
+    
+    logger.debug("Drop is_nans from annotations")
+    sel_cols = [col for col in ag.annotations.collect_schema().names() if not col.endswith('is_nan')]
+    ag.subset_annotations(sel_cols)
 
     if only_snps:
         logger.debug(f"Filtering for SNPs only")
