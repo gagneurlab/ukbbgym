@@ -1,4 +1,5 @@
 import gc
+import sys
 import yaml
 import zarr
 import click
@@ -10,6 +11,15 @@ from anngeno import AnnGeno
 
 from numba import njit, prange
 import multiprocessing
+
+import logging
+# --- Logging Setup ---
+logging.basicConfig(
+    format="[%(asctime)s] %(levelname)s:%(name)s: %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
+logger = logging.getLogger(__name__)
 
 @njit(parallel=True)
 def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask):
@@ -55,7 +65,7 @@ def get_gene_burdens_numba(
     try:
         var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).transpose()  # shape: (annotations, variants)
     except Exception as e:
-        print(f"Error: {e}\nReturning NaNs.")
+        logger.info(f"Error: {e}\nReturning NaNs.")
         return np.nan, np.nan, np.nan
 
     # Calculate sum burden directly
@@ -70,12 +80,11 @@ def get_gene_burdens_numba(
     if chunk_size is None:
         num_cores = multiprocessing.cpu_count()
         chunk_size = max(1, region_genotypes.shape[1] // (num_cores * 2))
-    
-    print(f"Numba: Computing max and top2sum using chunk size: {chunk_size}")
+
     # Compute max + top2 via numba
     gis_max_list = []
     gis_top2_sum_list = []
-    for a in tqdm(range(var_scores.shape[0]), desc="Annotations: Computing max and top2"):
+    for a in range(var_scores.shape[0]):
         score_vec = var_scores[a, :]
         max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask)
         gis_max_list.append(max_vals)
@@ -106,7 +115,7 @@ def get_burdens_array_streaming(
     Generator yielding (gene, sum_burden, max_burden, top2_burden) for each gene.
     """
 
-    for i in tqdm(range(0, len(gene_id_list), gene_chunk_size)):
+    for i in tqdm(range(0, len(gene_id_list), gene_chunk_size), position=0, leave=True, desc=f"Genes: Processing chunks of {gene_chunk_size} genes"):
         batch_genes = gene_id_list[i : i + gene_chunk_size]
         regions_dict = anngeno.get_many_regions(
             regions=batch_genes, 
@@ -143,16 +152,16 @@ def compute_and_store_burdens(
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
-    print("Loading AnnGeno file")
+    logger.info("Loading AnnGeno file")
     ag = AnnGeno(filename=config.get("anngeno_file"), filemode="r", low_mem=True)
     maf = config.get('maf', 0.001)
     
-    print(f"Filtering for variants with MAF < {maf}")
+    logger.info(f"Filtering for variants with MAF < {maf}")
     variants_to_keep_df = ag.annotations.filter((pl.col('AF_ukb') < maf))
     ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect ()['id']))
     
     if only_snps:
-        print(f"Filtering for SNPs only")
+        logger.info(f"Filtering for SNPs only")
         snp_variants = ag.annotations.filter(
             (pl.col("ref").str.len_chars() == 1) & 
             (pl.col("alt").str.len_chars() == 1)
@@ -160,7 +169,7 @@ def compute_and_store_burdens(
         ag.subset_variants(snp_variants.select(pl.col('id')))
     
     if sample_set:
-        print(f"Filtering for samples. Restricting to {len(sample_set)} samples")
+        logger.info(f"Filtering for samples. Restricting to {len(sample_set)} samples")
         ag.subset_samples(sample_set)
 
     all_annotation_list = []
@@ -176,7 +185,7 @@ def compute_and_store_burdens(
     valid_genes = [g for g in gene_id_list if g in ag.region_ids]
     invalid_regions = [g for g in gene_id_list if g not in ag.region_ids]
     if invalid_regions:
-        print(f"Regions not found. Skipping regions {invalid_regions}")
+        logger.info(f"Regions not found. Skipping regions {invalid_regions}")
     sample_ids = ag.samples
     n_samples = len(sample_ids)
     n_genes = len(valid_genes)
@@ -189,7 +198,7 @@ def compute_and_store_burdens(
 
     # Create or extend datasets
     if "sum_burdens" in zarr_root:
-        print(f"Extending existing Zarr arrays at {output_zarr}")
+        logger.info(f"Extending existing Zarr arrays at {output_zarr}")
         sum_burdens = zarr_root["sum_burdens"]
         max_burdens = zarr_root["max_burdens"]
         top2_burdens = zarr_root["top2_burdens"]
@@ -197,7 +206,7 @@ def compute_and_store_burdens(
         gene_offset = sum_burdens.shape[1]
         genes_completed = zarr_root["genes"][:]
         valid_genes = set(valid_genes) - set(genes_completed)  # Remove already processed genes
-        print(f"Genes completed in existing zarr: {len(genes_completed)}\nExtending with {len(valid_genes)} new genes")
+        logger.info(f"Genes completed in existing zarr: {len(genes_completed)}\nExtending with {len(valid_genes)} new genes")
 
         # Handle annotation extension if needed
         if n_annos > sum_burdens.shape[2]:
@@ -218,7 +227,7 @@ def compute_and_store_burdens(
         top2_burdens.resize((n_samples, gene_offset + n_genes, n_annos))
 
     else:
-        print(f"Creating new Zarr arrays at {output_zarr}")
+        logger.info(f"Creating new Zarr arrays at {output_zarr}")
         sum_burdens = zarr_root.create_array(
             "sum_burdens",
             shape=(n_samples, n_genes, n_annos),
@@ -250,11 +259,11 @@ def compute_and_store_burdens(
     gene_array = zarr_root["genes"]
     gene_idx_map = {g: gene_offset + i for i, g in enumerate(valid_genes)}
 
-    for start in range(0, n_samples, sample_chunk_size):
+    for start in tqdm(range(0, n_samples, sample_chunk_size), position=0, leave=True, desc=f"Samples: Processing chunks of {sample_chunk_size} samples"):
         end = min(start + sample_chunk_size, n_samples)
         sample_slice = slice(start, end)
 
-        print(f"Processing samples {start}:{end} ({end-start} samples)")
+        logger.info(f"Processing samples {start}:{end} ({end-start} samples)")
         sample_ids_slice = sample_ids[start:end]
         zarr_root["samples"][sample_slice] = sample_ids_slice
 
@@ -275,7 +284,7 @@ def compute_and_store_burdens(
 
         gc.collect()
     
-    print(f"Stored burdens for {n_genes} genes in Zarr at {output_zarr}")
+    logger.info(f"Stored burdens for {n_genes} genes in Zarr at {output_zarr}")
 
 
 
@@ -300,7 +309,7 @@ def compute_burdens(
     batch_size: int = 32,
     n_jobs: int = 32,
 ):
-    print('You are running the script to compute gene burdens')
+    logger.info('You are running the script to compute gene burdens')
 
     compute_and_store_burdens(
         config_path=config_path,
@@ -313,7 +322,7 @@ def compute_burdens(
         n_jobs=n_jobs,
     )
 
-    print('Gene burdens have been computed and stored')
+    logger.info('Gene burdens have been computed and stored')
 
 if __name__ == "__main__":
     cli()
