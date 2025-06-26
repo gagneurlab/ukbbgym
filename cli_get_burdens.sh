@@ -11,7 +11,7 @@ GENE_CHUNK_SIZE="55"
 SAMPLE_CHUNK_SIZE="20000"
 
 # === Run the Python script ===
-python your_script_name.py \
+python scripts/get_burdens_chunky.py \
     --config-path "$BASE_DIR/$CONFIG_PATH" \
     --associations-df-path "$BASE_DIR/$ASSOCIATIONS_DF_PATH" \
     --output-dir "$BASE_DIR/$OUTPUT_DIR" \
