@@ -1,7 +1,7 @@
 import gc
+import sys
 import yaml
 import zarr
-import click
 import polars as pl
 import numpy as np
 
@@ -135,6 +135,7 @@ def get_burdens_array_streaming(
         del regions_dict
         gc.collect()
 
+# TODO add functionality to extend along gene axis 
 def compute_and_store_burdens(
     config_path,
     associations_df_path,
@@ -146,30 +147,22 @@ def compute_and_store_burdens(
     device="cpu",
 ):
     """
-    Computes and updates new annotation burdens for existing genes in Zarr.
-    Only extends the annotation axis. Does not add new genes.
+    Computes and stores gene burdens directly to Zarr in streaming mode,
+    with extendable annotation axis.
     """
-    import yaml
-    import polars as pl
-    import numpy as np
-    import zarr
-    import gc
-    from anngeno import AnnGeno
-    from tqdm import tqdm
-
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
-    print("Loading AnnGeno file")
+    logger.info("Loading AnnGeno file")
     ag = AnnGeno(filename=config.get("anngeno_file"), filemode="r", low_mem=True)
     maf = config.get('maf', 0.001)
     
-    print(f"Filtering for variants with MAF < {maf}")
+    logger.info(f"Filtering for variants with MAF < {maf}")
     variants_to_keep_df = ag.annotations.filter((pl.col('AF_ukb') < maf))
     ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect()['id']))
-
+    
     if only_snps:
-        print(f"Filtering for SNPs only")
+        logger.info(f"Filtering for SNPs only")
         snp_variants = ag.annotations.filter(
             (pl.col("ref").str.len_chars() == 1) & 
             (pl.col("alt").str.len_chars() == 1)
@@ -177,67 +170,99 @@ def compute_and_store_burdens(
         ag.subset_variants(snp_variants.select(pl.col('id')))
     
     if sample_set:
-        print(f"Filtering for samples. Restricting to {len(sample_set)} samples")
+        logger.info(f"Filtering for samples. Restricting to {len(sample_set)} samples")
         ag.subset_samples(sample_set)
 
-    # Get list of all annotation columns in config
     all_annotation_list = []
     rare_variant_annotations_dict = config.get('rare_variant_annotations')
     if rare_variant_annotations_dict:
         for category in rare_variant_annotations_dict.values():
             all_annotation_list.extend(category)
     all_annotation_list = list(set(all_annotation_list).intersection(set(ag.annotations.collect_schema().names())))
+    n_annos = len(all_annotation_list)
 
     associations_df = pl.read_parquet(associations_df_path)
     gene_id_list = associations_df['gene_id'].unique()
+    valid_genes = [g for g in gene_id_list if g in ag.region_ids]
+    invalid_regions = [g for g in gene_id_list if g not in ag.region_ids]
+    if invalid_regions:
+        logger.info(f"Regions not found. Skipping regions {invalid_regions}")
     sample_ids = ag.samples
     n_samples = len(sample_ids)
+    n_genes = len(valid_genes)
+    existing_annotations = [] # This will be updated later if needed
+
+    if sample_chunk_size is None:
+        sample_chunk_size = n_samples  # no chunking
 
     zarr_root = zarr.open_group(output_zarr, mode="a")
+
     if "sum_burdens" not in zarr_root:
-        raise ValueError(f"Zarr path {output_zarr} must already exist with gene burdens.")
+        # First time creation: create all datasets
+        logger.info(f"Creating new Zarr arrays at {output_zarr}")
+        sum_burdens = zarr_root.create_array(
+            "sum_burdens",
+            shape=(n_samples, n_genes, n_annos),
+            chunks=(sample_chunk_size, 1, 1),
+            dtype="f4",
+        )
+        max_burdens = zarr_root.create_array(
+            "max_burdens",
+            shape=(n_samples, n_genes, n_annos),
+            chunks=(sample_chunk_size, 1, 1),
+            dtype="f4",
+        )
+        top2_burdens = zarr_root.create_array(
+            "top2_burdens",
+            shape=(n_samples, n_genes, n_annos),
+            chunks=(sample_chunk_size, 1, 1),
+            dtype="f4",
+        )
+        zarr_root.create_array("samples", shape=(n_samples,), dtype="U50")
+        zarr_root.create_array("annotations", shape=(n_annos,), chunks=(n_annos,), dtype="U50")
+        zarr_root.create_array("genes", shape=(n_genes,), chunks=(1,), dtype="U50")
+    else:
+        # Zarr exists — open datasets
+        logger.info(f"Opening existing Zarr arrays at {output_zarr}")
+        sum_burdens = zarr_root["sum_burdens"]
+        max_burdens = zarr_root["max_burdens"]
+        top2_burdens = zarr_root["top2_burdens"]
 
-    sum_burdens = zarr_root["sum_burdens"]
-    max_burdens = zarr_root["max_burdens"]
-    top2_burdens = zarr_root["top2_burdens"]
-    gene_array = zarr_root["genes"][:]
-    annotation_array = zarr_root["annotations"][:]
-    annotation_array = list(annotation_array.astype(str))
+        # Check annotation extension
+        existing_annotations = list(zarr_root["annotations"][:])
+        new_annotations = list(set(all_annotation_list) - set(existing_annotations))
+        if new_annotations:
+            logger.info(f"Extending annotation axis with {len(new_annotations)} new annotations")
+            start_new_anno_idx = len(existing_annotations)
+            new_n_annos = start_new_anno_idx + len(new_annotations)
 
-    # Determine new annotations
-    new_annotations = list(set(all_annotation_list) - set(annotation_array))
-    if not new_annotations:
-        print("No new annotations to add.")
-        return
+            sum_burdens.resize((n_samples, sum_burdens.shape[1], new_n_annos))
+            max_burdens.resize((n_samples, max_burdens.shape[1], new_n_annos))
+            top2_burdens.resize((n_samples, top2_burdens.shape[1], new_n_annos))
 
-    print(f"Extending Zarr with {len(new_annotations)} new annotations")
+            annotations_ds = zarr_root["annotations"]
+            annotations_ds.resize(new_n_annos)
+            all_annotation_list = existing_annotations + new_annotations
+        else:
+            logger.info(f"No new annotations to extend. Exiting.")
+            sys.exit(0)
 
-    # Extend annotation axis
-    n_genes = sum_burdens.shape[1]
-    n_old_annos = len(annotation_array)
-    n_new_annos = n_old_annos + len(new_annotations)
+        valid_genes = list(zarr_root["genes"][:])
 
-    sum_burdens.resize((n_samples, n_genes, n_new_annos))
-    max_burdens.resize((n_samples, n_genes, n_new_annos))
-    top2_burdens.resize((n_samples, n_genes, n_new_annos))
+    gene_idx_map = {g: i for i, g in enumerate(valid_genes)}
+    zarr_root["genes"].resize(n_genes)
+    gene_array = zarr_root["genes"]
 
-    # Update annotation dataset
-    annotations_ds = zarr_root["annotations"]
-    annotations_ds.resize(n_new_annos)
-    annotations_ds[n_old_annos:] = np.array(new_annotations, dtype="U50")
+    new_n_annos = len(all_annotation_list)
+    new_anno_slice = slice(start_new_anno_idx, new_n_annos)
+    zarr_root["annotations"][:] = np.array(all_annotation_list, dtype="U50")
 
-    # Mapping of annotation index for slicing
-    new_annotation_idx = [all_annotation_list.index(a) for a in new_annotations]
-    new_annotation_slice = slice(n_old_annos, n_new_annos)
-
-    gene_idx_map = {g: i for i, g in enumerate(gene_array)}
-    valid_genes = list(set(gene_id_list).intersection(set(gene_array)))
-
-    for start in range(0, n_samples, sample_chunk_size):
+    for start in tqdm(range(0, n_samples, sample_chunk_size), desc="Samples: Processing chunks"):
         end = min(start + sample_chunk_size, n_samples)
         sample_slice = slice(start, end)
+
+        logger.info(f"Processing samples {start}:{end} ({end-start} samples)")
         sample_ids_slice = sample_ids[start:end]
-        print(f"Processing samples {start}:{end} ({end-start} samples)")
 
         for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
             ag,
@@ -248,9 +273,13 @@ def compute_and_store_burdens(
             device=device,
         ):
             idx = gene_idx_map[gene]
-            sum_burdens[sample_slice, idx, new_annotation_slice] = s_burden[:, new_annotation_idx]
-            max_burdens[sample_slice, idx, new_annotation_slice] = m_burden[:, new_annotation_idx]
-            top2_burdens[sample_slice, idx, new_annotation_slice] = t2_burden[:, new_annotation_idx]
-            gc.collect()
+            sum_burdens[sample_slice, idx, new_anno_slice] = s_burden
+            max_burdens[sample_slice, idx, new_anno_slice] = m_burden
+            top2_burdens[sample_slice, idx, new_anno_slice] = t2_burden
+            gene_array[idx] = gene # Store gene name in the Zarr array
 
-    print(f"Annotation extension complete. Updated Zarr at {output_zarr}")
+        zarr_root["samples"][sample_slice] = sample_ids_slice # Store gene name in the Zarr array
+
+        gc.collect()
+    
+    logger.info(f"Stored burdens for {n_genes} genes and {n_annos} annotations in Zarr at {output_zarr}")
