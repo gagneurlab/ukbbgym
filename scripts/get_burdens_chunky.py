@@ -141,7 +141,6 @@ def get_burdens_array_streaming(
         gc.collect()
 
 
-
 def compute_and_store_burdens(
     config_path,
     associations_df_path,
