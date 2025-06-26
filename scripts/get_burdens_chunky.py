@@ -172,7 +172,7 @@ def compute_and_store_burdens(
             (pl.col("ref").str.len_chars() == 1) &
             (pl.col("alt").str.len_chars() == 1)
         )
-        ag.subset_variants(snp_variants.select(pl.col('id')))
+        ag.subset_variants(set(snp_variants.select(pl.col('id')).collect()['id']))
 
     if sample_set:
         logger.debug(f"Filtering for samples. Restricting to {len(sample_set)} samples")
@@ -257,7 +257,7 @@ def compute_and_store_burdens(
             else:
                 # File doesn't exist; safe to write
                 df_lazy.sink_parquet(gene_file)
-                
+
         gc.collect()
 
     logger.debug(f"Stored burdens for {n_genes} genes and {n_annos} annotations in {output_dir}")
