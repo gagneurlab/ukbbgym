@@ -5,6 +5,63 @@ anngeno_file: PATH_TO_FILE
 maf: 0.001
 
 rare_variant_annotations:
+  pos_neg_split_annos:
+    - CADD_Aparent2_neg
+    - CADD_Aparent2_pos
+    - CADD_Dst2Splice_neg
+    - CADD_Dst2Splice_pos
+    - CADD_EsmScoreMissense_neg
+    - CADD_EsmScoreMissense_pos
+    - CADD_GerpS_neg
+    - CADD_GerpS_pos
+    - CADD_MMSp_acceptorIntron_neg
+    - CADD_MMSp_acceptorIntron_pos
+    - CADD_MMSp_acceptor_neg
+    - CADD_MMSp_acceptor_pos
+    - CADD_MMSp_donorIntron_neg
+    - CADD_MMSp_donorIntron_pos
+    - CADD_MMSp_donor_neg
+    - CADD_MMSp_donor_pos
+    - CADD_MMSp_exon_neg
+    - CADD_MMSp_exon_pos
+    - CADD_RAW_neg
+    - CADD_RAW_pos
+    - CADD_RawScore_neg
+    - CADD_RawScore_pos
+    - CADD_RegSeq0_neg
+    - CADD_RegSeq0_pos
+    - CADD_RegSeq1_neg
+    - CADD_RegSeq1_pos
+    - CADD_RegSeq2_neg
+    - CADD_RegSeq2_pos
+    - CADD_RegSeq3_neg
+    - CADD_RegSeq3_pos
+    - CADD_RegSeq4_neg
+    - CADD_RegSeq4_pos
+    - CADD_RegSeq5_neg
+    - CADD_RegSeq5_pos
+    - CADD_RegSeq6_neg
+    - CADD_RegSeq6_pos
+    - CADD_RegSeq7_neg
+    - CADD_RegSeq7_pos
+    - CADD_RemapOverlapCL_neg
+    - CADD_RemapOverlapCL_pos
+    - CADD_ZooVerPhyloP_neg
+    - CADD_ZooVerPhyloP_pos
+    - CADD_mamPhyloP_neg
+    - CADD_mamPhyloP_pos
+    - CADD_motifDist_neg
+    - CADD_motifDist_pos
+    - CADD_motifEScoreChng_neg
+    - CADD_motifEScoreChng_pos
+    - CADD_priPhyloP_neg
+    - CADD_priPhyloP_pos
+    - CADD_verPhyloP_neg
+    - CADD_verPhyloP_pos
+    - gpn_score_neg
+    - gpn_score_pos
+    - promoterAI_neg
+    - promoterAI_pos
   cadd_annotations:
     - DISTANCE
     - PolyPhen
