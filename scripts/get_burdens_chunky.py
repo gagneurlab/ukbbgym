@@ -116,6 +116,7 @@ def get_burdens_array_streaming(
     annotation_list,
     gene_chunk_size=50,
     sample_slice=None,
+    na_mask=False,
     max_burden=True,  #TODO
     device="cpu",     #TODO
 ):
@@ -139,6 +140,7 @@ def get_burdens_array_streaming(
                 regions_dict[gene]["annotations"],
                 annotation_list=annotation_list,
                 max_burden=True,
+                na_mask=na_mask,
             )
             yield gene, *burdens
             del burdens
@@ -155,6 +157,7 @@ def compute_and_store_burdens(
     sample_set=None,
     gene_chunk_size=50,
     sample_chunk_size=5_000,
+    na_mask=False,
     device="cpu",
     overwrite=False,
 ):
@@ -225,6 +228,7 @@ def compute_and_store_burdens(
             all_annotation_list,
             gene_chunk_size=gene_chunk_size,
             sample_slice=sample_slice,
+            na_mask=na_mask,
             device=device,
         ):
             n_samples_in_chunk = s_burden.shape[1]
@@ -283,6 +287,7 @@ import click
 @click.option('--sample-set-path', type=click.Path(exists=True), default=None, help="Optional path to text file with sample IDs to include.")
 @click.option('--gene-chunk-size', type=int, default=50, help="Number of genes to process per chunk.")
 @click.option('--sample-chunk-size', type=int, default=5000, help="Number of samples to process per chunk.")
+@click.option('--na-mask', is_flag=True, default=False, help="Filter out samples with no variants in the region.")
 @click.option('--device', default='cpu', help="Device to use for computation.")
 @click.option('--overwrite', is_flag=True, default=False, help="Whether to overwrite existing gene Parquet files.")
 def cli(
@@ -293,6 +298,7 @@ def cli(
     sample_set_path,
     gene_chunk_size,
     sample_chunk_size,
+    na_mask,
     device,
     overwrite,
 ):
@@ -310,6 +316,7 @@ def cli(
         sample_set=sample_set,
         gene_chunk_size=gene_chunk_size,
         sample_chunk_size=sample_chunk_size,
+        na_mask=na_mask,
         device=device,
         overwrite=overwrite
     )
