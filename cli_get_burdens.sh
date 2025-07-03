@@ -4,10 +4,10 @@ set -e  # Exit immediately if a command fails
 
 # === Config ===
 BASE_DIR="/home/dnanexus"
-CONFIG_PATH="ukbgym/config_wgs_cadd.yaml"
-ASSOCIATIONS_DF_PATH="small_gene_assocs.pq"
-OUTPUT_DIR="55_small_genes_onlySNP_cadd_annotations"
-GENE_CHUNK_SIZE="55"
+CONFIG_PATH="ukbgym/config_wgs_absplice2.yaml"
+ASSOCIATIONS_DF_PATH="data_dir/absplice2_assocs.parquet"
+OUTPUT_DIR="absplice2_78_small_genes"
+GENE_CHUNK_SIZE="78"
 SAMPLE_CHUNK_SIZE="40000"
 
 # === Run the Python script ===
@@ -16,6 +16,7 @@ python scripts/get_burdens_chunky.py \
     --associations-df-path "$BASE_DIR/$ASSOCIATIONS_DF_PATH" \
     --output-dir "$BASE_DIR/$OUTPUT_DIR" \
     --only-snps \
+    --na-mask \
     --overwrite \
     --gene-chunk-size "$GENE_CHUNK_SIZE" \
     --sample-chunk-size "$SAMPLE_CHUNK_SIZE" \
