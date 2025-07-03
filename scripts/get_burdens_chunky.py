@@ -93,7 +93,10 @@ def get_gene_burdens_numba(
     gis_top2_sum_list = []
     for a in tqdm(range(var_scores.shape[0]), desc=f"Computing max and top2, {var_scores.shape[1]} variants"):
         score_vec = var_scores[a, :]
-        max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask)
+        if na_mask:
+            max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask)
+        else: #TODO: check
+            max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, np.zeros(region_genotypes.shape[1], dtype=bool))
         gis_max_list.append(max_vals)
         gis_top2_sum_list.append(top2_sum)
         
