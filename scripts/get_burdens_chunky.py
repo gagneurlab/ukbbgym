@@ -60,8 +60,13 @@ def get_gene_burdens_numba(
     annotation_list, 
     max_burden=False,
     chunk_size=None,
+    na_mask=False,
 ):
-    no_variant_mask = region_genotypes.sum(axis = 0) == 0 # (samples, )
+    """
+    Computes gene burdens using numba for performance.
+    """
+    if na_mask:
+        no_variant_mask = region_genotypes.sum(axis = 0) == 0 # (samples, )
 
     try:
         var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).T  # shape: (annotations, variants)
@@ -71,7 +76,8 @@ def get_gene_burdens_numba(
 
     # Calculate sum burden directly
     gis_sum = np.dot(var_scores, region_genotypes)  # (annotations, samples)
-    gis_sum[:, no_variant_mask] = np.nan
+    if na_mask:
+        gis_sum[:, no_variant_mask] = np.nan
     
     # If max_burden is False, return sum burden
     if not max_burden:
@@ -97,8 +103,9 @@ def get_gene_burdens_numba(
     gis_max = np.stack(gis_max_list, axis=0)         # (annotations, samples)
     gis_top2 = np.stack(gis_top2_sum_list, axis=0)   # (annotations, samples)
 
-    gis_max[:, no_variant_mask] = np.nan
-    gis_top2[:, no_variant_mask] = np.nan
+    if na_mask:
+        gis_max[:, no_variant_mask] = np.nan
+        gis_top2[:, no_variant_mask] = np.nan
 
     return gis_sum, gis_max, gis_top2 # (annotations, samples)
 
