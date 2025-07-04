@@ -6,6 +6,9 @@ maf: 0.001
 
 rare_variant_annotations:
   baselines:
+  - loftee_hc
+  - am_pathogenicity
+  splicing:
   - AbSplice_DNA_max
   - pangolin_score
   - gain_score

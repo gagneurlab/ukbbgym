@@ -5,10 +5,13 @@ set -e  # Exit immediately if a command fails
 # === Config ===
 BASE_DIR="PATH_TO_FILE"
 CONFIG_PATH="ukbgym/config_wgs_absplice2.yaml"
+# CONFIG_PATH="ukbgym/config_wgs.yaml"
 ASSOCIATIONS_DF_PATH="data_dir/absplice2_assocs.parquet"
-OUTPUT_DIR="absplice2_78_small_genes"
-GENE_CHUNK_SIZE="78"
-SAMPLE_CHUNK_SIZE="40000"
+# ASSOCIATIONS_DF_PATH="data_dir/absplice2_delta_assocs.parquet"
+OUTPUT_DIR="absplice2_61genes"
+# OUTPUT_DIR="6genes_onlySNP_cadd_annotations_posnegsplit"
+GENE_CHUNK_SIZE="61"
+SAMPLE_CHUNK_SIZE="35000"
 
 # === Run the Python script ===
 python scripts/get_burdens_chunky.py \
