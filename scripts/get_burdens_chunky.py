@@ -35,10 +35,10 @@ def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_var
         end = min(start + chunk_size, n_samples)
         for s in range(start, end):
             if no_variant_mask[s]:
-                    # Skip computation, set NaN
-                    max_vals[s] = np.nan
-                    top2_sums[s] = np.nan
-                    continue
+                # Skip computation, set NaN
+                max_vals[s] = np.nan
+                top2_sums[s] = np.nan
+                continue
             
             burden = np.abs(score_vec * region_genotypes[:, s])
             if len(burden) >= 2:
