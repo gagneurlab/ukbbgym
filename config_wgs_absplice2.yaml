@@ -22,18 +22,6 @@ rare_variant_annotations:
   - Consequence_splice_donor_region_variant
   - Consequence_splice_polypyrimidine_tract_variant
   - Consequence_splice_region_variant
-  - CADD_dbscSNV-ada_score
-  - CADD_dbscSNV-rf_score
-  - CADD_MMSp_acceptorIntron_neg
-  - CADD_MMSp_acceptorIntron_pos
-  - CADD_MMSp_acceptor_neg
-  - CADD_MMSp_acceptor_pos
-  - CADD_MMSp_donorIntron_neg
-  - CADD_MMSp_donorIntron_pos
-  - CADD_MMSp_donor_neg
-  - CADD_MMSp_donor_pos
-  - CADD_MMSp_exon_neg
-  - CADD_MMSp_exon_pos
   absplice2:
   - AbSplice2_max
   - Adipose_Subcutaneous
@@ -85,3 +73,29 @@ rare_variant_annotations:
   - Uterus
   - Vagina
   - Whole_Blood
+
+covariates: 
+  - age
+  - age2
+  - age_sex
+  - sex
+  - genetic_pc_1
+  - genetic_pc_2
+  - genetic_pc_3
+  - genetic_pc_4
+  - genetic_pc_5
+  - genetic_pc_6
+  - genetic_pc_7
+  - genetic_pc_8
+  - genetic_pc_9
+  - genetic_pc_10
+  - genetic_pc_11
+  - genetic_pc_12
+  - genetic_pc_13
+  - genetic_pc_14
+  - genetic_pc_15
+  - genetic_pc_16
+  - genetic_pc_17
+  - genetic_pc_18
+  - genetic_pc_19
+  - genetic_pc_20
