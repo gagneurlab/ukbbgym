@@ -68,7 +68,7 @@ def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_var
                 max_vals[s] = expanded[0]
                 top2_sums[s] = expanded[0]
             else:
-                top2 = np.partition(expanded, -2)[-2:]
+                top2 = np.partition(expanded, -2)[-2:] #TODO: maybe we need np.partition(expanded[:idx_exp], -2)
                 max_vals[s] = top2.max()
                 top2_sums[s] = top2.sum()
 
