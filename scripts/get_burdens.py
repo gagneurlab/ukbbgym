@@ -49,8 +49,9 @@ def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_var
 
             # Allocate buffer for this sample only
             max_expanded_size = len(valid_variant_idx) * 2  # at most 2 copies per variant
-            expanded = np.empty(max_expanded_size, dtype=np.float32)
+            expanded = np.zeros(max_expanded_size, dtype=np.float32)
 
+            # Expand the burdens for this sample to account for homozygous variants
             idx_exp = 0
             for idx in valid_variant_idx:
                 copies = int(region_genotypes[idx, s])
