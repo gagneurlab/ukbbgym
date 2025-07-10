@@ -14,16 +14,135 @@ from numba import njit, prange
 import multiprocessing
 
 import logging
+
 # --- Logging Setup ---
 logging.basicConfig(
     format="[%(asctime)s] %(levelname)s:%(name)s: %(message)s",
     level=logging.INFO,
     stream=sys.stdout,
 )
+
 logger = logging.getLogger(__name__)
 
+
 @njit(parallel=True)
-def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask):
+def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask, valid_variant_idx):
+    """
+    Compute per-sample max and sum of top 2 burdens for a single annotation,
+    handling multiple variant copies correctly.
+    """
+    n_samples = region_genotypes.shape[1]
+    n_chunks = (n_samples + chunk_size - 1) // chunk_size
+
+    max_vals = np.empty(n_samples, dtype=np.float32)
+    top2_sums = np.empty(n_samples, dtype=np.float32)
+
+    for c in prange(n_chunks):
+        start = c * chunk_size
+        end = min(start + chunk_size, n_samples)
+
+        for s in range(start, end):
+            if no_variant_mask[s]:
+                max_vals[s] = np.nan
+                top2_sums[s] = np.nan
+                continue
+
+            # Allocate buffer for this sample only
+            max_expanded_size = len(valid_variant_idx) * 2  # at most 2 copies per variant
+            expanded = np.empty(max_expanded_size, dtype=np.float32)
+
+            idx_exp = 0
+            for idx in valid_variant_idx:
+                copies = int(region_genotypes[idx, s])
+                if copies > 0:
+                    burden = abs(score_vec[idx])
+                    for _ in range(copies):
+                        expanded[idx_exp] = burden
+                        idx_exp += 1
+
+            if idx_exp == 0:
+                max_vals[s] = 0.0
+                top2_sums[s] = 0.0
+            elif idx_exp == 1:
+                max_vals[s] = expanded[0]
+                top2_sums[s] = expanded[0]
+            else:
+                top2 = np.partition(expanded, -2)[-2:]
+                max_vals[s] = top2.max()
+                top2_sums[s] = top2.sum()
+
+    return max_vals, top2_sums
+
+
+def get_gene_burdens_numba(
+    region_genotypes,
+    region_annotations,
+    annotation_list, 
+    max_burden=False,
+    chunk_size=None,
+    na_mask=False,
+):
+    """
+    Compute sum, max, and sum-of-top-2 burdens for all annotations in a gene region.
+    Uses numba for speed.
+    """
+    # Identify samples with no variants if needed
+    if na_mask:
+        no_variant_mask = region_genotypes.sum(axis=0) == 0  # (samples, )
+    else:
+        no_variant_mask = np.zeros(region_genotypes.shape[1], dtype=bool)
+
+    # Load and format variant scores (annotations)
+    try:
+        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).T
+    except Exception as e:
+        print(f"Error: {e}\nReturning NaNs.")
+        return np.nan, np.nan, np.nan
+
+    # Sum burden: simple matrix multiply
+    gis_sum = np.dot(var_scores, region_genotypes)
+    if na_mask:
+        gis_sum[:, no_variant_mask] = np.nan
+
+    if not max_burden:
+        return gis_sum, np.nan, np.nan
+
+    # Chunking for parallel execution
+    if chunk_size is None:
+        num_cores = multiprocessing.cpu_count()
+        chunk_size = max(1, region_genotypes.shape[1] // (num_cores * 2))
+
+    # Find non-zero variants to skip unnecessary work
+    nonzero_variants = np.any(region_genotypes > 0, axis=1)
+    valid_variant_idx = np.where(nonzero_variants)[0].astype(np.int32)
+
+    # Compute max + top2 for each annotation
+    gis_max_list = []
+    gis_top2_sum_list = []
+    for a in tqdm(range(var_scores.shape[0]), desc=f"Computing max and top2, {var_scores.shape[1]} variants"):
+        score_vec = var_scores[a, :]
+        max_vals, top2_sum = compute_max_and_top2_chunked(
+            score_vec, region_genotypes, chunk_size, no_variant_mask, valid_variant_idx
+        )
+        gis_max_list.append(max_vals)
+        gis_top2_sum_list.append(top2_sum)
+        
+        del max_vals, top2_sum
+        gc.collect()
+
+    # Stack all annotations into final arrays
+    gis_max = np.stack(gis_max_list, axis=0)
+    gis_top2 = np.stack(gis_top2_sum_list, axis=0)
+
+    if na_mask:
+        gis_max[:, no_variant_mask] = np.nan
+        gis_top2[:, no_variant_mask] = np.nan
+
+    return gis_sum, gis_max, gis_top2
+
+
+@njit(parallel=True)
+def compute_max_and_top2_chunked_old(score_vec, region_genotypes, chunk_size, no_variant_mask):
     n_variants, n_samples = region_genotypes.shape
     n_chunks = (n_samples + chunk_size - 1) // chunk_size
 
@@ -40,12 +159,19 @@ def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_var
                 top2_sums[s] = np.nan
                 continue
             
-            burden = np.abs(score_vec * region_genotypes[:, s])
-            if len(burden) >= 2:
-                top2 = np.partition(burden, -2)[-2:]
+            # burden = np.abs(score_vec * region_genotypes[:, s])
+            mask = copies > 0
+            burden = np.abs(score_vec[mask])
+            print(burden)
+            copies = region_genotypes[:, s][mask]
+            print(copies)
+            expanded = np.repeat(burden, copies)
+            print(expanded)
+            if len(expanded) >= 2:
+                top2 = np.partition(expanded, -2)[-2:]
                 max_vals[s] = top2.max()
                 top2_sums[s] = top2.sum()
-            elif len(burden) == 1:
+            elif len(expanded) == 1:
                 max_vals[s] = burden[0]
                 top2_sums[s] = burden[0]
             else:
@@ -54,7 +180,7 @@ def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_var
 
     return max_vals, top2_sums
 
-def get_gene_burdens_numba(
+def get_gene_burdens_numba_old(
     region_genotypes,
     region_annotations,
     annotation_list, 
@@ -171,20 +297,20 @@ def compute_and_store_burdens(
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
-    logger.debug("Loading AnnGeno file")
+    logger.info("Loading AnnGeno file")
     ag = AnnGeno(filename=config.get("anngeno_file"), filemode="r", low_mem=True)
     maf = config.get('maf', 0.001)
 
-    logger.debug(f"Filtering for variants with MAF < {maf}")
+    logger.info(f"Filtering for variants with MAF < {maf}")
     variants_to_keep_df = ag.annotations.filter((pl.col('AF_ukb') < maf))
     ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect()['id']))
     
-    logger.debug("Drop is_nans from annotations")
+    logger.info("Drop is_nans from annotations")
     sel_cols = [col for col in ag.annotations.collect_schema().names() if not col.endswith('is_nan')]
     ag.subset_annotations(sel_cols)
 
     if only_snps:
-        logger.debug(f"Filtering for SNPs only")
+        logger.info(f"Filtering for SNPs only")
         snp_variants = ag.annotations.filter(
             (pl.col("ref").str.len_chars() == 1) &
             (pl.col("alt").str.len_chars() == 1)
@@ -192,7 +318,7 @@ def compute_and_store_burdens(
         ag.subset_variants(set(snp_variants.select(pl.col('id')).collect()['id']))
 
     if sample_set:
-        logger.debug(f"Filtering for samples. Restricting to {len(sample_set)} samples")
+        logger.info(f"Filtering for samples. Restricting to {len(sample_set)} samples")
         ag.subset_samples(sample_set)
 
     all_annotation_list = []
@@ -206,7 +332,7 @@ def compute_and_store_burdens(
     valid_genes = [g for g in gene_list if g in ag.region_ids]
     invalid_regions = [g for g in gene_list if g not in ag.region_ids]
     if invalid_regions:
-        logger.debug(f"Regions not found. Skipping regions {invalid_regions}")
+        logger.info(f"Regions not found. Skipping regions {invalid_regions}")
 
     sample_ids = ag.samples
     n_samples = len(sample_ids)
@@ -277,7 +403,7 @@ def compute_and_store_burdens(
 
         gc.collect()
 
-    logger.debug(f"Stored burdens for {n_genes} genes and {n_annos} annotations in {output_dir}")
+    logger.info(f"Stored burdens for {n_genes} genes and {n_annos} annotations in {output_dir}")
 
 
 import click
