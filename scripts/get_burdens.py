@@ -1,10 +1,11 @@
+import os
 import gc
 import sys
 import yaml
-import zarr
-import click
 import polars as pl
 import numpy as np
+
+from datetime import datetime
 
 from tqdm import tqdm
 from anngeno import AnnGeno
@@ -34,10 +35,10 @@ def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_var
         end = min(start + chunk_size, n_samples)
         for s in range(start, end):
             if no_variant_mask[s]:
-                    # Skip computation, set NaN
-                    max_vals[s] = np.nan
-                    top2_sums[s] = np.nan
-                    continue
+                # Skip computation, set NaN
+                max_vals[s] = np.nan
+                top2_sums[s] = np.nan
+                continue
             
             burden = np.abs(score_vec * region_genotypes[:, s])
             if len(burden) >= 2:
@@ -59,18 +60,24 @@ def get_gene_burdens_numba(
     annotation_list, 
     max_burden=False,
     chunk_size=None,
+    na_mask=False,
 ):
-    no_variant_mask = region_genotypes.sum(axis = 0) == 0 # (samples, )
+    """
+    Computes gene burdens using numba for performance.
+    """
+    if na_mask:
+        no_variant_mask = region_genotypes.sum(axis = 0) == 0 # (samples, )
 
     try:
-        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).transpose()  # shape: (annotations, variants)
+        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).T  # shape: (annotations, variants)
     except Exception as e:
-        logger.info(f"Error: {e}\nReturning NaNs.")
+        print(f"Error: {e}\nReturning NaNs.")
         return np.nan, np.nan, np.nan
 
     # Calculate sum burden directly
-    gis_sum = np.dot(var_scores, region_genotypes).transpose()  # shape: (samples, annotations)
-    gis_sum[no_variant_mask, :] = np.nan
+    gis_sum = np.dot(var_scores, region_genotypes)  # (annotations, samples)
+    if na_mask:
+        gis_sum[:, no_variant_mask] = np.nan
     
     # If max_burden is False, return sum burden
     if not max_burden:
@@ -84,22 +91,26 @@ def get_gene_burdens_numba(
     # Compute max + top2 via numba
     gis_max_list = []
     gis_top2_sum_list = []
-    for a in range(var_scores.shape[0]):
+    for a in tqdm(range(var_scores.shape[0]), desc=f"Computing max and top2, {var_scores.shape[1]} variants"):
         score_vec = var_scores[a, :]
-        max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask)
+        if na_mask:
+            max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask)
+        else: #TODO: check
+            max_vals, top2_sum = compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, np.zeros(region_genotypes.shape[1], dtype=bool))
         gis_max_list.append(max_vals)
         gis_top2_sum_list.append(top2_sum)
         
         del max_vals, top2_sum
         gc.collect()
 
-    gis_max = np.stack(gis_max_list, axis=0).T         # (samples, annotations)
-    gis_top2 = np.stack(gis_top2_sum_list, axis=0).T   # (samples, annotations)
+    gis_max = np.stack(gis_max_list, axis=0)         # (annotations, samples)
+    gis_top2 = np.stack(gis_top2_sum_list, axis=0)   # (annotations, samples)
 
-    gis_max[no_variant_mask, :] = np.nan
-    gis_top2[no_variant_mask, :] = np.nan
+    if na_mask:
+        gis_max[:, no_variant_mask] = np.nan
+        gis_top2[:, no_variant_mask] = np.nan
 
-    return gis_sum, gis_max, gis_top2
+    return gis_sum, gis_max, gis_top2 # (annotations, samples)
 
 
 def get_burdens_array_streaming(
@@ -108,6 +119,7 @@ def get_burdens_array_streaming(
     annotation_list,
     gene_chunk_size=50,
     sample_slice=None,
+    na_mask=False,
     max_burden=True,  #TODO
     device="cpu",     #TODO
 ):
@@ -115,12 +127,15 @@ def get_burdens_array_streaming(
     Generator yielding (gene, sum_burden, max_burden, top2_burden) for each gene.
     """
 
-    for i in tqdm(range(0, len(gene_id_list), gene_chunk_size), position=0, leave=True, desc=f"Genes: Processing chunks of {gene_chunk_size} genes"):
+    for i in range(0, len(gene_id_list), gene_chunk_size):
         batch_genes = gene_id_list[i : i + gene_chunk_size]
+        print(f"{[datetime.now().strftime('%Y-%m-%d %H:%M:%S')]} Starting loading {gene_chunk_size} regions")
         regions_dict = anngeno.get_many_regions(
             regions=batch_genes, 
             sample_slice=sample_slice,
+            observed_only=True,
             )
+        print(f"{[datetime.now().strftime('%Y-%m-%d %H:%M:%S')]} Done loading {gene_chunk_size} regions")
 
         for gene in batch_genes:
             burdens = get_gene_burdens_numba(
@@ -128,6 +143,7 @@ def get_burdens_array_streaming(
                 regions_dict[gene]["annotations"],
                 annotation_list=annotation_list,
                 max_burden=True,
+                na_mask=na_mask,
             )
             yield gene, *burdens
             del burdens
@@ -135,41 +151,48 @@ def get_burdens_array_streaming(
         del regions_dict
         gc.collect()
 
+
 def compute_and_store_burdens(
     config_path,
-    associations_df_path,
-    output_zarr,
+    gene_list,
+    output_dir,
     only_snps=False,
     sample_set=None,
     gene_chunk_size=50,
     sample_chunk_size=5_000,
+    na_mask=False,
     device="cpu",
+    overwrite=False,
 ):
     """
-    Computes and stores gene burdens directly to Zarr in streaming mode,
-    with extendable gene axis.
+    Computes and stores gene burdens directly to Zarr in streaming mode.
+    Either creates new Zarr arrays or overwrites existing ones.
     """
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
-    logger.info("Loading AnnGeno file")
+    logger.debug("Loading AnnGeno file")
     ag = AnnGeno(filename=config.get("anngeno_file"), filemode="r", low_mem=True)
     maf = config.get('maf', 0.001)
-    
-    logger.info(f"Filtering for variants with MAF < {maf}")
+
+    logger.debug(f"Filtering for variants with MAF < {maf}")
     variants_to_keep_df = ag.annotations.filter((pl.col('AF_ukb') < maf))
-    ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect ()['id']))
+    ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect()['id']))
     
+    logger.debug("Drop is_nans from annotations")
+    sel_cols = [col for col in ag.annotations.collect_schema().names() if not col.endswith('is_nan')]
+    ag.subset_annotations(sel_cols)
+
     if only_snps:
-        logger.info(f"Filtering for SNPs only")
+        logger.debug(f"Filtering for SNPs only")
         snp_variants = ag.annotations.filter(
-            (pl.col("ref").str.len_chars() == 1) & 
+            (pl.col("ref").str.len_chars() == 1) &
             (pl.col("alt").str.len_chars() == 1)
         )
-        ag.subset_variants(snp_variants.select(pl.col('id')))
-    
+        ag.subset_variants(set(snp_variants.select(pl.col('id')).collect()['id']))
+
     if sample_set:
-        logger.info(f"Filtering for samples. Restricting to {len(sample_set)} samples")
+        logger.debug(f"Filtering for samples. Restricting to {len(sample_set)} samples")
         ag.subset_samples(sample_set)
 
     all_annotation_list = []
@@ -177,152 +200,128 @@ def compute_and_store_burdens(
     if rare_variant_annotations_dict:
         for category in rare_variant_annotations_dict.values():
             all_annotation_list.extend(category)
-    all_annotation_list = list(set(all_annotation_list).intersection(set(ag.annotations.collect_schema().names())))  # Ensure unique annotations are present in the AnnGeno object
-    n_annos = len(all_annotation_list)
+    all_annotation_list = list(set(all_annotation_list).intersection(set(ag.annotations.collect_schema().names())))
 
-    associations_df = pl.read_parquet(associations_df_path)
-    gene_id_list = associations_df['gene_id'].unique()
-    valid_genes = [g for g in gene_id_list if g in ag.region_ids]
-    invalid_regions = [g for g in gene_id_list if g not in ag.region_ids]
+    # Get valid genes from the provided gene list
+    valid_genes = [g for g in gene_list if g in ag.region_ids]
+    invalid_regions = [g for g in gene_list if g not in ag.region_ids]
     if invalid_regions:
-        logger.info(f"Regions not found. Skipping regions {invalid_regions}")
+        logger.debug(f"Regions not found. Skipping regions {invalid_regions}")
+
     sample_ids = ag.samples
     n_samples = len(sample_ids)
     n_genes = len(valid_genes)
+    n_annos = len(all_annotation_list)
 
-    if sample_chunk_size is None:
-        sample_chunk_size = n_samples  # no chunking
+    logger.info(f"Found {n_genes} valid genes and {n_annos} annotations across {n_samples} samples.")
 
-    # compressors = Blosc(cname='zstd', clevel=5, shuffle=Blosc.BITSHUFFLE)
-    zarr_root = zarr.open_group(output_zarr, mode="a")
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    files_overwritten = set() # To track files that have been overwritten
 
-    # Create or extend datasets
-    if "sum_burdens" in zarr_root:
-        logger.info(f"Extending existing Zarr arrays at {output_zarr}")
-        sum_burdens = zarr_root["sum_burdens"]
-        max_burdens = zarr_root["max_burdens"]
-        top2_burdens = zarr_root["top2_burdens"]
-        
-        gene_offset = sum_burdens.shape[1]
-        genes_completed = zarr_root["genes"][:]
-        valid_genes = set(valid_genes) - set(genes_completed)  # Remove already processed genes
-        logger.info(f"Genes completed in existing zarr: {len(genes_completed)}\nExtending with {len(valid_genes)} new genes")
-
-        # Handle annotation extension if needed
-        if n_annos > sum_burdens.shape[2]:
-            # new_annos = n_annos - sum_burdens.shape[2]
-            new_annos = set(all_annotation_list) - set(zarr_root["annotations"][:])
-            sum_burdens.resize((n_samples, sum_burdens.shape[1], n_annos))
-            max_burdens.resize((n_samples, max_burdens.shape[1], n_annos))
-            top2_burdens.resize((n_samples, top2_burdens.shape[1], n_annos))
-
-            # Extend annotation array
-            annotations_ds = zarr_root["annotations"]
-            annotations_ds.resize(n_annos)
-            # TODO fix new annotations logic (even in the for loop below)
-            annotations_ds[-new_annos:] = np.array(all_annotation_list[-len(new_annos):], dtype="U50")
-
-        sum_burdens.resize((n_samples, gene_offset + n_genes, n_annos))
-        max_burdens.resize((n_samples, gene_offset + n_genes, n_annos))
-        top2_burdens.resize((n_samples, gene_offset + n_genes, n_annos))
-
-    else:
-        logger.info(f"Creating new Zarr arrays at {output_zarr}")
-        sum_burdens = zarr_root.create_array(
-            "sum_burdens",
-            shape=(n_samples, n_genes, n_annos),
-            chunks=(sample_chunk_size, 1, 1),
-            dtype="f4",
-            # compressors=compressors
-        )
-        max_burdens = zarr_root.create_array(
-            "max_burdens",
-            shape=(n_samples, n_genes, n_annos),
-            chunks=(sample_chunk_size, 1, 1),
-            dtype="f4",
-            # compressors=compressors
-        )
-        top2_burdens = zarr_root.create_array(
-            "top2_burdens",
-            shape=(n_samples, n_genes, n_annos),
-            chunks=(sample_chunk_size, 1, 1),
-            dtype="f4",
-            # compressors=compressors
-        )
-        zarr_root.create_array("samples", shape=(n_samples,), dtype="U50")
-        zarr_root.create_array("annotations", shape=(n_annos,), chunks=(n_annos,), dtype="U50")
-        zarr_root.create_array("genes", shape=(n_genes,), chunks=(1,), dtype="U50")
-        gene_offset = 0
-
-    zarr_root["annotations"][:] = np.array(all_annotation_list, dtype="U50")
-    zarr_root["genes"].resize(gene_offset + n_genes)
-    gene_array = zarr_root["genes"]
-    gene_idx_map = {g: gene_offset + i for i, g in enumerate(valid_genes)}
-
-    for start in tqdm(range(0, n_samples, sample_chunk_size), position=0, leave=True, desc=f"Samples: Processing chunks of {sample_chunk_size} samples"):
+    for start in tqdm(range(0, n_samples, sample_chunk_size), desc=f"Processing {sample_chunk_size} sample chunks"):
         end = min(start + sample_chunk_size, n_samples)
         sample_slice = slice(start, end)
-
-        logger.info(f"Processing samples {start}:{end} ({end-start} samples)")
-        sample_ids_slice = sample_ids[start:end]
-        zarr_root["samples"][sample_slice] = sample_ids_slice
+        current_sample_ids = ag.samples[sample_slice.start:sample_slice.stop]
 
         for gene, s_burden, m_burden, t2_burden in get_burdens_array_streaming(
             ag,
-            list(valid_genes),
+            valid_genes,
             all_annotation_list,
             gene_chunk_size=gene_chunk_size,
-            sample_slice=sample_slice,  # pass as slice
+            sample_slice=sample_slice,
+            na_mask=na_mask,
             device=device,
         ):
-            idx = gene_idx_map[gene]
-            sum_burdens[sample_slice, idx, :] = s_burden
-            max_burdens[sample_slice, idx, :] = m_burden
-            top2_burdens[sample_slice, idx, :] = t2_burden
+            n_samples_in_chunk = s_burden.shape[1]
+            annotation_ids = np.array(all_annotation_list)
 
-            gene_array[idx] = gene
+            sample_col = np.tile(current_sample_ids, n_annos)
+            annotation_col = np.repeat(annotation_ids, n_samples_in_chunk)
+
+            df_lazy = pl.LazyFrame({
+                "sample_id": sample_col,
+                "gene_id": [gene] * (n_samples_in_chunk * n_annos),
+                "annotation": annotation_col,
+                "sum": s_burden.flatten(),
+                "max": m_burden.flatten(),
+                "top2": t2_burden.flatten(),
+            })
+
+            gene_file = os.path.join(output_dir, f"{gene}.parquet")
+            if os.path.exists(gene_file):
+                if overwrite:
+                    if gene_file not in files_overwritten:
+                        # Overwrite only once if it existed before
+                        df_lazy.sink_parquet(gene_file)
+                        files_overwritten.add(gene_file)
+                    else:
+                        # File was already overwritten, so we append
+                        try:
+                            existing = pl.read_parquet(gene_file).lazy()
+                            df_lazy = pl.concat([existing, df_lazy])
+                            df_lazy.sink_parquet(gene_file)
+                        except Exception as e:
+                            logger.warning(f"Could not concat {gene}: {e}")
+                else:
+                    # No overwrite allowed, always append
+                    try:
+                        existing = pl.read_parquet(gene_file).lazy()
+                        df_lazy = pl.concat([existing, df_lazy])
+                        df_lazy.sink_parquet(gene_file)
+                    except Exception as e:
+                        logger.warning(f"Could not concat {gene}: {e}")
+            else:
+                # File doesn't exist; safe to write
+                df_lazy.sink_parquet(gene_file)
 
         gc.collect()
-    
-    logger.info(f"Stored burdens for {n_genes} genes in Zarr at {output_zarr}")
+
+    logger.debug(f"Stored burdens for {n_genes} genes and {n_annos} annotations in {output_dir}")
 
 
-
-@click.group()
-def cli():
-    pass
-
-@cli.command()
-@click.option("--config-path", type=str, required=True, help="Config file with all details")
-@click.option("--output-zarr", type=str, required=True, help="Output zarr file")
-@click.option("--max-burden", is_flag=True, default=False, help="Compute burdens using max scores")
-@click.option("--only-snps", is_flag=True, default=False, help="Use only SNPs to compute burdens")
-@click.option("--overwrite", is_flag=True, default=False, help="Overwrite old zarr file") #TODO
-@click.option("--debug", is_flag=True, default=False, help="Use only 5 associations to debug code")
-def compute_burdens(
-    config_path: str,
-    output_zarr: str,
-    max_burden: bool = False,
-    only_snps: bool = False,
-    overwrite: bool = False,
-    debug: bool = False,
-    batch_size: int = 32,
-    n_jobs: int = 32,
+import click
+@click.command()
+@click.option('--config-path', required=True, type=click.Path(exists=True), help="Path to YAML config file.")
+@click.option('--gene-list', required=True, type=click.Path(exists=True), help="List of genes to compute the burdens for.")
+@click.option('--output-dir', required=True, type=click.Path(), help="Directory to write per-gene Parquet files.")
+@click.option('--only-snps', is_flag=True, default=False, help="Filter for SNPs only.")
+@click.option('--sample-set-path', type=click.Path(exists=True), default=None, help="Optional path to text file with sample IDs to include.")
+@click.option('--gene-chunk-size', type=int, default=50, help="Number of genes to process per chunk.")
+@click.option('--sample-chunk-size', type=int, default=5000, help="Number of samples to process per chunk.")
+@click.option('--na-mask', is_flag=True, default=False, help="Filter out samples with no variants in the region.")
+@click.option('--device', default='cpu', help="Device to use for computation.")
+@click.option('--overwrite', is_flag=True, default=False, help="Whether to overwrite existing gene Parquet files.")
+def cli(
+    config_path,
+    gene_list,
+    output_dir,
+    only_snps,
+    sample_set_path,
+    gene_chunk_size,
+    sample_chunk_size,
+    na_mask,
+    device,
+    overwrite,
 ):
-    logger.info('You are running the script to compute gene burdens')
+    if sample_set_path:
+        with open(sample_set_path) as f:
+            sample_set = [line.strip() for line in f if line.strip()]
+    else:
+        sample_set = None
 
     compute_and_store_burdens(
         config_path=config_path,
-        output_zarr=output_zarr,
-        max_burden=max_burden,
+        gene_list=gene_list,
+        output_dir=output_dir,
         only_snps=only_snps,
-        overwrite=overwrite,
-        debug=debug,
-        batch_size=batch_size,
-        n_jobs=n_jobs,
+        sample_set=sample_set,
+        gene_chunk_size=gene_chunk_size,
+        sample_chunk_size=sample_chunk_size,
+        na_mask=na_mask,
+        device=device,
+        overwrite=overwrite
     )
-
-    logger.info('Gene burdens have been computed and stored')
 
 if __name__ == "__main__":
     cli()

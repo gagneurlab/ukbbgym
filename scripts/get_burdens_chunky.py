@@ -154,7 +154,7 @@ def get_burdens_array_streaming(
 
 def compute_and_store_burdens(
     config_path,
-    associations_df_path,
+    associations_df,
     output_dir,
     only_snps=False,
     sample_set=None,
@@ -202,7 +202,7 @@ def compute_and_store_burdens(
             all_annotation_list.extend(category)
     all_annotation_list = list(set(all_annotation_list).intersection(set(ag.annotations.collect_schema().names())))
 
-    associations_df = pl.read_parquet(associations_df_path)
+    # associations_df = pl.read_parquet(associations_df_path)
     gene_id_list = associations_df['gene_id'].unique()
     valid_genes = [g for g in gene_id_list if g in ag.region_ids]
     invalid_regions = [g for g in gene_id_list if g not in ag.region_ids]
