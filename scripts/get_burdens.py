@@ -5,6 +5,7 @@ import yaml
 import polars as pl
 import numpy as np
 
+import pathlib
 from datetime import datetime
 
 from tqdm import tqdm
@@ -149,8 +150,7 @@ def get_burdens_array_streaming(
     gene_chunk_size=50,
     sample_slice=None,
     na_mask=False,
-    max_burden=True,  #TODO
-    device="cpu",     #TODO
+    max_burden=True,
 ):
     """
     Generator yielding (gene, sum_burden, max_burden, top2_burden) for each gene.
@@ -173,6 +173,7 @@ def get_burdens_array_streaming(
                 annotation_list=annotation_list,
                 max_burden=True,
                 na_mask=na_mask,
+                max_burden=max_burden,
             )
             yield gene, *burdens
             del burdens
@@ -186,11 +187,12 @@ def compute_and_store_burdens(
     gene_list,
     output_dir,
     only_snps=False,
-    sample_set=None,
+    variant_subset=None,
+    sample_subset=None,
+    max_burden=True,
     gene_chunk_size=50,
     sample_chunk_size=5_000,
     na_mask=False,
-    device="cpu",
     overwrite=False,
 ):
     """
@@ -220,9 +222,9 @@ def compute_and_store_burdens(
         )
         ag.subset_variants(set(snp_variants.select(pl.col('id')).collect()['id']))
 
-    if sample_set:
-        logger.info(f"Filtering for samples. Restricting to {len(sample_set)} samples")
-        ag.subset_samples(sample_set)
+    if sample_subset:
+        logger.info(f"Filtering for samples. Restricting to {len(sample_subset)} samples")
+        ag.subset_samples(sample_subset)
 
     all_annotation_list = []
     rare_variant_annotations_dict = config.get('rare_variant_annotations')
@@ -260,7 +262,7 @@ def compute_and_store_burdens(
             gene_chunk_size=gene_chunk_size,
             sample_slice=sample_slice,
             na_mask=na_mask,
-            device=device,
+            max_burden=max_burden,
         ):
             n_samples_in_chunk = s_burden.shape[1]
             annotation_ids = np.array(all_annotation_list)
@@ -312,43 +314,57 @@ def compute_and_store_burdens(
 import click
 @click.command()
 @click.option('--config-path', required=True, type=click.Path(exists=True), help="Path to YAML config file.")
-@click.option('--gene-list', required=True, type=click.Path(exists=True), help="List of genes to compute the burdens for.")
+@click.option('--gene-list-path', required=True, type=click.Path(exists=True), help="List of genes to compute the burdens for.")
 @click.option('--output-dir', required=True, type=click.Path(), help="Directory to write per-gene Parquet files.")
 @click.option('--only-snps', is_flag=True, default=False, help="Filter for SNPs only.")
-@click.option('--sample-set-path', type=click.Path(exists=True), default=None, help="Optional path to text file with sample IDs to include.")
+@click.option('--variant-subset-path', type=click.Path(exists=True), default=None, help="Optional path to text file with variant IDs to include.")
+@click.option('--sample-subset-path', type=click.Path(exists=True), default=None, help="Optional path to text file with sample IDs to include.")
 @click.option('--gene-chunk-size', type=int, default=50, help="Number of genes to process per chunk.")
 @click.option('--sample-chunk-size', type=int, default=5000, help="Number of samples to process per chunk.")
 @click.option('--na-mask', is_flag=True, default=False, help="Filter out samples with no variants in the region.")
-@click.option('--device', default='cpu', help="Device to use for computation.")
 @click.option('--overwrite', is_flag=True, default=False, help="Whether to overwrite existing gene Parquet files.")
 def cli(
     config_path,
-    gene_list,
+    gene_list_path,
     output_dir,
     only_snps,
-    sample_set_path,
+    variant_subset_path,
+    sample_subset_path,
     gene_chunk_size,
     sample_chunk_size,
     na_mask,
-    device,
     overwrite,
 ):
-    if sample_set_path:
-        with open(sample_set_path) as f:
-            sample_set = [line.strip() for line in f if line.strip()]
+    try:
+        ext = pathlib.Path(gene_list_path).suffix.lower()
+        if (ext == ".parquet") or (ext == ".pq"):
+            gene_list = pl.read_parquet(gene_list_path)['gene_id'].unique().to_list()
+        else:
+            gene_list = pl.read_csv(gene_list_path, has_header=False).to_series().unique().to_list()
+    except Exception as e:
+        logger.error(f"No gene list provided or error reading gene list: {e}")
+        sys.exit(1)
+
+    if variant_subset_path:
+        variant_subset = pl.read_csv(variant_subset_path, has_header=False).to_series().to_list()
     else:
-        sample_set = None
+        variant_subset = None
+
+    if sample_subset_path:
+        sample_subset = pl.read_csv(sample_subset_path, has_header=False).to_series().to_list()
+    else:
+        sample_subset = None
 
     compute_and_store_burdens(
         config_path=config_path,
         gene_list=gene_list,
         output_dir=output_dir,
         only_snps=only_snps,
-        sample_set=sample_set,
+        variant_subset=variant_subset,
+        sample_subset=sample_subset,
         gene_chunk_size=gene_chunk_size,
         sample_chunk_size=sample_chunk_size,
         na_mask=na_mask,
-        device=device,
         overwrite=overwrite
     )
 
