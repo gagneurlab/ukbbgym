@@ -204,15 +204,17 @@ def compute_and_store_burdens(
 
     logger.info("Loading AnnGeno file")
     ag = AnnGeno(filename=config.get("anngeno_file"), filemode="r", low_mem=True)
-    maf = config.get('maf', 0.001)
 
-    logger.info(f"Filtering for variants with MAF < {maf}")
-    variants_to_keep_df = ag.annotations.filter((pl.col('AF_ukb') < maf))
-    ag.subset_variants(set(variants_to_keep_df.select(pl.col("id")).collect()['id']))
-    
-    logger.info("Drop is_nans from annotations")
-    sel_cols = [col for col in ag.annotations.collect_schema().names() if not col.endswith('is_nan')]
-    ag.subset_annotations(sel_cols)
+    if variant_subset:
+        logger.info(f"Filtering for variants in subset of {len(variant_subset)} variants")
+        variants_to_keep = ag.annotations.filter(pl.col('id').is_in(set(variant_subset))).select('id').collect()['id']
+        ag.subset_variants(set(variants_to_keep))
+
+    maf = config.get('maf', None)
+    if maf is not None:
+        logger.info(f"Filtering for variants with MAF < {maf}")
+        variants_to_keep = ag.annotations.filter((pl.col('AF_ukb') < maf)).select('id').collect()['id']
+        ag.subset_variants(set(variants_to_keep))
 
     if only_snps:
         logger.info(f"Filtering for SNPs only")
@@ -225,6 +227,10 @@ def compute_and_store_burdens(
     if sample_subset:
         logger.info(f"Filtering for samples. Restricting to {len(sample_subset)} samples")
         ag.subset_samples(sample_subset)
+
+    logger.info("Drop is_nans from annotations")
+    sel_cols = [col for col in ag.annotations.collect_schema().names() if not col.endswith('is_nan')]
+    ag.subset_annotations(sel_cols)
 
     all_annotation_list = []
     rare_variant_annotations_dict = config.get('rare_variant_annotations')
