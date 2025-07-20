@@ -171,7 +171,6 @@ def get_burdens_array_streaming(
                 regions_dict[gene]["genotypes"],
                 regions_dict[gene]["annotations"],
                 annotation_list=annotation_list,
-                max_burden=True,
                 na_mask=na_mask,
                 max_burden=max_burden,
             )
