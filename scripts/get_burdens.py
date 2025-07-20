@@ -185,6 +185,7 @@ def compute_and_store_burdens(
     config_path,
     gene_list,
     output_dir,
+    new_annotation_df=None,
     only_snps=False,
     variant_subset=None,
     sample_subset=None,
@@ -203,6 +204,13 @@ def compute_and_store_burdens(
 
     logger.info("Loading AnnGeno file")
     ag = AnnGeno(filename=config.get("anngeno_file"), filemode="r", low_mem=True)
+
+    if new_annotation_df is not None:
+        logger.info("Setting new annotations to AnnGeno")
+        if isinstance(new_annotation_df, pl.LazyFrame):
+            ag._set_annotations(new_annotation_df)
+        else:
+            ag._set_annotations(new_annotation_df.lazy())
 
     if variant_subset:
         logger.info(f"Filtering for variants in subset of {len(variant_subset)} variants")
