@@ -89,6 +89,29 @@ rare_variant_annotations:
     - CADD_EsmScoreMissense_pos
     - CADD_EsmScoreInFrame
     - CADD_EsmScoreFrameshift
+  conservation:
+    - CADD_priPhCons
+    - CADD_mamPhCons
+    - CADD_verPhCons
+    - CADD_ZooPriPhyloP
+    - CADD_ZooRoCC
+    - CADD_ZooUCE
+    - CADD_GerpRS
+    - CADD_GerpRSpval
+    - CADD_GerpN
+    - CADD_GerpS_neg
+    - CADD_GerpS_pos
+    - CADD_ZooVerPhyloP_neg
+    - CADD_ZooVerPhyloP_pos
+    - CADD_mamPhyloP_neg
+    - CADD_mamPhyloP_pos
+    - CADD_priPhyloP_neg
+    - CADD_priPhyloP_pos
+    - CADD_verPhyloP_neg
+    - CADD_verPhyloP_pos
+    - CADD_ConsScore
+    - CADD_GC
+    - CADD_CpG
   splicing:
     - SpliceAI_delta_score
     - CADD_SpliceAI-acc-gain
@@ -129,28 +152,6 @@ rare_variant_annotations:
     - five_prime_UTR_variant_consequence_uSTOP_lost
     - CADD_Aparent2_neg
     - CADD_Aparent2_pos
-    - CADD_priPhCons
-    - CADD_mamPhCons
-    - CADD_verPhCons
-    - CADD_ZooPriPhyloP
-    - CADD_ZooRoCC
-    - CADD_ZooUCE
-    - CADD_GerpRS
-    - CADD_GerpRSpval
-    - CADD_GerpN
-    - CADD_GerpS_neg
-    - CADD_GerpS_pos
-    - CADD_ZooVerPhyloP_neg
-    - CADD_ZooVerPhyloP_pos
-    - CADD_mamPhyloP_neg
-    - CADD_mamPhyloP_pos
-    - CADD_priPhyloP_neg
-    - CADD_priPhyloP_pos
-    - CADD_verPhyloP_neg
-    - CADD_verPhyloP_pos
-    - CADD_ConsScore
-    - CADD_GC
-    - CADD_CpG
   misc:
     - DISTANCE
     - Consequence_3_prime_UTR_variant
