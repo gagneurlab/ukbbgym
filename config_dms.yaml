@@ -1,0 +1,48 @@
+anngeno_file: /home/dnanexus/data_dir/genebass_1e6_coding_variants.ag
+# associations_df_path: /s/project/deeprvat/ukb_gym/genebass_assocs_33_phenos.parquet
+# prs_pheno_map_file: /s/project/deeprvat/deeprvat_input/prs_pheno_map_clean.csv
+# prs_file: /s/project/deeprvat/deeprvat_input/PRS.parquet
+maf: 0.001
+
+covariates: 
+  - age
+  - age2
+  - age_sex
+  - sex
+  - genetic_pc_1
+  - genetic_pc_2
+  - genetic_pc_3
+  - genetic_pc_4
+  - genetic_pc_5
+  - genetic_pc_6
+  - genetic_pc_7
+  - genetic_pc_8
+  - genetic_pc_9
+  - genetic_pc_10
+  - genetic_pc_11
+  - genetic_pc_12
+  - genetic_pc_13
+  - genetic_pc_14
+  - genetic_pc_15
+  - genetic_pc_16
+  - genetic_pc_17
+  - genetic_pc_18
+  - genetic_pc_19
+  - genetic_pc_20
+
+rare_variant_annotations:
+  missense:
+    - loftee_lc
+    - CADD_RAW_neg
+    - CADD_RAW_pos
+    - dms_score_pos
+    - dms_score_neg
+    - gpn_score_pos
+    - gpn_score_neg
+    - Consequence_missense_variant
+    - am_pathogenicity
+    - PolyPhen
+    - CADD_SIFTval
+    - CADD_priPhCons
+    - CADD_mamPhCons
+    - CADD_verPhCons
