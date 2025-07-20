@@ -35,8 +35,10 @@ rare_variant_annotations:
     - loftee_lc
     - CADD_RAW_neg
     - CADD_RAW_pos
-    - dms_score_pos
-    - dms_score_neg
+    - dms_activity_pos
+    - dms_activity_neg
+    - dms_abundance_pos
+    - dms_abundance_neg
     - gpn_score_pos
     - gpn_score_neg
     - Consequence_missense_variant
@@ -46,3 +48,5 @@ rare_variant_annotations:
     - CADD_priPhCons
     - CADD_mamPhCons
     - CADD_verPhCons
+    # - dms_score_pos
+    # - dms_score_neg
