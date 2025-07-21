@@ -32,10 +32,13 @@ covariates:
 
 rare_variant_annotations:
   dms:
+    - dms_score
     - dms_score_pos
     - dms_score_neg
+    - dms_activity
     - dms_activity_pos
     - dms_activity_neg
+    - dms_abundance
     - dms_abundance_pos
     - dms_abundance_neg
   missense:
