@@ -43,8 +43,10 @@ rare_variant_annotations:
     - dms_abundance_neg
   missense:
     - loftee_lc
+    - CADD_RAW
     - CADD_RAW_neg
     - CADD_RAW_pos
+    - gpn_score
     - gpn_score_pos
     - gpn_score_neg
     - Consequence_missense_variant
