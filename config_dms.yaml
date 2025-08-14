@@ -1,7 +1,4 @@
 anngeno_file: PATH_TO_FILE
-# associations_df_path: PATH_TO_FILE
-# prs_pheno_map_file: PATH_TO_FILE
-# prs_file: PATH_TO_FILE
 maf: 0.001
 
 covariates: 
@@ -33,26 +30,16 @@ covariates:
 rare_variant_annotations:
   dms:
     - dms_score
-    - dms_score_pos
-    - dms_score_neg
     - dms_activity
-    - dms_activity_pos
-    - dms_activity_neg
     - dms_abundance
-    - dms_abundance_pos
-    - dms_abundance_neg
   missense:
     - loftee_lc
-    - CADD_RAW
-    - CADD_RAW_neg
-    - CADD_RAW_pos
+    - cadd_raw
     - gpn_score
-    - gpn_score_pos
-    - gpn_score_neg
-    - Consequence_missense_variant
+    - consequence_missense_variant
     - am_pathogenicity
-    - PolyPhen
-    - CADD_SIFTval
-    - CADD_priPhCons
-    - CADD_mamPhCons
-    - CADD_verPhCons
+    - polyphen
+    - siftval
+    - priphcons
+    - mamphcons
+    - verphcons
