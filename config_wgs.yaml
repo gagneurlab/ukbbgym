@@ -1,10 +1,6 @@
 anngeno_file: /home/dnanexus/data_dir/anngeno_training.ag
-# associations_df_path: /s/project/deeprvat/ukb_gym/genebass_assocs_33_phenos.parquet
-# prs_pheno_map_file: /s/project/deeprvat/deeprvat_input/prs_pheno_map_clean.csv
-# prs_file: /s/project/deeprvat/deeprvat_input/PRS.parquet
 maf: 0.001
 
-# annotation_file: /s/project/deeprvat/ukb_gym/absplice2/annotations_trait_gym_absplice_max_all.parquet
 phenotypes_for_testing:
   - Alkaline_phosphatase  
   - Apolipoprotein_A
