@@ -1,7 +1,4 @@
-anngeno_file: /home/dnanexus/data_dir/genebass_1e6_coding_variants.ag
-# associations_df_path: /s/project/deeprvat/ukb_gym/genebass_assocs_33_phenos.parquet
-# prs_pheno_map_file: /s/project/deeprvat/deeprvat_input/prs_pheno_map_clean.csv
-# prs_file: /s/project/deeprvat/deeprvat_input/PRS.parquet
+anngeno_file: /home/dnanexus/data_dir/dms_coding.ag
 maf: 0.001
 
 covariates: 
@@ -33,26 +30,16 @@ covariates:
 rare_variant_annotations:
   dms:
     - dms_score
-    - dms_score_pos
-    - dms_score_neg
     - dms_activity
-    - dms_activity_pos
-    - dms_activity_neg
     - dms_abundance
-    - dms_abundance_pos
-    - dms_abundance_neg
   missense:
     - loftee_lc
-    - CADD_RAW
-    - CADD_RAW_neg
-    - CADD_RAW_pos
+    - cadd_raw
     - gpn_score
-    - gpn_score_pos
-    - gpn_score_neg
-    - Consequence_missense_variant
+    - consequence_missense_variant
     - am_pathogenicity
-    - PolyPhen
-    - CADD_SIFTval
-    - CADD_priPhCons
-    - CADD_mamPhCons
-    - CADD_verPhCons
+    - polyphen
+    - siftval
+    - priphcons
+    - mamphcons
+    - verphcons
