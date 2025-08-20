@@ -1,71 +1,151 @@
 import os
+import gc
 import sys
 import yaml
-import zarr
-import click
-import shutil
-import pandas as pd
 import polars as pl
 import numpy as np
 
-import torch
+import pathlib
+from datetime import datetime
+
 from tqdm import tqdm
 from anngeno import AnnGeno
-from joblib import Parallel, delayed
 
-def get_gene_burdens(
+from numba import njit, prange
+import multiprocessing
+
+import logging
+
+# --- Logging Setup ---
+logging.basicConfig(
+    format="[%(asctime)s] %(levelname)s:%(name)s: %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
+
+logger = logging.getLogger(__name__)
+
+
+@njit(parallel=True)
+def compute_max_and_top2_chunked(score_vec, region_genotypes, chunk_size, no_variant_mask, valid_variant_idx):
+    """
+    Compute per-sample max and sum of top 2 burdens for a single annotation,
+    handling multiple variant copies correctly.
+    """
+    n_samples = region_genotypes.shape[1]
+    n_chunks = (n_samples + chunk_size - 1) // chunk_size
+
+    max_vals = np.empty(n_samples, dtype=np.float32)
+    top2_sums = np.empty(n_samples, dtype=np.float32)
+
+    for c in prange(n_chunks):
+        start = c * chunk_size
+        end = min(start + chunk_size, n_samples)
+
+        for s in range(start, end):
+            if no_variant_mask[s]:
+                max_vals[s] = np.nan
+                top2_sums[s] = np.nan
+                continue
+
+            # Allocate buffer for this sample only
+            max_expanded_size = len(valid_variant_idx) * 2  # at most 2 copies per variant
+            expanded = np.zeros(max_expanded_size, dtype=np.float32)
+
+            # Expand the burdens for this sample to account for homozygous variants
+            idx_exp = 0
+            for idx in valid_variant_idx:
+                copies = int(region_genotypes[idx, s])
+                if copies > 0:
+                    burden = abs(score_vec[idx])
+                    for _ in range(copies):
+                        expanded[idx_exp] = burden
+                        idx_exp += 1
+
+            if idx_exp == 0:
+                max_vals[s] = 0.0
+                top2_sums[s] = 0.0
+            elif idx_exp == 1:
+                max_vals[s] = expanded[0]
+                top2_sums[s] = expanded[0]
+            else:
+                top2 = np.partition(expanded, -2)[-2:] #TODO: maybe we need np.partition(expanded[:idx_exp], -2)
+                max_vals[s] = top2.max()
+                top2_sums[s] = top2.sum()
+
+    return max_vals, top2_sums
+
+
+def get_gene_burdens_numba(
     region_genotypes,
     region_annotations,
     annotation_list, 
-    max_burden=False
+    max_burden=False,
+    chunk_size=None,
+    na_mask=False,
 ):
+    """
+    Compute sum, max, and sum-of-top-2 burdens for all annotations in a gene region.
+    Uses numba for speed.
+    """
+    # Identify samples with no variants if needed
+    if na_mask:
+        no_variant_mask = region_genotypes.sum(axis=0) == 0  # (samples, )
+    else:
+        no_variant_mask = np.zeros(region_genotypes.shape[1], dtype=bool)
 
-    no_variant_mask = region_genotypes.sum(axis = 1) == 0
-
+    # Load and format variant scores (annotations)
     try:
-        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32)
+        var_scores = region_annotations[annotation_list].fill_nan(0).to_numpy().astype(np.float32).T
     except Exception as e:
         print(f"Error: {e}\nReturning NaNs.")
-        nan_gis = np.zeros((len(region_genotypes), len(annotation_list))) * np.nan
-        return nan_gis, nan_gis
-    
-    # Calculate sum burden directly
-    gis_sum = np.dot(region_genotypes, var_scores)
-    gis_sum[no_variant_mask, :] = np.nan
+        return np.nan, np.nan, np.nan
 
-    # If max_burden is False, return sum burden
+    # Sum burden: simple matrix multiply
+    gis_sum = np.dot(var_scores, region_genotypes)
+    if na_mask:
+        gis_sum[:, no_variant_mask] = np.nan
+
     if not max_burden:
-        return gis_sum, np.nan # Still return a tuple to maintain consistent return type
-    
-    gis_max = []
-    gis_top2_sum = []
-    for a in range(var_scores.shape[1]):
-        burden = np.abs(region_genotypes * var_scores[:, a])  # shape: (samples, variants)
+        return gis_sum, np.nan, np.nan
 
-        # Get top-k values per sample
-        top2 = np.partition(burden, -2, axis=1)[:, -2:]  # shape: (samples, k)
+    # Chunking for parallel execution
+    if chunk_size is None:
+        num_cores = multiprocessing.cpu_count()
+        chunk_size = max(1, region_genotypes.shape[1] // (num_cores * 2))
 
-        # Compute max (top-1) and sum of top-k
-        max_vals = np.max(top2, axis=1)
-        # max_vals = top2[:, -1]  # Get the maximum value (top-1)
-        top2_sum = np.sum(top2, axis=1)
+    # Find non-zero variants to skip unnecessary work
+    nonzero_variants = np.any(region_genotypes > 0, axis=1)
+    valid_variant_idx = np.where(nonzero_variants)[0].astype(np.int32)
 
-        gis_max.append(max_vals)
-        gis_top2_sum.append(top2_sum)
+    # Compute max + top2 for each annotation
+    gis_max_list = []
+    gis_top2_sum_list = []
+    for a in tqdm(range(var_scores.shape[0]), desc=f"Computing max and top2, {var_scores.shape[1]} variants"):
+        score_vec = var_scores[a, :]
+        max_vals, top2_sum = compute_max_and_top2_chunked(
+            score_vec, region_genotypes, chunk_size, no_variant_mask, valid_variant_idx
+        )
+        gis_max_list.append(max_vals)
+        gis_top2_sum_list.append(top2_sum)
+        
+        del max_vals, top2_sum
+        gc.collect()
 
-    gis_max = np.stack(gis_max, axis=1)    # shape: (samples, annotations)
-    gis_top2 = np.stack(gis_top2_sum, axis=1)
-    
-    # Handle no-variant case
-    gis_max[no_variant_mask, :] = np.nan
-    gis_top2[no_variant_mask, :] = np.nan
+    # Stack all annotations into final arrays
+    gis_max = np.stack(gis_max_list, axis=0)
+    gis_top2 = np.stack(gis_top2_sum_list, axis=0)
+
+    if na_mask:
+        gis_max[:, no_variant_mask] = np.nan
+        gis_top2[:, no_variant_mask] = np.nan
 
     return gis_sum, gis_max, gis_top2
 
 
-def get_gene_burdens_torch(
-    region_genotypes,
-    region_annotations,
+def get_burdens_array_streaming(
+    anngeno,
+    gene_id_list,
     annotation_list,
     max_burden=False,
     device="cuda"
@@ -110,8 +190,8 @@ def get_burdens_array(
     max_burden=False,
     only_snps=False,
     debug=False,
-    batch_size=32,
-    n_jobs=32,
+    n_jobs=-1,
+    batch_size=100,
     device="cuda" if torch.cuda.is_available() else "cpu",
 ):
     maf = config.get("maf_upper_bound")
@@ -186,36 +266,63 @@ def get_burdens_array(
 
 def compute_and_store_burdens(
     config_path,
-    output_zarr,
-    anno_scores_path=None,
-    max_burden=False,
+    gene_list,
+    output_dir,
+    new_annotation_df=None,
     only_snps=False,
+    variant_subset=None,
+    sample_subset=None,
+    max_burden=True,
+    gene_chunk_size=50,
+    sample_chunk_size=5_000,
+    na_mask=False,
     overwrite=False,
     debug=False,
-    batch_size=32,
-    n_jobs=32,
 ):
     """
-    Computes and stores variant burdens in a Zarr array, handling both initial creation
-    and adding new annotations.
-
-    Args:
-        config_path (str): Path to the configuration YAML file.
-        output_zarr (str): Path to the output Zarr file.
-        anno_scores_path (str, optional): Path to a Parquet file containing annotation scores.
-                                          If provided, new annotations from this file will be added.
-                                          Defaults to None.
-        max_burden (bool, optional): Whether to compute and store the maximum and sum(top2) burdens.
-                                     Defaults to False.
-        only_snps (bool, optional): Whether to consider only SNPs for burden calculation.
-                                   Defaults to False.
-        overwrite (bool, optional): Whether to overwrite the existing Zarr file.
-                                    Defaults to False.
+    Computes and stores gene burdens directly to Zarr in streaming mode.
+    Either creates new Zarr arrays or overwrites existing ones.
     """
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
-    associations_df_path = config.get("associations_df_path")
+    logger.info("Loading AnnGeno file")
+    ag = AnnGeno(filename=config.get("anngeno_file"), filemode="r", low_mem=True)
+
+    if new_annotation_df is not None:
+        logger.info("Setting new annotations to AnnGeno")
+        if isinstance(new_annotation_df, pl.LazyFrame):
+            ag._set_annotations(new_annotation_df)
+        else:
+            ag._set_annotations(new_annotation_df.lazy())
+
+    if variant_subset:
+        logger.info(f"Filtering for variants in subset of {len(variant_subset)} variants")
+        variants_to_keep = ag.annotations.filter(pl.col('id').is_in(set(variant_subset))).select('id').collect()['id']
+        ag.subset_variants(set(variants_to_keep))
+
+    maf = config.get('maf', None)
+    if maf is not None:
+        logger.info(f"Filtering for variants with MAF < {maf}")
+        variants_to_keep = ag.annotations.filter((pl.col('AF_ukb') < maf)).select('id').collect()['id']
+        ag.subset_variants(set(variants_to_keep))
+
+    if only_snps:
+        logger.info(f"Filtering for SNPs only")
+        snp_variants = ag.annotations.filter(
+            (pl.col("ref").str.len_chars() == 1) &
+            (pl.col("alt").str.len_chars() == 1)
+        )
+        ag.subset_variants(set(snp_variants.select(pl.col('id')).collect()['id']))
+
+    if sample_subset:
+        logger.info(f"Filtering for samples. Restricting to {len(sample_subset)} samples")
+        ag.subset_samples(sample_subset)
+
+    logger.info("Drop is_nans from annotations")
+    sel_cols = [col for col in ag.annotations.collect_schema().names() if not col.endswith('is_nan')]
+    ag.subset_annotations(sel_cols)
+
     all_annotation_list = []
 
     if anno_scores_path:
@@ -265,8 +372,6 @@ def compute_and_store_burdens(
                     "max_burden": max_burden,
                     "only_snps": only_snps,
                     "debug": debug,
-                    "batch_size": batch_size,
-                    "n_jobs": n_jobs,
                 }
                 if anno_scores_path:
                     get_burdens_kwargs["new_anno_df"] = anno_scores_df
@@ -296,12 +401,50 @@ def compute_and_store_burdens(
                     print("Updated 'annotations' array.")
                 print(f"Appended data for new annotations: {new_annotation_list}")
             else:
-                print("No new annotations to add.\nExiting.")
+                # File doesn't exist; safe to write
+                df_lazy.sink_parquet(gene_file)
 
-        except Exception as e:
-            print(f"Error accessing or updating existing Zarr file: {e}")
-            sys.exit(1)
+        gc.collect()
 
+    logger.info(f"Stored burdens for {n_genes} genes and {n_annos} annotations in {output_dir}")
+
+
+import click
+@click.command()
+@click.option('--config-path', required=True, type=click.Path(exists=True), help="Path to YAML config file.")
+@click.option('--gene-list-path', required=True, type=click.Path(exists=True), help="List of genes to compute the burdens for.")
+@click.option('--output-dir', required=True, type=click.Path(), help="Directory to write per-gene Parquet files.")
+@click.option('--only-snps', is_flag=True, default=False, help="Filter for SNPs only.")
+@click.option('--variant-subset-path', type=click.Path(exists=True), default=None, help="Optional path to text file with variant IDs to include.")
+@click.option('--sample-subset-path', type=click.Path(exists=True), default=None, help="Optional path to text file with sample IDs to include.")
+@click.option('--gene-chunk-size', type=int, default=50, help="Number of genes to process per chunk.")
+@click.option('--sample-chunk-size', type=int, default=5000, help="Number of samples to process per chunk.")
+@click.option('--na-mask', is_flag=True, default=False, help="Filter out samples with no variants in the region.")
+@click.option('--overwrite', is_flag=True, default=False, help="Whether to overwrite existing gene Parquet files.")
+def cli(
+    config_path,
+    gene_list_path,
+    output_dir,
+    only_snps,
+    variant_subset_path,
+    sample_subset_path,
+    gene_chunk_size,
+    sample_chunk_size,
+    na_mask,
+    overwrite,
+):
+    try:
+        ext = pathlib.Path(gene_list_path).suffix.lower()
+        if (ext == ".parquet") or (ext == ".pq"):
+            gene_list = pl.read_parquet(gene_list_path)['gene_id'].unique().to_list()
+        else:
+            gene_list = pl.read_csv(gene_list_path, has_header=False).to_series().unique().to_list()
+    except Exception as e:
+        logger.error(f"No gene list provided or error reading gene list: {e}")
+        sys.exit(1)
+
+    if variant_subset_path:
+        variant_subset = pl.read_csv(variant_subset_path, has_header=False).to_series().to_list()
     else:
         print(f"Zarr file does not exist at {zarr_file_path}, creating a new one.")
         get_burdens_kwargs = {
@@ -311,8 +454,6 @@ def compute_and_store_burdens(
             "max_burden": max_burden,
             "only_snps": only_snps,
             "debug": debug,
-            "batch_size": batch_size,
-            "n_jobs": n_jobs,
         }
         if anno_scores_path:
             get_burdens_kwargs["new_anno_df"] = anno_scores_df
@@ -375,23 +516,17 @@ def compute_burdens(
     only_snps: bool = False,
     overwrite: bool = False,
     debug: bool = False,
-    batch_size: int = 32,
-    n_jobs: int = 32,
 ):
     print('You are running the script to compute gene burdens')
 
     compute_and_store_burdens(
         config_path=config_path,
-        output_zarr=output_zarr,
-        max_burden=max_burden,
+        gene_list=gene_list,
+        output_dir=output_dir,
         only_snps=only_snps,
         overwrite=overwrite,
-        debug=debug,
-        batch_size=batch_size,
-        n_jobs=n_jobs,
+        debug=debug
     )
-
-    print('Gene burdens have been computed and stored')
 
 if __name__ == "__main__":
     cli()

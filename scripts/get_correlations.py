@@ -1,161 +1,181 @@
-import sys
+import os
 import yaml
-import zarr
-import numpy as np
+import pandas as pd
 import polars as pl
+import statsmodels.api as sm
 from tqdm import tqdm
-from joblib import Parallel, delayed
-from sklearn.linear_model import LinearRegression
 
 
-# -----------------------------
-# Covariate + PRS correction
-# -----------------------------
-def cov_prs_correction(all_df: pl.DataFrame, phenotypes, covariates, prs_pheno_map):
-    corrected_cols = []
+def cov_prs_correction(all_df, phenotypes, covariates=None, prs_pheno_map=None):
+    cov_prs_corrected_phenos = pd.DataFrame(index=all_df.index)
 
-    for pheno in tqdm(phenotypes, desc="Covariate correction"):
-        try:
-            pheno_prs = prs_pheno_map[pheno]
-            cols = [pheno] + covariates + [pheno_prs] + ["sample"]
+    for pheno in tqdm(phenotypes, desc="Correcting phenotypes"):
+        if (prs_pheno_map is not None) and (covariates is not None):
+            combined_df = all_df[[pheno] + covariates + [prs_pheno_map[pheno]]].dropna()
+        elif covariates is not None:
+            combined_df = all_df[[pheno] + covariates].dropna()
+        elif prs_pheno_map is not None:
+            combined_df = all_df[[pheno] + [prs_pheno_map[pheno]]].dropna()
+        else:
+            return all_df[[pheno]].dropna()
 
-            df = all_df.select(cols).drop_nulls()
+        y = combined_df[pheno]
+        X = combined_df.drop(columns=[pheno])
+        X = sm.add_constant(X)
 
-            y = df[pheno]
-            X = df.drop([pheno, "sample"]).to_numpy()
-            reg = LinearRegression().fit(X, y)
-            
-            corrected_cols.append(pl.DataFrame({"sample": df["sample"], pheno: y - reg.predict(X)}))
-        except Exception as e:
-            print(f"Failed to correct phenotype '{pheno}': {e}")
+        model = sm.OLS(y, X).fit()
+        residuals = pd.Series(model.resid, index=combined_df.index, name=pheno)
+        cov_prs_corrected_phenos = pd.concat([cov_prs_corrected_phenos, residuals], axis=1)
 
-    # Join all corrected phenotypes
-    if corrected_cols:
-        corrected_df = pl.concat(corrected_cols, how='align_full')
-        return corrected_df
-    else:
-        return pl.DataFrame([])
+    cov_prs_corrected_phenos.reset_index(inplace=True)
+    return cov_prs_corrected_phenos
 
 
-# -----------------------------
-# Correlation computation
-# -----------------------------
-def gene_pheno_correlation_lazy(assoc_df: pl.DataFrame, gt_df: pl.DataFrame, annotation: str, correlation_type: str = "spearman"):
-    """
-    Compute correlations between gene burdens and phenotypes using Polars LazyFrames.
-    """
-    results = []
+def compute_correlations_lazy(df_lazy: pl.LazyFrame) -> pl.LazyFrame:
+    df_clean = df_lazy.filter(
+        pl.col("value").is_not_nan() &
+        pl.col("value").is_not_null() &
+        pl.col("value").is_finite()
+    )
 
-    for pheno in tqdm(assoc_df["phenotype"].unique().to_list(), desc=f"Processing phenotypes for {annotation}"):
-        pheno_col = pheno.replace(" ", "_")  # match corrected phenotype column
-        genes = assoc_df.filter(pl.col("phenotype") == pheno)["region"].cast(str).unique().to_list()
+    df_ranks = df_clean.with_columns([
+        pl.col("sum").rank().over(["annotation", "phenotype"]).alias("rank_sum"),
+        pl.col("max").rank().over(["annotation", "phenotype"]).alias("rank_max"),
+        pl.col("top2").rank().over(["annotation", "phenotype"]).alias("rank_top2"),
+        pl.col("value").rank().over(["annotation", "phenotype"]).alias("rank_value"),
+    ])
 
-        for gene in genes:
-            try:
-                # LazyFrame to compute correlation
-                lazy_df = (
-                    gt_df.lazy()
-                    .select([gene, pheno_col])
-                    .drop_nans()
-                    .select([
-                        pl.corr(gene, pheno_col, method=correlation_type).alias("correlation")
-                    ])
-                )
-                corr = lazy_df.collect().item()  # get scalar
-                results.append({"annotation": annotation, "phenotype": pheno, "gene": gene, "correlation": corr})
-            except Exception as e:
-                results.append({"annotation": annotation, "phenotype": pheno, "gene": gene, "correlation": np.nan})
-                print(f"Failed correlation for {pheno} x {gene}: {e}")
+    correlations = df_ranks.group_by(["annotation", "phenotype"]).agg([
+        pl.corr("rank_sum", "rank_value").alias("sum_spearman"),
+        pl.corr("rank_max", "rank_value").alias("max_spearman"),
+        pl.corr("rank_top2", "rank_value").alias("top2_spearman"),
+    ])
 
-    return pl.DataFrame(results)
+    del df_ranks
+    return correlations
 
 
 def compute_correlations(
-    config_path, 
-    zarr_burdens_path,
-    genes_to_keep=None,
-    max_burden=False,
-    correlation_type='spearman',
-):
-    correlation_type = correlation_type.lower()
-    if correlation_type not in ["pearson", "spearman"]:
-        raise ValueError(f"Invalid correlation type: {correlation_type}. Defaulting to 'spearman'.")
-    
-    with open(config_path) as f:
-        config = yaml.safe_load(f)
+    burdens_dir: str,
+    pheno_corrected_df: pl.DataFrame,
+    assocs_df: pl.DataFrame,
+    config: dict,
+    filter_nan: bool = True,
+    subset_annos: list | None = None,
+    subset_samples: list | None = None,
+) -> pl.DataFrame:
 
-    anngeno_file = config["anngeno_file"]
-    phenotypes = config["phenotypes_for_testing"]
-    covs = config["covariates"]
-    prs_file = config["prs_file"]
-    prs_pheno_map_file = config["prs_pheno_map_file"]
-    associations_df_path = config["associations_df_path"]
+    pheno_df = pheno_corrected_df.unpivot(
+        index=['sample_id'],
+        variable_name='phenotype',
+        value_name='value'
+    )
 
-    # Load data
-    cov_pheno_df = pl.read_parquet(f"{anngeno_file}/phenotypes.parquet").select(["sample"] + covs + phenotypes)
-    prs_df = pl.read_parquet(prs_file).filter(pl.col("sample").is_in(cov_pheno_df["sample"]))
-    prs_pheno_map = pl.read_csv(prs_pheno_map_file).to_dict(as_series=False)
-    prs_pheno_map = dict(zip(prs_pheno_map["phenotype"], prs_pheno_map["pgs_id"]))
+    corr_df_list = []
 
-    # Merge covariates and PRS
-    all_df = cov_pheno_df.join(prs_df, on="sample", how="inner")
+    for gene_id in tqdm(assocs_df['gene_id'].unique(), desc="Correlations for genes"):
+        try:
+            bdf = pl.scan_parquet(f'{burdens_dir}/{gene_id}.parquet')
+        except FileNotFoundError:
+            print(f"File for gene {gene_id} not found. Skipping.")
+            continue
 
-    # Covariate and PRS correction
-    pheno_corrected_df = cov_prs_correction(all_df, phenotypes, covs, prs_pheno_map)
+        if subset_annos:
+            bdf = bdf.filter(pl.col('annotation').is_in(subset_annos))
+        if subset_samples:
+            bdf = bdf.filter(pl.col('sample_id').is_in(subset_samples))
 
-    # Load zarr burden data
-    zarr_group = zarr.open_group(zarr_burdens_path, mode="r")
-    sample_list = zarr_group["samples"][:]
-    gene_list = zarr_group["genes"][:]
-    annotation_list = zarr_group["annotations"][:]
-
-    # Load associations
-    assoc_df = pl.read_parquet(associations_df_path)
-    if genes_to_keep is not None:
-        assoc_df = assoc_df.filter(pl.col("region").is_in(genes_to_keep))
-
-    rho_df_sum_list = []
-    rho_df_max_list = []
-    rho_df_top2_list = []
-    print(f"Starting {correlation_type} correlation computation for {len(annotation_list)} annotations")
-    print(annotation_list)
-    for anno in tqdm(annotation_list):
-        anno_idx = np.where(annotation_list == anno)[0][0]
-        
-        sum_burdens_zarr = zarr_group["sum_burdens"][:, :, anno_idx]
-        sum_burden_df = pl.DataFrame(sum_burdens_zarr, schema=list(gene_list)).with_columns([
-            pl.Series(name="sample", values=sample_list)
-        ])
-        gt_df_sum = sum_burden_df.join(pheno_corrected_df, on="sample", how="inner")
-        rho_df_sum_list.append(gene_pheno_correlation_lazy(assoc_df, gt_df_sum, anno, correlation_type))
-
-        if max_burden:
-            max_burdens_zarr = zarr_group["max_burdens"][:, :, anno_idx]
-            max_burdens_df = pl.DataFrame(max_burdens_zarr, schema=list(gene_list)).with_columns([
-                pl.Series(name="sample", values=sample_list)
+        if filter_nan:
+            bdf_filtered = bdf.filter(
+                pl.all_horizontal(pl.col(['sum', 'max', 'top2']).is_not_nan())
+            )
+        else:
+            cols_to_fill = ['max', 'sum', 'top2']
+            modes = bdf.group_by("annotation").agg([
+                pl.col(col).drop_nans().mode().first().alias(f"{col}_mode")
+                for col in cols_to_fill
             ])
-            gt_df_max = max_burdens_df.join(pheno_corrected_df, on="sample", how="inner")
-            rho_df_max_list.append(gene_pheno_correlation_lazy(assoc_df, gt_df_max, anno, correlation_type))
-            
-            top2_burdens_zarr = zarr_group["top2_burdens"][:, :, anno_idx]
-            top2_burdens_df = pl.DataFrame(top2_burdens_zarr, schema=list(gene_list)).with_columns([
-                pl.Series(name="sample", values=sample_list)
-            ])
-            gt_df_top2 = top2_burdens_df.join(pheno_corrected_df, on="sample", how="inner")
-            rho_df_top2_list.append(gene_pheno_correlation_lazy(assoc_df, gt_df_top2, anno, correlation_type))
+            bdf_with_modes = bdf.join(modes, on="annotation")
+            bdf_filtered = bdf_with_modes.with_columns([
+                pl.when(pl.col(col).is_nan())
+                .then(pl.col(f"{col}_mode"))
+                .otherwise(pl.col(col))
+                .alias(col)
+                for col in cols_to_fill
+            ]).drop([f"{col}_mode" for col in cols_to_fill])
+
+        phenos_needed = assocs_df.filter(pl.col('gene_id') == gene_id)['phenotype'].unique().to_list()
+        pheno_filtered = pheno_df.filter(pl.col('phenotype').is_in(phenos_needed)).lazy()
+        cdf = bdf_filtered.join(pheno_filtered, on='sample_id', how='left')
+
+        corr_df_list.append(
+            compute_correlations_lazy(cdf).with_columns(
+                pl.lit(gene_id).alias('gene_id')
+            ).collect()
+        )
+
+    corr_df = pl.concat(corr_df_list)
+
+    rare_variant_annotations_dict = config.get('rare_variant_annotations', {})
+    annotation_category_map = {
+        ann: category
+        for category, anns in rare_variant_annotations_dict.items() if category != 'misc'
+        for ann in anns
+    }
+
+    corr_df = corr_df.with_columns(
+        pl.col("annotation").replace(annotation_category_map).alias("category")
+    )
+
+    corr_long = corr_df.unpivot(
+        index=["annotation", "phenotype", "gene_id", "category"],
+        variable_name="correlation_type",
+        value_name="correlation"
+    ).with_columns([
+        pl.col("correlation_type").str.extract(r"(pearson|spearman)").alias("method"),
+        pl.col("correlation_type").str.extract(r"(sum|max|top2)").alias("aggregation"),
+    ])
+
+    del corr_df
+    return corr_long
 
 
-    rho_df_sum = pl.concat(rho_df_sum_list)
-    rho_df_sum = rho_df_sum.with_columns(pl.lit("sum").alias("aggregation"))
+# def compute_correlations_wrapper(
+#     config_path: str,
+#     burdens_dir: str,
+#     associations_file: str,
+#     pheno_file: str,
+#     subset_samples: list | None = None,
+#     subset_annos: list | None = None,
+#     filter_nan: bool = False,
+# ) -> pl.DataFrame:
 
-    if max_burden:
-        rho_df_max = pl.concat(rho_df_max_list)
-        rho_df_max = rho_df_max.with_columns(pl.lit("max").alias("aggregation"))
+#     with open(config_path) as f:
+#         config = yaml.safe_load(f)
 
-        rho_df_top2 = pl.concat(rho_df_top2_list)
-        rho_df_top2 = rho_df_top2.with_columns(pl.lit("top2").alias("aggregation"))
+#     covs = config.get("covariates")
 
-        rho_df = pl.concat([rho_df_sum, rho_df_max, rho_df_top2])
-        return rho_df
+#     assocs_df = pl.read_parquet(associations_file)
+#     phenotypes = list(assocs_df['phenotype'].unique())
+#     pheno_list = [p + '_prs_corrected' for p in phenotypes]
 
-    return rho_df_sum
+#     pheno_df = pl.read_parquet(pheno_file, columns=["eid"] + covs + pheno_list).rename({'eid': 'sample_id'})
+#     corrected_df = cov_prs_correction(
+#         pheno_df.to_pandas().set_index('sample_id'),
+#         pheno_list,
+#         covariates=covs
+#     )
+#     pheno_corrected_df = pl.from_pandas(corrected_df)
+#     pheno_corrected_df.columns = ['sample_id'] + phenotypes
+
+#     corr_long = compute_correlations(
+#         burdens_dir=burdens_dir,
+#         pheno_corrected_df=pheno_corrected_df,
+#         assocs_df=assocs_df,
+#         config=config,
+#         filter_nan=filter_nan,
+#         subset_annos=subset_annos,
+#         subset_samples=subset_samples,
+#     )
+
+#     return corr_long
