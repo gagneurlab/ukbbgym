@@ -32,14 +32,20 @@ rare_variant_annotations:
     - dms_score
     - dms_activity
     - dms_abundance
+    - scaled_fitness
+    - fitness
   missense:
-    - loftee_lc
     - cadd_raw
     - gpn_score
-    - consequence_missense_variant
     - am_pathogenicity
-    - polyphen
     - siftval
     - priphcons
     - mamphcons
     - verphcons
+    - esmscoremissense
+    # - consequence_missense_variant
+    # - popEVE
+    # - ESM1v_full-length
+    # - ESM1v_domain
+    # - polyphen
+    # - loftee_lc
