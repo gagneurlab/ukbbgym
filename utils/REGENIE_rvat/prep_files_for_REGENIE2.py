@@ -15,18 +15,18 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-
 def write_sample_file(sample_ids, output_path):
     """Writes the .sample file required by BGEN format."""
     logger.info(f"\nWriting .sample file to: {output_path}")
     header = "ID_1 ID_2 missing\n"
     second_header = "0 0 0\n"
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         f.write(header)
         f.write(second_header)
         for sample_id in sample_ids:
             f.write(f"{sample_id} {sample_id} 0\n")
     logger.info("... .sample file written successfully.")
+
 
 def write_bgen_from_scores(scores_df, gene_info, bgen_path):
     """
@@ -34,26 +34,28 @@ def write_bgen_from_scores(scores_df, gene_info, bgen_path):
     using the correct bgen-py API keywords (varid, rsid, chrom, pos).
     """
     logger.info(f"\nWriting .bgen file to: {bgen_path}")
-    
+
     sample_ids = scores_df.get_column("IID").to_list()
     n_samples = len(sample_ids)
-    
+
     # The BGEN writer works as a context manager
     with BgenWriter(bgen_path, n_samples=n_samples) as writer:
         # Iterate through each gene (column) in the scores dataframe
         for gene_name in scores_df.columns:
             if gene_name == "IID":
                 continue
-            logger.info(f"Processing gene: {gene_name}")  
+            logger.info(f"Processing gene: {gene_name}")
             # Get the metadata for the current gene
             gene_meta = gene_info.filter(pl.col("gene_name") == gene_name)
             if gene_meta.is_empty():
-                logger.info(f"Warning: No metadata found for gene {gene_name}. Skipping.")
+                logger.info(
+                    f"Warning: No metadata found for gene {gene_name}. Skipping."
+                )
                 continue
 
             # Get the vector of scores for this gene
             scores = scores_df.get_column(gene_name).to_numpy()
-            
+
             # --- Convert scores to probabilities (same logic as before) ---
             min_score, max_score = scores.min(), scores.max()
             if max_score > min_score:
@@ -62,21 +64,23 @@ def write_bgen_from_scores(scores_df, gene_info, bgen_path):
                 scaled_scores = np.zeros_like(scores)
 
             probabilities = np.zeros((n_samples, 3))
-            probabilities[:, 0] = scaled_scores/2
+            probabilities[:, 0] = scaled_scores / 2
             probabilities[:, 1] = 0
-            probabilities[:, 2] = 1 - (scaled_scores/2)
+            probabilities[:, 2] = 1 - (scaled_scores / 2)
 
             # Step 1: Add the variant's METADATA using the correct argument names
             writer.add_variant(
-                varid = gene_name,                                  # Argument 1: varid
-                rsid = gene_name,                                   # Argument 2: rsid
-                chrom = str(gene_meta.get_column("Chromosome")[0]),      # Argument 3: chromosome
-                pos = gene_meta.get_column("Start")[0],               # Argument 4: position
+                varid=gene_name,  # Argument 1: varid
+                rsid=gene_name,  # Argument 2: rsid
+                chrom=str(
+                    gene_meta.get_column("Chromosome")[0]
+                ),  # Argument 3: chromosome
+                pos=gene_meta.get_column("Start")[0],  # Argument 4: position
                 alleles=[
-                        "A",
-                        "C",
-                    ],                                               # Argument 6: allele2
-                genotypes = probabilities,
+                    "A",
+                    "C",
+                ],  # Argument 6: allele2
+                genotypes=probabilities,
                 ploidy=2,
                 bit_depth=16,
             )
@@ -95,11 +99,12 @@ def generate_gene_metadata(gtf_file):
 
     gene_meta = pl.from_pandas(gene_pos)
     gene_meta = gene_meta.with_columns(
-        pl.col('gene_id').str.split('.').list.first().alias('gene_name')
+        pl.col("gene_id").str.split(".").list.first().alias("gene_name")
     )
-    
+
     logger.info("... Gene metadata created successfully.")
     return gene_meta
+
 
 # ==============================================================================
 # 3. RUN THE PURE PYTHON FUNCTIONS
@@ -108,16 +113,21 @@ def generate_gene_metadata(gtf_file):
 # OUT_FOLDER = "/s/project/geno2pheno/BFuncRVP/data/regenie/regenie_input/"
 # scores_df = pl.read_parquet("/s/project/uk_biobank/clean/derived_datasets/ukbb_wes_500k_sum_alphamissense_plof_151024.parquet")
 OUT_FOLDER = "/s/project/deeprvat/ukb_gym/phenotypes/regenie/"
-scores_df = pl.read_parquet("/s/project/uk_biobank/clean/derived_datasets/ukbb_wes_500k_vep_plof.parquet")
-cov_df = pl.read_parquet("/s/project/uk_biobank/clean/derived_datasets/ukbb_500k_covariates_filteredv3.parquet", columns = ['individual'])
-scores_df = scores_df.join(cov_df, on='individual', how='inner')
-scores_df = scores_df.rename({'individual': 'IID'}).fill_null(0)
-gtf_file = '/s/project/deeprvat/deeprvat_input/gencode.v38.basic.annotation.gtf.gz'
+scores_df = pl.read_parquet(
+    "/s/project/uk_biobank/clean/derived_datasets/ukbb_wes_500k_vep_plof.parquet"
+)
+cov_df = pl.read_parquet(
+    "/s/project/uk_biobank/clean/derived_datasets/ukbb_500k_covariates_filteredv3.parquet",
+    columns=["individual"],
+)
+scores_df = scores_df.join(cov_df, on="individual", how="inner")
+scores_df = scores_df.rename({"individual": "IID"}).fill_null(0)
+gtf_file = "/s/project/deeprvat/deeprvat_input/gencode.v38.basic.annotation.gtf.gz"
 
 # Generate the gene_info_df automatically
 gene_info_df = generate_gene_metadata(gtf_file)
 
-sample_ids = scores_df.get_column('IID').to_list()
+sample_ids = scores_df.get_column("IID").to_list()
 logger.info(len(sample_ids), "samples found in the scores DataFrame.")
 
 

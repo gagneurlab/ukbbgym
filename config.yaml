@@ -1,7 +1,7 @@
 anngeno_file: /home/dnanexus/data_dir/dms_coding.ag
 maf: 0.001
 
-covariates: 
+covariates:
   - age
   - age2
   - age_sex

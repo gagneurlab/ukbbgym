@@ -54,13 +54,14 @@ def pheno_burden_correlation(assoc_df, gt_df, annotation, correlation_type):
     Returns:
         pd.DataFrame: DataFrame containing gene-phenotype correlations.
     """
+
     # Define a helper function to process each trait-gene pair
     def _process_trait_gene(trait, gene, gt_df_local, corr_type, anno):
         """
         Calculates correlation for a single trait-gene pair.
         This function will be called in parallel.
         """
-        pheno = trait.replace(" ", "_") # Format phenotype name for column lookup
+        pheno = trait.replace(" ", "_")  # Format phenotype name for column lookup
         correlation = np.nan
         # correlation_non_zero = np.nan # This was commented out in original, keeping it that way
 
@@ -71,14 +72,14 @@ def pheno_burden_correlation(assoc_df, gt_df, annotation, correlation_type):
             )
 
         except ValueError:
-            print(f"Wrong correlation type specified for {anno}, {pheno}, {gene}. Reverting to spearman.")
+            print(
+                f"Wrong correlation type specified for {anno}, {pheno}, {gene}. Reverting to spearman."
+            )
             correlation = (
                 gt_df_local[[gene, pheno]].dropna().corr(method="spearman").iloc[0, 1]
             )
         except Exception as e:
-            print(
-                f"Cannot compute correlation for {anno}, {pheno}, {gene}. Error: {e}"
-            )
+            print(f"Cannot compute correlation for {anno}, {pheno}, {gene}. Error: {e}")
             correlation = np.nan
 
         # Return a DataFrame for the current trait-gene correlation
@@ -97,7 +98,7 @@ def pheno_burden_correlation(assoc_df, gt_df, annotation, correlation_type):
     # This creates the iterable for joblib.Parallel
     tasks = []
     for trait in assoc_df.phenotype.unique():
-        gene_list = list(assoc_df.query("phenotype == @trait")['region'].astype(str))
+        gene_list = list(assoc_df.query("phenotype == @trait")["region"].astype(str))
         for gene in gene_list:
             tasks.append((trait, gene))
 
@@ -112,11 +113,11 @@ def pheno_burden_correlation(assoc_df, gt_df, annotation, correlation_type):
 
 
 def compute_correlations(
-    config_path, 
+    config_path,
     zarr_burdens_path,
     genes_to_keep=None,
     max_burden=False,
-    correlation_type='spearman',
+    correlation_type="spearman",
 ):
     with open(config_path) as f:
         config = yaml.safe_load(f)
@@ -158,13 +159,17 @@ def compute_correlations(
         gt_df_sum = pd.DataFrame(
             sum_burdens, index=sample_list, columns=gene_list
         ).merge(pheno_corrected_df, left_index=True, right_on="sample")
-        rho_df_sum_list.append(pheno_burden_correlation(assoc_df, gt_df_sum, anno, correlation_type))
+        rho_df_sum_list.append(
+            pheno_burden_correlation(assoc_df, gt_df_sum, anno, correlation_type)
+        )
         if max_burden:
             max_burdens_zarr = zarr_group["max_burdens"][:, :, anno_idx]
             gt_df_max = pd.DataFrame(
                 max_burdens_zarr, index=sample_list, columns=gene_list
             ).merge(pheno_corrected_df, left_index=True, right_on="sample")
-            rho_df_max_list.append(pheno_burden_correlation(assoc_df, gt_df_max, anno, correlation_type))
+            rho_df_max_list.append(
+                pheno_burden_correlation(assoc_df, gt_df_max, anno, correlation_type)
+            )
 
     rho_df_sum = pd.concat(rho_df_sum_list)
     rho_df_sum["aggregation"] = "sum"

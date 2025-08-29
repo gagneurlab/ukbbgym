@@ -116,7 +116,7 @@ echo "Found $(echo $ALL_TRAITS | wc -w) phenotypes to process."
 
 
 # COVARIATE_FILE="/s/project/geno2pheno/funcrvp/prs_regenie/regenie_input/covariates.txt"
-# PHENOTYPE_FILE="/s/project/geno2pheno/funcrvp/prs_regenie/regenie_input/phenotypes.txt"     
+# PHENOTYPE_FILE="/s/project/geno2pheno/funcrvp/prs_regenie/regenie_input/phenotypes.txt"
 # SAMPLE_FILE="/path/to/keep_samples.txt"       # Corresponds to input.sample_file (if uncommented)
 
 # Output Prefix and Directories
@@ -178,4 +178,3 @@ done
 echo "============================================================"
 echo "All phenotype processing complete."
 echo "============================================================"
-
