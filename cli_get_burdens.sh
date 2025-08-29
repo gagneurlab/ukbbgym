@@ -33,4 +33,3 @@ dx mkdir -p "$TARGET_FOLDER"
 
 # Upload files after folder exists
 dx upload -r "$BASE_DIR/$OUTPUT_DIR" --path "$TARGET_FOLDER"
-

@@ -1,7 +1,7 @@
 anngeno_file: PATH_TO_FILE
 maf: 0.001
 
-covariates: 
+covariates:
   - age
   - age2
   - age_sex

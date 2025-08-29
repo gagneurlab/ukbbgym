@@ -25,16 +25,22 @@ import os
 from dask.distributed import Client, LocalCluster
 from anngeno import AnnGeno
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_out_dir = Path("PATH_TO_FILE")
     ag = AnnGeno(
-        test_out_dir / "dms_anngeno.ag",
-        low_mem = True,
-        filemode = "r",
-        sanity_check = False
+        test_out_dir / "dms_anngeno.ag", low_mem=True, filemode="r", sanity_check=False
     )
 
-    ids_to_keep = ag.annotations.filter((pl.col("relative_cds_position_is_nan") == 0)| (pl.col("loftee_hc_is_nan") == 0 )).select("id").collect()["id"].unique().to_list()
+    ids_to_keep = (
+        ag.annotations.filter(
+            (pl.col("relative_cds_position_is_nan") == 0)
+            | (pl.col("loftee_hc_is_nan") == 0)
+        )
+        .select("id")
+        .collect()["id"]
+        .unique()
+        .to_list()
+    )
     print(len(ids_to_keep))
 
     variant_mask = ag.all_variant_metadata["id"].is_in(ids_to_keep).to_numpy()
@@ -42,12 +48,17 @@ if __name__ == '__main__':
     final_new_chunk_shape = (10_000, 1000, 2)
     # target_zarr_path = "PATH_TO_FILE"
     target_zarr_path = "PATH_TO_FILE"
-    worker_memory_limit = '6GiB' # Or '16GiB', '20GiB', etc.
-    source_zarr_path = 'PATH_TO_FILE'
+    worker_memory_limit = "6GiB"  # Or '16GiB', '20GiB', etc.
+    source_zarr_path = "PATH_TO_FILE"
 
     n_workers = os.cpu_count()
     n_workers = 16
-    cluster = LocalCluster(n_workers=n_workers, processes=True, threads_per_worker=1, memory_limit=worker_memory_limit)
+    cluster = LocalCluster(
+        n_workers=n_workers,
+        processes=True,
+        threads_per_worker=1,
+        memory_limit=worker_memory_limit,
+    )
     client = Client(cluster)
     print(f"Dask Dashboard: {client.dashboard_link}")
     print("Waiting for workers to start...")
@@ -65,6 +76,8 @@ if __name__ == '__main__':
     print(f"Writing rechunked and masked array to: {target_zarr_path}")
     print("This will take a significant amount of time and disk space...")
 
-    rechunked_masked_array.to_zarr(target_zarr_path, overwrite=False, zarr_format = 3) # overwrite=False is a safety measure
+    rechunked_masked_array.to_zarr(
+        target_zarr_path, overwrite=False, zarr_format=3
+    )  # overwrite=False is a safety measure
 
     print("done")

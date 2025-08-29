@@ -2,7 +2,7 @@ anngeno_file: PATH_TO_FILE
 maf: 0.001
 
 phenotypes_for_testing:
-  - Alkaline_phosphatase  
+  - Alkaline_phosphatase
   - Apolipoprotein_A
   - Apolipoprotein_B
   - Calcium
@@ -36,7 +36,7 @@ phenotypes_for_testing:
   - Forced_expiratory_volume_in_1_second_FEV1
   - Glycated_haemoglobin_HbA1c
 
-covariates: 
+covariates:
   - age
   - age2
   - age_sex
