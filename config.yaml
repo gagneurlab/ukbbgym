@@ -34,10 +34,10 @@ rare_variant_annotations:
     - dms_abundance
     - scaled_fitness
     - fitness
-  plof:
-    - loftee_hc
-    - loftee_lc
-    - consequence_NMD_transcript_variant
+  # plof:
+  #   - loftee_hc
+  #   - loftee_lc
+  #   - consequence_NMD_transcript_variant
   missense:
     - cadd_raw
     - am_pathogenicity
@@ -56,10 +56,3 @@ rare_variant_annotations:
     - af_ukb
     - relative_cds_position
     - relprotpos
-    - dst2splice
-    # - consequence_missense_variant
-    # - popEVE
-    # - ESM1v_full-length
-    # - ESM1v_domain
-    # - polyphen
-    # - loftee_lc
