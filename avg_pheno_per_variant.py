@@ -13,8 +13,6 @@ import statsmodels.api as sm
 from anngeno import AnnGeno
 import multiprocessing
 
-num_cores = multiprocessing.cpu_count()
-print(num_cores)
 def process_phenotypes_prs_long(
     pheno_lazy: str,
     prs_lazy: str,
@@ -85,6 +83,7 @@ def process_phenotypes_prs_long(
     combined_pdf_lazy = pl.concat(long_lazy_dfs) if len(long_lazy_dfs) > 1 else long_lazy_dfs[0]
 
     return combined_pdf_lazy
+
 @numba.njit(parallel=True, fastmath=True)
 def _fast_clip_and_sum_allels(arr):
     # Get the shape of the input array
@@ -113,6 +112,7 @@ def _fast_clip_and_sum_allels(arr):
             output[i, j] = s
             
     return output
+
 def process_genotype_chunk(
     geno: np.array, 
     var_ids: np.array, 
@@ -163,12 +163,13 @@ cov_path = 'PATH_TO_FILE'
 
 anngeno_path = 'PATH_TO_FILE'
 eur_samples_path = 'PATH_TO_FILE'
+
 sample_ids = zarr.open(f'{anngeno_path}/zarr_store/samples', mode='r')[:]
-sample_ids
+
 var_ids = pl.read_parquet(f'{anngeno_path}/variant_metadata.parquet', columns=['id'])['id'].to_numpy()
-var_ids
+
 geno = zarr.open(f'{anngeno_path}/zarr_store/genotypes', mode='r')
-geno[:5].shape
+
 eur_samples = pl.read_csv(eur_samples_path).rename({'eid': 'individual'}).with_columns(
     pl.col("individual").cast(pl.Utf8)
 )['individual'].to_list()
@@ -224,3 +225,10 @@ for chunk_num in tqdm(range(var_ids.shape[0]//chunk_size + 1)):
         melted_pheno_df=corr_phenos_lazy,
         homozygous=False,
     ).sink_parquet(f"{output_dir}/variant_pheno_chunk{chunk_num}.parquet")
+
+# Concat all files into one
+files = [f"{output_dir}/variant_pheno_chunk{i}.parquet" for i in range(var_ids.shape[0]//chunk_size + 1)]
+lazy_frames = [pl.scan_parquet(f) for f in files]
+combined = pl.concat(lazy_frames)
+
+combined.sink_parquet(f"{output_dir}/variant_pheno_EUR.parquet")
