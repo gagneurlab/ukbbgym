@@ -41,18 +41,18 @@ rare_variant_annotations:
   missense:
     - cadd_raw
     - am_pathogenicity
-    - esmscoremissense
+    # - esmscoremissense
   conservation:
     - gpn_score
-    - priphcons
-    - mamphcons
-    - verphcons
     - verphylop
-    - priphylop
-    - mamphylop
-    - zoopriphylop
     - zooverphylop
+    # - priphylop
+    # - zoopriphylop
+    # - mamphylop
+    # - priphcons
+    # - mamphcons
+    # - verphcons
   naive:
-    - af_ukb
     - relative_cds_position
     - relprotpos
+    # - af_ukb
