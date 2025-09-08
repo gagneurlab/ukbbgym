@@ -1,0 +1,67 @@
+anngeno_file: PATH_TO_FILE
+maf: 0.001
+
+covariates:
+  - age
+  - age2
+  - age_sex
+  - sex
+  - genetic_pc_1
+  - genetic_pc_2
+  - genetic_pc_3
+  - genetic_pc_4
+  - genetic_pc_5
+  - genetic_pc_6
+  - genetic_pc_7
+  - genetic_pc_8
+  - genetic_pc_9
+  - genetic_pc_10
+  - genetic_pc_11
+  - genetic_pc_12
+  - genetic_pc_13
+  - genetic_pc_14
+  - genetic_pc_15
+  - genetic_pc_16
+  - genetic_pc_17
+  - genetic_pc_18
+  - genetic_pc_19
+  - genetic_pc_20
+
+rare_variant_annotations:
+  genetic_diversity:
+    - cadd_raw
+  missense:
+    - am_pathogenicity
+    - esmscoremissense
+  conservation:
+    - gpn_score
+    - verphylop
+    - zooverphylop
+  splicing:
+    - pangolin_score
+    - delta_score
+    - AbSplice_DNA_max
+    - AbSplice2_max
+  naive:
+    - relative_cds_position
+    - relprotpos
+  poromoter:
+    - promoterAI
+    # - af_ukb
+  # conservation:
+  #   - priphylop
+  #   - zoopriphylop
+  #   - mamphylop
+  #   - priphcons
+  #   - mamphcons
+  #   - verphcons
+  # plof:
+  #   - loftee_hc
+  #   - loftee_lc
+  #   - consequence_NMD_transcript_variant
+  # dms:
+  #   - dms_score
+  #   - dms_activity
+  #   - dms_abundance
+  #   - scaled_fitness
+  #   - fitness
