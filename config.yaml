@@ -28,31 +28,33 @@ covariates:
   - genetic_pc_20
 
 rare_variant_annotations:
-  dms:
-    - dms_score
-    - dms_activity
-    - dms_abundance
-    - scaled_fitness
-    - fitness
-  # plof:
-  #   - loftee_hc
-  #   - loftee_lc
-  #   - consequence_NMD_transcript_variant
-  missense:
+  genetic_diversity:
     - cadd_raw
+  missense:
     - am_pathogenicity
-    # - esmscoremissense
+    - esmscoremissense
   conservation:
     - gpn_score
     - verphylop
     - zooverphylop
-    # - priphylop
-    # - zoopriphylop
-    # - mamphylop
-    # - priphcons
-    # - mamphcons
-    # - verphcons
   naive:
     - relative_cds_position
     - relprotpos
     # - af_ukb
+  # conservation:
+  #   - priphylop
+  #   - zoopriphylop
+  #   - mamphylop
+  #   - priphcons
+  #   - mamphcons
+  #   - verphcons
+  # plof:
+  #   - loftee_hc
+  #   - loftee_lc
+  #   - consequence_NMD_transcript_variant
+  # dms:
+  #   - dms_score
+  #   - dms_activity
+  #   - dms_abundance
+  #   - scaled_fitness
+  #   - fitness
