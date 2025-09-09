@@ -55,12 +55,13 @@ rare_variant_annotations:
       label: "Vertebrate PhyloP"
 
   naive:
-    relprotpos:
-      color: "#90d743"
-      label: "Relative Protein\nPosition"
     relative_cds_position:
       color: "#b5de2b"
       label: "Relative CDS\nPosition"
+      direction: -1
+    # relprotpos:
+    #   color: "#90d743"
+    #   label: "Relative Protein\nPosition"
 
 
 # rare_variant_annotations:
