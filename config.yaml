@@ -29,17 +29,53 @@ covariates:
 
 rare_variant_annotations:
   genetic_diversity:
-    - cadd_raw
+    cadd_raw:
+      color: "#1f77b4"
+      label: "CADD Raw"
+
   missense:
-    - am_pathogenicity
-    - esmscoremissense
+    am_pathogenicity: 
+      color: "#e76e5b"
+      label: "AlphaMissense"
+    esmscoremissense: 
+      color: "#feb72d"
+      label: "ESM1v"
+      direction: -1
+
   conservation:
-    - gpn_score
-    - verphylop
-    - zooverphylop
+    gpn_score: 
+      color: "#942c80"
+      label: "GPN-MSA"
+      direction: -1
+    zooverphylop: 
+      color: "#6a1c81"
+      label: "Zoonomia vertebrate\nPhyloP"
+    verphylop: 
+      color: "#440154"
+      label: "Vertebrate PhyloP"
+
   naive:
-    - relative_cds_position
-    - relprotpos
+    relprotpos:
+      color: "#90d743"
+      label: "Relative Protein\nPosition"
+    relative_cds_position:
+      color: "#b5de2b"
+      label: "Relative CDS\nPosition"
+
+
+# rare_variant_annotations:
+#   genetic_diversity:
+#     - cadd_raw
+#   missense:
+#     - am_pathogenicity
+#     - esmscoremissense
+#   conservation:
+#     - gpn_score
+#     - verphylop
+#     - zooverphylop
+#   naive:
+#     - relative_cds_position
+#     - relprotpos
     # - af_ukb
   # conservation:
   #   - priphylop
