@@ -27,26 +27,39 @@ covariates:
   - genetic_pc_19
   - genetic_pc_20
 
+
 rare_variant_annotations:
   genetic_diversity:
-    - cadd_raw
+    cadd_raw:
+      color: "#1f77b4"
+      label: "CADD Raw"
+
   missense:
-    - am_pathogenicity
-    - esmscoremissense
+    am_pathogenicity: 
+      color: "#e76e5b"
+      label: "AlphaMissense"
+    esmscoremissense: 
+      color: "#feb72d"
+      label: "ESM1v"
+      direction: -1
+
   conservation:
-    - gpn_score
-    - verphylop
-    - zooverphylop
-  splicing:
-    - pangolin_score
-    - delta_score
-    - AbSplice_DNA_max
-    - AbSplice2_max
+    gpn_score: 
+      color: "#942c80"
+      label: "GPN-MSA"
+      direction: -1
+    zooverphylop: 
+      color: "#6a1c81"
+      label: "Zoonomia vertebrate\nPhyloP"
+    verphylop: 
+      color: "#440154"
+      label: "Vertebrate PhyloP"
+
   naive:
-    - relative_cds_position
-    - relprotpos
-  poromoter:
-    - promoterAI
+    relative_cds_position:
+      color: "#b5de2b"
+      label: "Relative CDS\nPosition"
+      direction: -1
     # - af_ukb
   # conservation:
   #   - priphylop
