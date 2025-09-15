@@ -14,7 +14,7 @@ variant_groups = {
         'Consequence_splice_acceptor_variant'
     ],
     # Splice variants also in plof and other_low_impact. All other groups are mutually exclusive and cover all variants
-    "splice": [
+    "splicing": [
         'Consequence_splice_donor_variant',
         'Consequence_splice_acceptor_variant',
         'Consequence_splice_donor_5th_base_variant',

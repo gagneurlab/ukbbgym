@@ -60,21 +60,18 @@ rare_variant_annotations:
       color: "#b5de2b"
       label: "Relative CDS\nPosition"
       direction: -1
-    # - af_ukb
-  # conservation:
-  #   - priphylop
-  #   - zoopriphylop
-  #   - mamphylop
-  #   - priphcons
-  #   - mamphcons
-  #   - verphcons
-  # plof:
-  #   - loftee_hc
-  #   - loftee_lc
-  #   - consequence_NMD_transcript_variant
-  # dms:
-  #   - dms_score
-  #   - dms_activity
-  #   - dms_abundance
-  #   - scaled_fitness
-  #   - fitness
+
+  splicing:
+    pangolin_score:
+      color: "#20c997"
+      label: "Pangolin"
+    delta_score:
+      color: "#00A99D"
+      label: "Splice AI"
+    absplice_dna_max:
+      color: "#28a745"
+      label: "AbSplice (max)"
+    absplice2_max:
+      color: "#1E8449"
+      label: "AbSplice2 (max)"
+
