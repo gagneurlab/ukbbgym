@@ -67,11 +67,17 @@ rare_variant_annotations:
       label: "Pangolin"
     delta_score:
       color: "#00A99D"
-      label: "Splice AI"
+      label: "SpliceAI"
     absplice_dna_max:
       color: "#28a745"
       label: "AbSplice (max)"
     absplice2_max:
       color: "#1E8449"
       label: "AbSplice2 (max)"
+  
+  regulatory:
+    promoterai:
+      color: "#00A99D"
+      label: "PromoterAI"
+    
 
