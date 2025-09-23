@@ -79,5 +79,7 @@ rare_variant_annotations:
     promoterai:
       color: "#00A99D"
       label: "PromoterAI"
-    
+    abexp_max:
+      color: "#00A99D"
+      label: "AbExp"
 
