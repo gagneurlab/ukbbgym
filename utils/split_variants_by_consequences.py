@@ -22,12 +22,12 @@ variant_groups = {
         'consequence_splice_polypyrimidine_tract_variant',
         'consequence_splice_region_variant'
     ],
-    "utr": [
-        'consequence_3_prime_utr_variant',
-        'consequence_5_prime_utr_variant'
+    "5utr_upstream10kb": [
+        'consequence_5_prime_utr_variant',
+        'consequence_upstream_gene_variant'
     ],
-    "upstream_downstream": [
-        'consequence_upstream_gene_variant',
+    "3utr_downstream10kb": [
+        'consequence_3_prime_utr_variant',
         'consequence_downstream_gene_variant'
     ],
     "other_low_impact": [
