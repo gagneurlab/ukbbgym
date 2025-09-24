@@ -87,7 +87,7 @@ for c in cols_cons_present:
     expr = (pl.col(c) == 1)
     mask_none = (~expr) if mask_none is None else (mask_none & ~expr)
 
-out_path_none = os.path.join(out_dir, "genebass1e6_NOconsequence_variants_250923.parquet")
+out_path_none = os.path.join(out_dir, "genebass1e6_genes_10kb_NOconsequence_variants_250923.parquet")
 lf_none = anno.filter(mask_none)#.select([c for c in ['id', 'region'] + cols_cons_present if c in available_cols])
 lf_none.sink_parquet(out_path_none, engine='streaming')
 print(f"Wrote unannotated variants -> {out_path_none}")
