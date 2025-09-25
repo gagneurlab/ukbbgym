@@ -76,10 +76,10 @@ rare_variant_annotations:
       label: "AbSplice2 (max)"
   
   regulatory:
-    promoterai:
+    promoterai_abs:
       color: "#00A99D"
       label: "PromoterAI"
-    abexp_max:
+    abexp_abs_max:
       color: "#00A99D"
       label: "AbExp"
 
