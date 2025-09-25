@@ -13,15 +13,6 @@ variant_groups = {
         'consequence_splice_donor_variant',
         'consequence_splice_acceptor_variant'
     ],
-    # Splice variants also in plof and other_low_impact. All other groups are mutually exclusive and cover all variants
-    "splicing": [
-        'consequence_splice_donor_variant',
-        'consequence_splice_acceptor_variant',
-        'consequence_splice_donor_5th_base_variant',
-        'consequence_splice_donor_region_variant',
-        'consequence_splice_polypyrimidine_tract_variant',
-        'consequence_splice_region_variant'
-    ],
     "5utr_upstream10kb": [
         'consequence_5_prime_utr_variant',
         'consequence_upstream_gene_variant'
@@ -46,7 +37,16 @@ variant_groups = {
         'consequence_synonymous_variant',
         'consequence_coding_sequence_variant',
         'consequence_NMD_transcript_variant'
-    ]
+    ],
+    # NOTE: Splice variants also in plof and other_low_impact. All other groups are mutually exclusive and cover all variants
+    "splicing": [
+        'consequence_splice_donor_variant',
+        'consequence_splice_acceptor_variant',
+        'consequence_splice_donor_5th_base_variant',
+        'consequence_splice_donor_region_variant',
+        'consequence_splice_polypyrimidine_tract_variant',
+        'consequence_splice_region_variant',
+    ],
 }
 
 out_dir = "PATH_TO_FILE"
@@ -74,7 +74,7 @@ for grp_name, cols in variant_groups.items():
     select_cols = ['id', 'region'] + cols_present
     lf = anno.filter(mask)#.select([c for c in select_cols if c in available_cols])
 
-    out_path = os.path.join(out_dir, f"genebass1e6_genes_10kb_{grp_name}_variants_annotated_250923.parquet")
+    out_path = os.path.join(out_dir, f"genebass1e6_genes_10kb_{grp_name}_variants_annotated_250925.parquet")
 
     # schedule sink and trigger execution with streaming engine
     lf.sink_parquet(out_path, engine='streaming')
@@ -87,7 +87,7 @@ for c in cols_cons_present:
     expr = (pl.col(c) == 1)
     mask_none = (~expr) if mask_none is None else (mask_none & ~expr)
 
-out_path_none = os.path.join(out_dir, "genebass1e6_genes_10kb_NOconsequence_variants_250923.parquet")
+out_path_none = os.path.join(out_dir, "genebass1e6_genes_10kb_NOconsequence_variants_250925.parquet")
 lf_none = anno.filter(mask_none)#.select([c for c in ['id', 'region'] + cols_cons_present if c in available_cols])
 lf_none.sink_parquet(out_path_none, engine='streaming')
 print(f"Wrote unannotated variants -> {out_path_none}")
