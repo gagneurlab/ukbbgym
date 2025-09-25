@@ -213,7 +213,6 @@ corr_phenos_lazy = process_phenotypes_prs_long(
     quantitative=True
 )
 
-corr_phenos_lazy.head().collect()
 output_dir = "PATH_TO_FILE"
 chunk_size = 10_000
 
