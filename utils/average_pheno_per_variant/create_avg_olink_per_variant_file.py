@@ -137,7 +137,7 @@ olink_indices = np.sort(found_indices)
 
 output_dir = "PATH_TO_FILE"
 # output_dir = "PATH_TO_FILE"
-chunk_size = 10_000
+chunk_size = 30_000
 
 for chunk_num in tqdm(range(var_ids.shape[0]//chunk_size + 1)):
     process_genotype_chunk(
