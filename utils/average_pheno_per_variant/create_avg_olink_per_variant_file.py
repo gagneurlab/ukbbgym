@@ -213,7 +213,6 @@ corr_phenos_lazy = process_phenotypes_prs_long(
     quantitative=True
 )
 
-corr_phenos_lazy.head().collect()
 output_dir = "/home/dnanexus/data_dir/var_pheno_EUR_chunks"
 chunk_size = 10_000
 
