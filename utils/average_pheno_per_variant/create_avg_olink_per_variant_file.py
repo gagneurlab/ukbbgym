@@ -10,79 +10,6 @@ import pandas as pd
 from tqdm import tqdm
 import statsmodels.api as sm
 
-from anngeno import AnnGeno
-import multiprocessing
-
-def process_phenotypes_prs_long(
-    pheno_lazy: str,
-    prs_lazy: str,
-    cov_lazy: str,
-    unique_phenotypes: pl.DataFrame,
-    cov_list: list,
-    quantitative: bool = True
-) -> pl.DataFrame:
-    """
-    Process phenotypes and PRS, compute residuals for each phenotype, and return a long-format Polars DataFrame.
-    """
-    print("Process phenotypes and PRS, compute residuals for each phenotype, and return a long-format Polars DataFrame.")
-
-    # --- Merge all into one lazy DataFrame ---
-    all_lazy = pheno_lazy.join(prs_lazy, on='individual', how='inner').join(cov_lazy, on='individual', how='inner')
-    
-    # Collect once for regression computations (still needed for statsmodels)
-    all_pd = all_lazy.collect().to_pandas()
-
-    # --- Compute residuals ---
-    all_residuals_dfs = []
-
-    for phenotype in tqdm(unique_phenotypes):
-        pheno_cols = [phenotype, f"{phenotype}_prs"] + cov_list
-        temp_df = all_pd[['individual'] + pheno_cols].dropna()
-        if len(temp_df) == 0:
-            print(f"No data for phenotype: {phenotype}")
-            continue
-
-        y = temp_df[phenotype]
-        X = temp_df.drop(columns=[phenotype, 'individual'])
-        X = sm.add_constant(X)
-
-        if quantitative:
-            model = sm.OLS(y, X).fit()
-            residuals = pd.Series(model.resid, index=temp_df.index, name=f"{phenotype}_residual")
-        else:
-            model = sm.GLM(y, X, family=sm.families.Binomial()).fit()
-            residuals = pd.Series(model.resid_deviance, index=temp_df.index, name=f"{phenotype}_residual")
-
-        pheno_residuals = pd.concat([temp_df[['individual']], residuals], axis=1)
-        all_residuals_dfs.append(pheno_residuals)
-
-
-    if not all_residuals_dfs:
-        raise ValueError("No residuals could be computed")
-
-    # --- Step 5: Convert to long-format lazy DataFrame ---
-    long_lazy_dfs = []
-    for residual_df in all_residuals_dfs:
-        p_wide_lazy = pl.LazyFrame(residual_df).with_columns(
-            pl.col('individual').cast(pl.String)
-        )
-        pheno_cols = [c for c in residual_df.columns if c.endswith('_residual')]
-        pdf_lazy = (
-            p_wide_lazy.unpivot(
-                index=['individual'],
-                on=pheno_cols,
-                variable_name='phenotype',
-                value_name='pheno_value',
-            )
-            .with_columns(
-                pl.col('phenotype').str.replace('_residual', '').alias('phenotype')
-            )
-        )
-        long_lazy_dfs.append(pdf_lazy)
-
-    combined_pdf_lazy = pl.concat(long_lazy_dfs) if len(long_lazy_dfs) > 1 else long_lazy_dfs[0]
-
-    return combined_pdf_lazy
 
 @numba.njit(parallel=True, fastmath=True)
 def _fast_clip_and_sum_allels(arr):
@@ -157,71 +84,67 @@ def process_genotype_chunk(
             ]).drop_nulls(subset=['mean_pheno_value'])
     return var_pheno_df
 
-pheno_path = 'PATH_TO_FILE'
-prs_path = 'PATH_TO_FILE'
-cov_path = 'PATH_TO_FILE'
 
 anngeno_path = 'PATH_TO_FILE'
 eur_samples_path = 'PATH_TO_FILE'
+# olink_path = 'PATH_TO_FILE'
+olink_path = "PATH_TO_FILE"
 
 sample_ids = zarr.open(f'{anngeno_path}/zarr_store/samples', mode='r')[:]
-
 var_ids = pl.read_parquet(f'{anngeno_path}/variant_metadata.parquet', columns=['id'])['id'].to_numpy()
-
 geno = zarr.open(f'{anngeno_path}/zarr_store/genotypes', mode='r')
 
 eur_samples = pl.read_csv(eur_samples_path).rename({'eid': 'individual'}).with_columns(
     pl.col("individual").cast(pl.Utf8)
 )['individual'].to_list()
 
-pheno_lazy = pl.read_parquet(pheno_path).drop(['FID']).rename({'IID': 'individual'}).with_columns(
+olink_df = pl.read_parquet(olink_path).rename({'sample': 'individual'}).with_columns(
     pl.col("individual").cast(pl.Utf8)
 ).filter(
     pl.col("individual").is_in(eur_samples)
-).fill_nan(None).lazy()
+).fill_nan(None)
 
-unique_phenotypes = [pheno for pheno in pheno_lazy.columns if pheno != 'individual']
-quant_phenotypes = [pheno for pheno in unique_phenotypes if "jurgens" not in pheno]
+unique_phenotypes = [pheno for pheno in olink_df.columns if pheno != 'individual']
 
-prs_cols = [f"{pheno}_prs" for pheno in quant_phenotypes]
-prs_lazy = (
-    pl.scan_parquet(prs_path)
-    .fill_nan(None)
-    .rename({'IID': 'individual'})
-    .select(['individual'] + prs_cols)
-    .with_columns(pl.col("individual").cast(pl.Utf8))
-    .drop_nulls()
+olink_melt = (
+    olink_df.unpivot(
+        index=['individual'],
+        on=unique_phenotypes,
+        variable_name='phenotype',
+        value_name='pheno_value',
+    )
+    .with_columns(
+        phenotype = pl.col('phenotype') + '_olink'
+    )
+    .lazy()
 )
 
-config_path = 'PATH_TO_FILE'
-with open(config_path) as f:
-    config = yaml.safe_load(f)
+# Optimized approach to find indices of olink_samples in sample_ids
+# Step A: Create a lookup dictionary mapping each ID in the large array to its original index. This takes O(N) time, where N is the size of sample_ids.
+olink_sids = olink_df['individual'].to_numpy()
+sample_id_to_index = {sid: i for i, sid in enumerate(sample_ids)}
 
-cov_list = config.get("covariates", [])
-cov_lazy = (
-    pl.scan_parquet(cov_path)
-    .rename({'sample': 'individual'})
-    .select(['individual'] + cov_list)
-)
+# Step B: Iterate through the smaller array and find the index for each element if it exists in our lookup dictionary. This takes O(M) time, where M is the size of olink_sids.
+found_indices = []
+for sid in olink_sids:
+    if sid in sample_id_to_index:
+        found_indices.append(sample_id_to_index[sid])
+print(f"Found {len(found_indices)} matching IDs.")
 
-corr_phenos_lazy = process_phenotypes_prs_long(
-    pheno_lazy=pheno_lazy,
-    prs_lazy=prs_lazy,
-    cov_lazy=cov_lazy,
-    unique_phenotypes=quant_phenotypes,
-    cov_list=cov_list,
-    quantitative=True
-)
+# Step C: Convert the list of indices to a NumPy array and sort it.
+# Sorting ensures the output is identical to the original np.where approach, which returns indices in ascending order.
+olink_indices = np.sort(found_indices)
 
+output_dir = "PATH_TO_FILE"
 output_dir = "PATH_TO_FILE"
 chunk_size = 10_000
 
 for chunk_num in tqdm(range(var_ids.shape[0]//chunk_size + 1)):
     process_genotype_chunk(
-        geno=geno[chunk_num*chunk_size:(chunk_num+1)*chunk_size],
+        geno=geno[chunk_num*chunk_size:(chunk_num+1)*chunk_size, olink_indices],
         var_ids=var_ids[chunk_num*chunk_size:(chunk_num+1)*chunk_size],
         sample_list=sample_ids,
-        melted_pheno_df=corr_phenos_lazy,
+        melted_pheno_df=olink_melt,
         homozygous=False,
     ).sink_parquet(f"{output_dir}/variant_pheno_chunk{chunk_num}.parquet")
 
@@ -230,4 +153,4 @@ files = [f"{output_dir}/variant_pheno_chunk{i}.parquet" for i in range(var_ids.s
 lazy_frames = [pl.scan_parquet(f) for f in files]
 combined = pl.concat(lazy_frames)
 
-combined.sink_parquet(f"{output_dir}/variant_pheno_EUR.parquet")
+combined.sink_parquet(f"{output_dir}/variant_pheno_EUR.parquet", engine='streaming')
