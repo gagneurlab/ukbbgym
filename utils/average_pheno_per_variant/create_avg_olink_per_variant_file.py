@@ -137,7 +137,7 @@ olink_indices = np.sort(found_indices)
 
 output_dir = "/home/dnanexus/data_dir/olink_appv_chunks_EUR"
 # output_dir = "/home/dnanexus/data_dir/olink_appv_chunks_EUR_coding"
-chunk_size = 10_000
+chunk_size = 30_000
 
 for chunk_num in tqdm(range(var_ids.shape[0]//chunk_size + 1)):
     process_genotype_chunk(
