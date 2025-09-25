@@ -136,21 +136,21 @@ print(f"Found {len(found_indices)} matching IDs.")
 olink_indices = np.sort(found_indices)
 
 output_dir = "PATH_TO_FILE"
-output_dir = "PATH_TO_FILE"
+# output_dir = "PATH_TO_FILE"
 chunk_size = 10_000
 
 for chunk_num in tqdm(range(var_ids.shape[0]//chunk_size + 1)):
     process_genotype_chunk(
         geno=geno[chunk_num*chunk_size:(chunk_num+1)*chunk_size, olink_indices],
         var_ids=var_ids[chunk_num*chunk_size:(chunk_num+1)*chunk_size],
-        sample_list=sample_ids,
+        sample_list=sample_ids[olink_indices],
         melted_pheno_df=olink_melt,
         homozygous=False,
-    ).sink_parquet(f"{output_dir}/variant_pheno_chunk{chunk_num}.parquet")
+    ).sink_parquet(f"{output_dir}/variant_pheno_chunk{chunk_num}.parquet", engine='streaming')
 
 # Concat all files into one
 files = [f"{output_dir}/variant_pheno_chunk{i}.parquet" for i in range(var_ids.shape[0]//chunk_size + 1)]
 lazy_frames = [pl.scan_parquet(f) for f in files]
 combined = pl.concat(lazy_frames)
 
-combined.sink_parquet(f"{output_dir}/variant_pheno_EUR.parquet", engine='streaming')
+combined.sink_parquet(f"{output_dir}/avg_pheno_per_var_371olink_EUR_corrected90pcs.parquet", engine='streaming')
