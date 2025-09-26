@@ -29,6 +29,11 @@ covariates:
 
 
 rare_variant_annotations:
+  plof:
+    loftee_hc:
+      color: "#1f77b4"
+      label: "LOFTEE HC"
+
   genetic_diversity:
     cadd_raw:
       color: "#1f77b4"
