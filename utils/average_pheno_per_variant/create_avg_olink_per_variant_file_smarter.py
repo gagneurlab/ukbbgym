@@ -165,7 +165,7 @@ for chunk_num in tqdm(range(indices_vars2keep.shape[0]//chunk_size + 1)):
     ).sink_parquet(f"{output_dir}/variant_pheno_chunk{chunk_num}.parquet", engine='streaming')
 
 # Concat all files into one
-files = [f"{output_dir}/variant_pheno_chunk{i}.parquet" for i in range(var_ids.shape[0]//chunk_size + 1)]
+files = [f"{output_dir}/variant_pheno_chunk{i}.parquet" for i in range(indices_vars2keep.shape[0]//chunk_size + 1)]
 lazy_frames = [pl.scan_parquet(f) for f in files]
 combined = pl.concat(lazy_frames)
 
