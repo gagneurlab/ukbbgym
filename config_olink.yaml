@@ -27,6 +27,48 @@ covariates:
   - genetic_pc_19
   - genetic_pc_20
 
+variant_consequences:
+  intronic:
+    - consequence_intron_variant
+  missense:
+    - consequence_missense_variant
+  plof:
+    - consequence_frameshift_variant
+    - consequence_start_lost
+    - consequence_stop_gained
+    - consequence_stop_lost
+    - consequence_splice_donor_variant
+    - consequence_splice_acceptor_variant
+  5utr_upstream10kb:
+    - consequence_5_prime_utr_variant
+    - consequence_upstream_gene_variant
+  3utr_downstream10kb:
+    - consequence_3_prime_utr_variant
+    - consequence_downstream_gene_variant
+  splicing:
+    - consequence_splice_donor_variant
+    - consequence_splice_acceptor_variant
+    - consequence_splice_donor_5th_base_variant
+    - consequence_splice_donor_region_variant
+    - consequence_splice_polypyrimidine_tract_variant
+    - consequence_splice_region_variant
+  other_low_impact:
+    - consequence_splice_donor_5th_base_variant
+    - consequence_splice_donor_region_variant
+    - consequence_splice_polypyrimidine_tract_variant
+    - consequence_splice_region_variant
+    - consequence_inframe_deletion
+    - consequence_inframe_insertion
+    - consequence_intergenic_variant
+    - consequence_non_coding_transcript_exon_variant
+    - consequence_non_coding_transcript_variant
+    - consequence_protein_altering_variant
+    - consequence_start_retained_variant
+    - consequence_stop_retained_variant
+    - consequence_synonymous_variant
+    - consequence_coding_sequence_variant
+    - consequence_NMD_transcript_variant
+
 
 rare_variant_annotations:
   plof:
@@ -84,15 +126,19 @@ rare_variant_annotations:
     pangolin_score:
       color: "#20c997"
       label: "Pangolin"
+      direction: -1
     delta_score:
       color: "#00A99D"
       label: "SpliceAI"
+      direction: -1
     absplice_dna_max:
       color: "#28a745"
       label: "AbSplice (max)"
+      direction: -1
     absplice2_max:
       color: "#1E8449"
       label: "AbSplice2 (max)"
+      direction: -1
   
   regulatory:
     promoterai:
