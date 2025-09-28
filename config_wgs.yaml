@@ -98,6 +98,9 @@ rare_variant_annotations:
     promoterai_over:
       color: "#00A99D"
       label: "PromoterAI over"
+    abexp_whole_blood:
+      color: "#00A99D"
+      label: "AbExp whole blood"
     abexp_min:
       color: "#00A99D"
       label: "AbExp min"
