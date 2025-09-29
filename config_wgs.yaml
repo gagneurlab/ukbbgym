@@ -99,9 +99,9 @@ rare_variant_annotations:
       color: "#942c80"
       label: "GPN-MSA"
       direction: -1
-    # zooverphylop: 
-    #   color: "#6a1c81"
-    #   label: "Zoonomia vertebrate\nPhyloP"
+    verphylop: 
+      color: "#6a1c81"
+      label: "Vertebrate PhyloP"
     mamphylop: 
       color: "#440154"
       label: "Mammalian PhyloP"
@@ -128,6 +128,8 @@ rare_variant_annotations:
       color: "#00A99D"
       label: "AbExp min"
       direction: -1
+
+
     # promoterai:
     #   color: "#00A99D"
     #   label: "PromoterAI"
