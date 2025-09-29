@@ -81,7 +81,7 @@ rare_variant_annotations:
     cadd_raw:
       color: "#1f77b4"
       label: "CADD Raw"
-      direction: -1
+      # direction: -1
 
   missense:
     am_pathogenicity: 
@@ -96,25 +96,27 @@ rare_variant_annotations:
     gpn_star_llr_calibrated_mean: 
       color: "#942c80"
       label: "GPN-Star"
+      direction: -1
     gpn_score: 
       color: "#942c80"
       label: "GPN-MSA"
+      direction: -1
     zoomamphylop: 
       color: "#6a1c81"
       label: "Zoonomia mammalian\nPhyloP"
-      direction: -1
+      # direction: -1
     mamphylop: 
       color: "#440154"
       label: "Mammalian PhyloP"
-      direction: -1
+      # direction: -1
     zooverphylop: 
       color: "#6a1c81"
       label: "Zoonomia vertebrate\nPhyloP"
-      direction: -1
+      # direction: -1
     verphylop: 
       color: "#440154"
       label: "Vertebrate PhyloP"
-      direction: -1
+      # direction: -1
 
   naive:
     relative_cds_position:
@@ -144,12 +146,12 @@ rare_variant_annotations:
     promoterai:
       color: "#00A99D"
       label: "PromoterAI"
-    abexp_whole_blood:
-      color: "#00A99D"
-      label: "AbExp whole blood"
     abexp_min:
       color: "#00A99D"
       label: "AbExp min"
+    # abexp_whole_blood:
+    #   color: "#00A99D"
+    #   label: "AbExp whole blood"
     # abexp_max:
     #   color: "#00A99D"
     #   label: "AbExp max"
