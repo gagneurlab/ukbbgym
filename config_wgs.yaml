@@ -67,7 +67,7 @@ variant_consequences:
     - consequence_stop_retained_variant
     - consequence_synonymous_variant
     - consequence_coding_sequence_variant
-    - consequence_NMD_transcript_variant
+    # - consequence_NMD_transcript_variant
 
 
 rare_variant_annotations:
@@ -76,19 +76,19 @@ rare_variant_annotations:
       color: "#1f77b4"
       label: "LOFTEE HC"
 
+  # missense:
+  #   am_pathogenicity: 
+  #     color: "#e76e5b"
+  #     label: "AlphaMissense"
+  #   esmscoremissense: 
+  #     color: "#feb72d"
+  #     label: "ESM1v"
+  #     direction: -1
+
   genetic_diversity:
     cadd_raw:
       color: "#1f77b4"
       label: "CADD Raw"
-
-  missense:
-    am_pathogenicity: 
-      color: "#e76e5b"
-      label: "AlphaMissense"
-    esmscoremissense: 
-      color: "#feb72d"
-      label: "ESM1v"
-      direction: -1
 
   conservation:
     gpn_star_llr_calibrated_mean: 
@@ -105,12 +105,6 @@ rare_variant_annotations:
     verphylop: 
       color: "#440154"
       label: "Vertebrate PhyloP"
-
-  naive:
-    relative_cds_position:
-      color: "#b5de2b"
-      label: "Relative CDS\nPosition"
-      direction: -1
 
   splicing:
     pangolin_score:
@@ -151,4 +145,8 @@ rare_variant_annotations:
     #   color: "#00A99D"
     #   label: "AbExp max"
 
-
+  # naive:
+  #   relative_cds_position:
+  #     color: "#b5de2b"
+  #     label: "Relative CDS\nPosition"
+  #     direction: -1
