@@ -76,14 +76,14 @@ rare_variant_annotations:
       color: "#1f77b4"
       label: "LOFTEE HC"
 
-  # missense:
-  #   am_pathogenicity: 
-  #     color: "#e76e5b"
-  #     label: "AlphaMissense"
-  #   esmscoremissense: 
-  #     color: "#feb72d"
-  #     label: "ESM1v"
-  #     direction: -1
+  missense:
+    am_pathogenicity: 
+      color: "#e76e5b"
+      label: "AlphaMissense"
+    esmscoremissense: 
+      color: "#feb72d"
+      label: "ESM1v"
+      direction: -1
 
   genetic_diversity:
     cadd_raw:
@@ -99,9 +99,9 @@ rare_variant_annotations:
       color: "#942c80"
       label: "GPN-MSA"
       direction: -1
-    zooverphylop: 
-      color: "#6a1c81"
-      label: "Zoonomia vertebrate\nPhyloP"
+    # zooverphylop: 
+    #   color: "#6a1c81"
+    #   label: "Zoonomia vertebrate\nPhyloP"
     verphylop: 
       color: "#440154"
       label: "Vertebrate PhyloP"
