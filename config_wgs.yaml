@@ -127,29 +127,28 @@ rare_variant_annotations:
       label: "AbSplice2 (max)"
   
   regulatory:
-    promoterai:
-      color: "#00A99D"
-      label: "PromoterAI"
     promoterai_abs:
       color: "#00A99D"
       label: "PromoterAI abs"
-    promoterai_under:
-      color: "#00A99D"
-      label: "PromoterAI under"
-      direction: -1
-    promoterai_over:
-      color: "#00A99D"
-      label: "PromoterAI over"
-    abexp_whole_blood:
-      color: "#00A99D"
-      label: "AbExp whole blood"
     abexp_min:
       color: "#00A99D"
       label: "AbExp min"
       direction: -1
-    abexp_max:
-      color: "#00A99D"
-      label: "AbExp max"
-    
+    # promoterai:
+    #   color: "#00A99D"
+    #   label: "PromoterAI"
+    # promoterai_under:
+    #   color: "#00A99D"
+    #   label: "PromoterAI under"
+    #   direction: -1
+    # promoterai_over:
+    #   color: "#00A99D"
+    #   label: "PromoterAI over"
+    # abexp_whole_blood:
+    #   color: "#00A99D"
+    #   label: "AbExp whole blood"
+    # abexp_max:
+    #   color: "#00A99D"
+    #   label: "AbExp max"
 
 
