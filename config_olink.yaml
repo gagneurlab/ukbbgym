@@ -142,13 +142,23 @@ rare_variant_annotations:
       label: "AbSplice2 (max)"
       # direction: -1
   
+  regulatory_nondir:
+    promoterai_abs:
+        color: "#00A99D"
+        label: "PromoterAI abs"
+    abexp_min:
+        color: "#00A99D"
+        label: "AbExp min"
+        direction: -1
+
   regulatory:
     promoterai:
       color: "#00A99D"
       label: "PromoterAI"
     abexp_min:
-      color: "#00A99D"
-      label: "AbExp min"
+        color: "#00A99D"
+        label: "AbExp min"
+        direction: -1
     # abexp_whole_blood:
     #   color: "#00A99D"
     #   label: "AbExp whole blood"
@@ -161,9 +171,7 @@ rare_variant_annotations:
     # promoterai_over:
     #   color: "#00A99D"
     #   label: "PromoterAI over"
-    # promoterai_abs:
-    #   color: "#00A99D"
-    #   label: "PromoterAI abs"
+    
     
 
 
