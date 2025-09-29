@@ -102,9 +102,9 @@ rare_variant_annotations:
     # zooverphylop: 
     #   color: "#6a1c81"
     #   label: "Zoonomia vertebrate\nPhyloP"
-    verphylop: 
+    mamphylop: 
       color: "#440154"
-      label: "Vertebrate PhyloP"
+      label: "Mammalian PhyloP"
 
   splicing:
     pangolin_score:
