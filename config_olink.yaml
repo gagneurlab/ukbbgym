@@ -42,9 +42,12 @@ variant_consequences:
   5utr_upstream10kb:
     - consequence_5_prime_utr_variant
     - consequence_upstream_gene_variant
-  3utr_downstream10kb:
-    - consequence_3_prime_utr_variant
-    - consequence_downstream_gene_variant
+  utr_annotator:
+    - five_prime_utr_variant_consequence_uaug_gained
+    - five_prime_utr_variant_consequence_uaug_lost
+    - five_prime_utr_variant_consequence_uframeshift
+    - five_prime_utr_variant_consequence_ustop_gained
+    - five_prime_utr_variant_consequence_ustop_lost
   splicing:
     - consequence_splice_donor_variant
     - consequence_splice_acceptor_variant
@@ -52,6 +55,9 @@ variant_consequences:
     - consequence_splice_donor_region_variant
     - consequence_splice_polypyrimidine_tract_variant
     - consequence_splice_region_variant
+  3utr_downstream10kb:
+    - consequence_3_prime_utr_variant
+    - consequence_downstream_gene_variant
   other_low_impact:
     - consequence_splice_donor_5th_base_variant
     - consequence_splice_donor_region_variant
