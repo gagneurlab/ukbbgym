@@ -84,7 +84,7 @@ rare_variant_annotations:
 
   missense:
     am_pathogenicity: 
-      color: "#e76e5b"
+      color: "#feb72d"
       label: "AlphaMissense"
     esmscoremissense: 
       color: "#feb72d"
@@ -93,7 +93,7 @@ rare_variant_annotations:
 
   genetic_diversity:
     cadd_raw:
-      color: "#1f77b4"
+      color: "#AA4344"
       label: "CADD Raw"
 
   conservation:
@@ -106,24 +106,24 @@ rare_variant_annotations:
       label: "GPN-MSA"
       direction: -1
     verphylop: 
-      color: "#6a1c81"
+      color: "#942c80"
       label: "Vertebrate PhyloP"
     mamphylop: 
-      color: "#440154"
+      color: "#942c80"
       label: "Mammalian PhyloP"
 
   splicing:
     pangolin_score:
-      color: "#20c997"
+      color: "#28a745"
       label: "Pangolin"
     delta_score:
-      color: "#00A99D"
+      color: "#28a745"
       label: "SpliceAI"
     absplice_dna_max:
       color: "#28a745"
       label: "AbSplice (max)"
     absplice2_max:
-      color: "#1E8449"
+      color: "#28a745"
       label: "AbSplice2 (max)"
   
   regulatory_nondir:
