@@ -93,7 +93,7 @@ rare_variant_annotations:
 
   genetic_diversity:
     cadd_raw:
-      color: "#AA4344"
+      color: "#1f77b4"
       label: "CADD Raw"
 
   conservation:
