@@ -91,7 +91,7 @@ rare_variant_annotations:
 
   missense:
     am_pathogenicity: 
-      color: "#e76e5b"
+      color: "#feb72d"
       label: "AlphaMissense"
       direction: -1
     esmscoremissense: 
@@ -109,11 +109,11 @@ rare_variant_annotations:
       label: "GPN-MSA"
       # direction: -1
     mamphylop: 
-      color: "#440154"
+      color: "#942c80"
       label: "Mammalian PhyloP"
       direction: -1
     verphylop: 
-      color: "#440154"
+      color: "#942c80"
       label: "Vertebrate PhyloP"
       direction: -1
     # zoomamphylop: 
