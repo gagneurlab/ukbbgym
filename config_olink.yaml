@@ -73,8 +73,22 @@ variant_consequences:
     - consequence_stop_retained_variant
     - consequence_synonymous_variant
     - consequence_coding_sequence_variant
-    - consequence_NMD_transcript_variant
-
+    # - consequence_NMD_transcript_variant
+  coding:
+    - consequence_frameshift_variant
+    - consequence_start_lost
+    - consequence_stop_gained
+    - consequence_stop_lost
+    - consequence_splice_donor_variant
+    - consequence_splice_acceptor_variant
+    - consequence_missense_variant
+    - consequence_protein_altering_variant
+    - consequence_start_retained_variant
+    - consequence_stop_retained_variant
+    - consequence_synonymous_variant
+    - consequence_coding_sequence_variant
+    - consequence_inframe_deletion
+    - consequence_inframe_insertion
 
 rare_variant_annotations:
   plof:
