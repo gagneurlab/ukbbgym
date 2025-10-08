@@ -107,7 +107,7 @@ variant_consequences:
 rare_variant_annotations:
   plof:
     loftee_hc:
-      color: "#1f77b4"
+      color: "#DD4344"
       label: "LOFTEE HC"
 
   missense:

@@ -93,7 +93,7 @@ variant_consequences:
 rare_variant_annotations:
   plof:
     loftee_hc:
-      color: "#1f77b4"
+      color: "#DD4344"
       label: "LOFTEE HC"
       direction: -1
 
@@ -141,11 +141,11 @@ rare_variant_annotations:
 
   splicing:
     pangolin_score:
-      color: "#20c997"
+      color: "#28a745"
       label: "Pangolin"
       direction: -1
     delta_score:
-      color: "#00A99D"
+      color: "#28a745"
       label: "SpliceAI"
       direction: -1
     absplice_dna_max:
@@ -153,7 +153,7 @@ rare_variant_annotations:
       label: "AbSplice (max)"
       direction: -1
     absplice2_max:
-      color: "#1E8449"
+      color: "#28a745"
       label: "AbSplice2 (max)"
       direction: -1
   
