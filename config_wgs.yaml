@@ -88,7 +88,21 @@ variant_consequences:
     - consequence_coding_sequence_variant
     - consequence_inframe_deletion
     - consequence_inframe_insertion
-
+  non_coding:
+    - consequence_5_prime_utr_variant
+    - consequence_upstream_gene_variant
+    - consequence_splice_region_variant
+    - consequence_splice_donor_5th_base_variant
+    - consequence_splice_donor_region_variant
+    - consequence_splice_polypyrimidine_tract_variant
+    - consequence_intron_variant
+    - consequence_3_prime_utr_variant
+    # - consequence_downstream_gene_variant
+  utrs:
+    - consequence_5_prime_utr_variant
+    - consequence_upstream_gene_variant
+    - consequence_3_prime_utr_variant
+    - consequence_downstream_gene_variant
 
 rare_variant_annotations:
   plof:
