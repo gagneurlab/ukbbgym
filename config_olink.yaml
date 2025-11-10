@@ -108,6 +108,10 @@ rare_variant_annotations:
       color: "#feb72d"
       label: "AlphaMissense"
       direction: -1
+    score_pai3d: 
+      color: "#feb72d"
+      label: "PrimateAI-3D"
+      direction: -1
     esmscoremissense: 
       color: "#feb72d"
       label: "ESM1v"
