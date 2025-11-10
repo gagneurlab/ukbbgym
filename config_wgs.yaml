@@ -1,4 +1,3 @@
-anngeno_file: /home/dnanexus/data_dir/dms_coding.ag
 maf: 0.001
 
 covariates:
@@ -147,6 +146,9 @@ rare_variant_annotations:
     delta_score:
       color: "#28a745"
       label: "SpliceAI"
+    # spliceai_delta_score:
+    #   color: "#28a745"
+    #   label: "SpliceAI"
     absplice_dna_max:
       color: "#28a745"
       label: "AbSplice (max)"
