@@ -132,7 +132,7 @@ rare_variant_annotations:
       label: "GPN-Star"
       direction: -1
     gpn_score: 
-      color: "#942c80"
+      color: "pink"
       label: "GPN-MSA"
       direction: -1
     verphylop: 
