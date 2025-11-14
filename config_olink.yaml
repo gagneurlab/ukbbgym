@@ -166,6 +166,9 @@ rare_variant_annotations:
         color: "#00A99D"
         label: "PromoterAI abs"
         direction: -1
+    max_fz_blood:
+      color: "pink"
+      label: "Flashzoi abs max\nacross blood"
     abexp_min:
         color: "#00A99D"
         label: "AbExp min"
@@ -175,6 +178,12 @@ rare_variant_annotations:
     promoterai:
       color: "#00A99D"
       label: "PromoterAI"
+    fz_delta_score:
+      color: "salmon"
+      label: "Most deviant\nFz score"
+    fz_blood:
+      color: "crimson"
+      label: "Flashzoi Blood"
     abexp_min:
         color: "#00A99D"
         label: "AbExp min"
