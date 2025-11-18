@@ -1,0 +1,190 @@
+maf: 0.001
+
+covariates:
+  - age
+  - age2
+  - age_sex
+  - sex
+  - genetic_pc_1
+  - genetic_pc_2
+  - genetic_pc_3
+  - genetic_pc_4
+  - genetic_pc_5
+  - genetic_pc_6
+  - genetic_pc_7
+  - genetic_pc_8
+  - genetic_pc_9
+  - genetic_pc_10
+  - genetic_pc_11
+  - genetic_pc_12
+  - genetic_pc_13
+  - genetic_pc_14
+  - genetic_pc_15
+  - genetic_pc_16
+  - genetic_pc_17
+  - genetic_pc_18
+  - genetic_pc_19
+  - genetic_pc_20
+
+variant_consequences:
+  intronic:
+    - consequence_intron_variant
+  missense:
+    - consequence_missense_variant
+  plof:
+    - consequence_frameshift_variant
+    - consequence_start_lost
+    - consequence_stop_gained
+    - consequence_stop_lost
+    - consequence_splice_donor_variant
+    - consequence_splice_acceptor_variant
+  5utr_upstream10kb:
+    - consequence_5_prime_utr_variant
+    - consequence_upstream_gene_variant
+  utr_annotator:
+    - five_prime_utr_variant_consequence_uaug_gained
+    - five_prime_utr_variant_consequence_uaug_lost
+    - five_prime_utr_variant_consequence_uframeshift
+    - five_prime_utr_variant_consequence_ustop_gained
+    - five_prime_utr_variant_consequence_ustop_lost
+  splicing:
+    - consequence_splice_donor_variant
+    - consequence_splice_acceptor_variant
+    - consequence_splice_region_variant
+    - consequence_splice_donor_5th_base_variant
+    - consequence_splice_donor_region_variant
+    - consequence_splice_polypyrimidine_tract_variant
+  3utr_downstream10kb:
+    - consequence_3_prime_utr_variant
+    - consequence_downstream_gene_variant
+  other_low_impact:
+    - consequence_splice_donor_5th_base_variant
+    - consequence_splice_donor_region_variant
+    - consequence_splice_polypyrimidine_tract_variant
+    - consequence_splice_region_variant
+    - consequence_inframe_deletion
+    - consequence_inframe_insertion
+    - consequence_intergenic_variant
+    - consequence_non_coding_transcript_exon_variant
+    - consequence_non_coding_transcript_variant
+    - consequence_protein_altering_variant
+    - consequence_start_retained_variant
+    - consequence_stop_retained_variant
+    - consequence_synonymous_variant
+    - consequence_coding_sequence_variant
+  coding:
+    - consequence_frameshift_variant
+    - consequence_start_lost
+    - consequence_stop_gained
+    - consequence_stop_lost
+    - consequence_splice_donor_variant
+    - consequence_splice_acceptor_variant
+    - consequence_missense_variant
+    - consequence_protein_altering_variant
+    - consequence_start_retained_variant
+    - consequence_stop_retained_variant
+    - consequence_synonymous_variant
+    - consequence_coding_sequence_variant
+    - consequence_inframe_deletion
+    - consequence_inframe_insertion
+  non_coding:
+    - consequence_5_prime_utr_variant
+    - consequence_upstream_gene_variant
+    - consequence_splice_region_variant
+    - consequence_splice_donor_5th_base_variant
+    - consequence_splice_donor_region_variant
+    - consequence_splice_polypyrimidine_tract_variant
+    - consequence_intron_variant
+    - consequence_3_prime_utr_variant
+    # - consequence_downstream_gene_variant
+  utrs:
+    - consequence_5_prime_utr_variant
+    - consequence_upstream_gene_variant
+    - consequence_3_prime_utr_variant
+    - consequence_downstream_gene_variant
+
+rare_variant_annotations:
+  plof:
+    loftee_hc:
+      color: "#DD4344"
+      label: "LOFTEE HC"
+
+  indels:
+    consequence_frameshift_variant:
+      color: "#b5de2b"
+      label: "VEP frameshift"
+    insertion:
+      color: "#b5de2b"
+      label: "instertion"
+    deletion:
+      color: "#b5de2b"
+      label: "deletion"
+    short_insertion:
+      color: "#b5de2b"
+      label: "small instertion"
+    medium_insertion:
+      color: "#b5de2b"
+      label: "medium insertion"
+    long_insertion:
+      color: "#b5de2b"
+      label: "big insertion"
+    short_deletion:
+      color: "#b5de2b"
+      label: "small deletion"
+    medium_deletion:
+      color: "#b5de2b"
+      label: "medium deletion"
+    long_deletion:
+      color: "#b5de2b"
+      label: "big deletion"
+    five_prime_utr_variant_consequence_uframeshift:
+      color: "#00A99D"
+      label: "5UTR frameshift"
+
+  5utr_annotator:
+    five_prime_utr_variant_consequence_uaug_gained:
+      color: "#00A99D"
+      label: "5UTR start gain"
+    five_prime_utr_variant_consequence_uaug_lost:
+      color: "#00A99D"
+      label: "5UTR start lost"
+    five_prime_utr_variant_consequence_ustop_gained:
+      color: "#00A99D"
+      label: "5UTR stop gain"
+    five_prime_utr_variant_consequence_ustop_lost:
+      color: "#00A99D"
+      label: "5UTR stop lost"
+  
+  missense:
+    conseqeunce_missense_variant:
+      color: "peru"
+      label: "PrimateAI-3D"
+
+  enhancer:
+    not_in_encode:
+      color: "black"
+      label: "Not annotated in ENCODE"
+    encode_dels:
+      color: "#942c80"
+      label: "dELS"
+    encode_pls:
+      color: "#942c80"
+      label: "PLS"
+    encode_ca_ctcf:
+      color: "#942c80"
+      label: "CA-CTCF"
+    encode_pels:
+      color: "#942c80"
+      label: "pELS"
+    encode_ca:
+      color: "#942c80"
+      label: "CA"
+    encode_ca_h3k4me3:
+      color: "#942c80"
+      label: "CA-H3K4me3"
+    encode_tf:
+      color: "#942c80"
+      label: "TF"
+    encode_ca_tf:
+      color: "#942c80"
+      label: "CA-TF"
