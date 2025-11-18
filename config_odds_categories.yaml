@@ -164,27 +164,31 @@ rare_variant_annotations:
     not_in_encode:
       color: "black"
       label: "Not annotated in ENCODE"
-    encode_dels:
-      color: "#942c80"
-      label: "dELS"
+    # --- Promoter/Enhancer Spectrum ---
     encode_pls:
-      color: "#942c80"
-      label: "PLS"
-    encode_ca_ctcf:
-      color: "#942c80"
-      label: "CA-CTCF"
+      color: "#E41A1C"  # Red (Standard for Active Promoters)
+      label: "Promoter-Like Signature"
     encode_pels:
-      color: "#942c80"
-      label: "pELS"
+      color: "#FF8C00"
+      label: "Proximal Enhancer-Like Signature"
+    encode_dels:
+      color: "#FFD700"
+      label: "Distal Enhancer-Like Signature"
+    # --- Structural/Basal Marks ---
+    encode_ca_ctcf:
+      color: "#4DAF4A"  # Green (Standard for CTCF/Insulator elements)
+      label: "Accessible Region with CTCF Binding"
     encode_ca:
-      color: "#942c80"
-      label: "CA"
-    encode_ca_h3k4me3:
-      color: "#942c80"
-      label: "CA-H3K4me3"
-    encode_tf:
-      color: "#942c80"
-      label: "TF"
+      color: "#377EB8"  # Medium Blue (For Chromatin Accessible Only)
+      label: "Chromatin Accessible"
     encode_ca_tf:
-      color: "#942c80"
-      label: "CA-TF"
+      color: "#1D6498"
+      label: "Accessible Region with TF Binding"
+    # --- Factor/Histone-Specific Marks ---
+    encode_ca_h3k4me3:
+      color: "#A65628"  # Brown (Promoter-like mark, distinct from PLS)
+      label: "Accessible Region with Promoter Mark"
+    encode_tf:
+      color: "#984EA3"  # Purple (For Transcription Factor Binding)
+      label: "Transcription Factor Binding Only"
+    
