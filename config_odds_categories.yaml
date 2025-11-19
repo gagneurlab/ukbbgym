@@ -105,66 +105,75 @@ variant_consequences:
 
 rare_variant_annotations:
   plof:
-    # --- Truncating/Severe LoF ---
+    # --- Highest Confidence LoF (Deep Red) ---
     loftee_hc:
-      color: "#DD4344"  # Bold Red (High-confidence LoF)
+      color: "#990000"  # Darkest Red (Highest confidence/most critical)
       label: "LOFTEE HC"
-    consequence_stop_gained:
-      color: "#DD4344"
-      label: "stop gained"
-    consequence_splice_acceptor_variant:
-      color: "#DD4344"
-      label: "splice acceptor"
-    consequence_splice_donor_variant:
-      color: "#DD4344"
-      label: "splice donor"
-    consequence_stop_lost:
-      color: "#DD4344"
-      label: "stop lost"
-    consequence_start_lost:
-      color: "#DD4344"
-      label: "start lost"
 
+    # --- Standard LoF (Mid-Red Shades) ---
+    consequence_stop_gained:
+      color: "#CC0000"  # Standard Red
+      label: "Stop Gained"
+    consequence_splice_acceptor_variant:
+      color: "#FF3333"  # Lighter Red
+      label: "Splice Acceptor"
+    consequence_splice_donor_variant:
+      color: "#FF6666"  # Even Lighter Red
+      label: "Splice Donor"
+      
+    # --- Less Certain LoF (Pink/Soft Red) ---
+    consequence_stop_lost:
+      color: "#FF9999"  # Pinkish Red
+      label: "Stop Lost"
+    consequence_start_lost:
+      color: "#FFCCCC"  # Very Light Red/Pink
+      label: "Start Lost"
+
+  missense:
+    consequence_missense_variant:
+      color: "#FF9933" # Amber/Dark Orange (Clear separation from Red LoF)
+      label: "VEP Missense"
 
   indel_categories:
-    # --- Frameshift Indels (Dark Green) ---
+    # --- Frameshift (Primary Indel Severity) ---
     consequence_frameshift_variant:
-      color: "#006400"  # Darkest Green (Most severe indel type)
+      color: "#00A99D"  # Dark Green (Kept original, signifies severity within indels)
       label: "VEP Frameshift"
-    # --- Deletions (Shades of Green/Teal) ---
+
     deletion:
-      color: "#2E8B57" # Sea Green (General Deletion)
+      color: "#2E8B57" # Sea Green (A moderate, general green)
       label: "Deletion"
     insertion:
-      color: "#1E90FF" # Dodger Blue (General Insertion)
+      color: "#1E90FF" # Dodger Blue (A vibrant, general blue)
       label: "Insertion"
     
   indel_length:
+    # --- Deletions (Light Green to Dark Green) ---
     short_deletion:
-      color: "#3CB371" # Medium Sea Green
-      label: "Small Deletion"
+      color: "#90EE90"  # Light Green (Lightest)
+      label: "1bp Deletion"
     medium_deletion:
-      color: "#6B8E23" # Olive Drab
-      label: "Medium Deletion"
+      color: "#3CB371"  # Medium Sea Green (Medium)
+      label: "2-3bp Deletion"
     long_deletion:
-      color: "#8FBC8F" # Dark Sea Green (Lightest shade for longest)
-      label: "Big Deletion"
+      color: "#006400"  # Dark Green (Darkest)
+      label: ">3bp Deletion"
+    # --- Insertions (Light Blue to Dark Blue) ---
     short_insertion:
-      color: "#00BFFF" # Deep Sky Blue
-      label: "Small Insertion"
+      color: "#ADD8E6"  # Light Blue (Lightest)
+      label: "1bp Insertion"
     medium_insertion:
-      color: "#1E7BFF" # Slightly darker blue
-      label: "Medium Insertion"
+      color: "#4682B4"  # Steel Blue (Medium)
+      label: "2-3bp Insertion"
     long_insertion:
-      color: "#4682B4" # Steel Blue (Darkest shade for longest)
-      label: "Big Insertion"
+      color: "#191970"  # Midnight Blue (Darkest)
+      label: ">3bp Insertion"
 
+  5utr_annotator:
     # --- 5' UTR Frameshift (Distinct Cyan/Teal) ---
     five_prime_utr_variant_consequence_uframeshift:
       color: "#00A99D" # Teal (Kept original, but now distinct from all other indels)
       label: "5UTR Frameshift"
-
-  5utr_annotator:
     # --- 5' UTR Gained Events (Bright Yellow/Gold) ---
     five_prime_utr_variant_consequence_uaug_gained:
       color: "#FFD700"  # Gold (AUG Start Gained)
@@ -172,7 +181,6 @@ rare_variant_annotations:
     five_prime_utr_variant_consequence_ustop_gained:
       color: "#FFA500"  # Orange (uSTOP Gained)
       label: "5UTR Stop Gain"
-
     # --- 5' UTR Lost Events (Duller Yellow/Orange) ---
     five_prime_utr_variant_consequence_uaug_lost:
       color: "#DAA520"  # Goldenrod (AUG Start Lost)
@@ -181,11 +189,6 @@ rare_variant_annotations:
       color: "#B8860B"  # Dark Goldenrod (uSTOP Lost)
       label: "5UTR Stop Lost"
   
-  missense:
-    conseqeunce_missense_variant:
-      color: "#CD853F" # Peru (Kept original, distinct brown/orange)
-      label: "VEP missense"
-
   encode_boolean:
     not_in_encode:
       color: "black"
