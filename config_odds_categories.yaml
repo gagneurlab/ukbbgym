@@ -109,17 +109,37 @@ rare_variant_annotations:
     loftee_hc:
       color: "#DD4344"  # Bold Red (High-confidence LoF)
       label: "LOFTEE HC"
+    consequence_stop_gained:
+      color: "#DD4344"
+      label: "stop gained"
+    consequence_splice_acceptor_variant:
+      color: "#DD4344"
+      label: "splice acceptor"
+    consequence_splice_donor_variant:
+      color: "#DD4344"
+      label: "splice donor"
+    consequence_stop_lost:
+      color: "#DD4344"
+      label: "stop lost"
+    consequence_start_lost:
+      color: "#DD4344"
+      label: "start lost"
 
-  indels:
+
+  indel_categories:
     # --- Frameshift Indels (Dark Green) ---
     consequence_frameshift_variant:
       color: "#006400"  # Darkest Green (Most severe indel type)
       label: "VEP Frameshift"
-
     # --- Deletions (Shades of Green/Teal) ---
     deletion:
       color: "#2E8B57" # Sea Green (General Deletion)
-      label: "General Deletion"
+      label: "Deletion"
+    insertion:
+      color: "#1E90FF" # Dodger Blue (General Insertion)
+      label: "Insertion"
+    
+  indel_length:
     short_deletion:
       color: "#3CB371" # Medium Sea Green
       label: "Small Deletion"
@@ -129,11 +149,6 @@ rare_variant_annotations:
     long_deletion:
       color: "#8FBC8F" # Dark Sea Green (Lightest shade for longest)
       label: "Big Deletion"
-
-    # --- Insertions (Shades of Blue/Cyan) ---
-    insertion:
-      color: "#1E90FF" # Dodger Blue (General Insertion)
-      label: "General Insertion"
     short_insertion:
       color: "#00BFFF" # Deep Sky Blue
       label: "Small Insertion"
@@ -171,10 +186,15 @@ rare_variant_annotations:
       color: "#CD853F" # Peru (Kept original, distinct brown/orange)
       label: "VEP missense"
 
-  enhancer:
+  encode_boolean:
     not_in_encode:
       color: "black"
-      label: "Not annotated in ENCODE"
+      label: "Not annotated in ENCODE\nannotated region"
+    encode_annotated:
+      color: "peru"
+      label: "Variant in ENCODE\nannotated region"
+  
+  encode_enhancer:
     # --- Promoter/Enhancer Spectrum ---
     encode_pls:
       color: "#E41A1C"  # Red (Standard for Active Promoters)
