@@ -104,6 +104,26 @@ variant_consequences:
     - consequence_downstream_gene_variant
 
 rare_variant_annotations:
+  genomic_region:
+    mane_cds:
+      color: "#E31A1C"   # Dark Red
+      label: "MANE CDS"
+    non_mane_cds:
+      color: "#FB9A99"   # Light Red
+      label: "Other CDS"
+    mane_exonic:
+      color: "#33A02C"   # Dark Green
+      label: "MANE Exon"
+    non_mane_exonic:
+      color: "#B2DF8A"   # Light Green
+      label: "Other Exon"
+    mane_utr:
+      color: "#1F78B4"   # Dark Blue
+      label: "MANE UTR"
+    non_mane_utr:
+      color: "#A6CEE3"   # Light Blue
+      label: "Other UTR"
+
   plof:
     # --- Highest Confidence LoF (Deep Red) ---
     loftee_hc:
