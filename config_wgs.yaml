@@ -162,12 +162,15 @@ rare_variant_annotations:
   
   regulatory_nondir:
     promoterai_abs:
-      color: "#00A99D"
+      color: "#7B1FA2"  # Deep Purple
       label: "PromoterAI abs"
-    # abexp_min:
-    #   color: "#00A99D"
-    #   label: "AbExp min"
-    #   direction: -1
+    abexp_min:
+      color: "#80CBC4"  # Pale Teal (Low/Min)
+      label: "AbExp min"
+      direction: -1
+    abexp_abs_max:
+      color: "#00897B"  # Rich Teal (High/Max)
+      label: "AbExp abs max"
     # --- 5' UTR Gained Events (Bright Yellow/Gold) ---
     five_prime_utr_variant_consequence_uaug_gained:
       color: "#FFD700"  # Gold (AUG Start Gained)
