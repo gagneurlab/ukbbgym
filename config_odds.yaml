@@ -161,12 +161,29 @@ rare_variant_annotations:
   
   regulatory_nondir:
     promoterai_abs:
-      color: "#00A99D"
+      color: "#1565C0"  # Strong Royal Blue
       label: "PromoterAI abs"
     abexp_min:
-      color: "#00A99D"
+      color: "#80CBC4"  # Pale Teal (Low/Min)
       label: "AbExp min"
       direction: -1
+    abexp_abs_max:
+      color: "#00897B"  # Rich Teal (High/Max)
+      label: "AbExp abs max"
+    # --- 5' UTR Gained Events (Bright Yellow/Gold) ---
+    # five_prime_utr_variant_consequence_uaug_gained:
+    #   color: "#FFD700"  # Gold (AUG Start Gained)
+    #   label: "5UTR Start Gain"
+    # five_prime_utr_variant_consequence_ustop_gained:
+    #   color: "#FFA500"  # Orange (uSTOP Gained)
+    #   label: "5UTR Stop Gain"
+    # # --- 5' UTR Lost Events (Duller Yellow/Orange) ---
+    # five_prime_utr_variant_consequence_uaug_lost:
+    #   color: "#DAA520"  # Goldenrod (AUG Start Lost)
+    #   label: "5UTR Start Lost"
+    # five_prime_utr_variant_consequence_ustop_lost:
+    #   color: "#B8860B"  # Dark Goldenrod (uSTOP Lost)
+    #   label: "5UTR Stop Lost"
 
   regulatory:
     promoterai:
