@@ -117,12 +117,12 @@ rare_variant_annotations:
     non_mane_exonic:
       color: "#B2DF8A"   # Light Green
       label: "Other Exon"
-    mane_utr:
-      color: "#1F78B4"   # Dark Blue
-      label: "MANE UTR"
-    non_mane_utr:
-      color: "#A6CEE3"   # Light Blue
-      label: "Other UTR"
+    # mane_utr:
+    #   color: "#1F78B4"   # Dark Blue
+    #   label: "MANE UTR"
+    # non_mane_utr:
+    #   color: "#A6CEE3"   # Light Blue
+    #   label: "Other UTR"
 
   plof:
     # --- Highest Confidence LoF (Deep Red) ---
@@ -159,35 +159,60 @@ rare_variant_annotations:
     consequence_frameshift_variant:
       color: "#00A99D"  # Dark Green (Kept original, signifies severity within indels)
       label: "VEP Frameshift"
-
     deletion:
       color: "#2E8B57" # Sea Green (A moderate, general green)
       label: "Deletion"
     insertion:
       color: "#1E90FF" # Dodger Blue (A vibrant, general blue)
       label: "Insertion"
-    
+  
+  indel_cds:
+    deletion_x3bp:
+      color: "#C7E9C0"
+      label: "Deletion\n(multiple of 3)"
+    deletion_not_x3bp:
+      color: "#238B45"
+      label: "Deletion\n(NOT multiple of 3)"
+    insertion_x3bp:
+      color: "#C6DBEF"
+      label: "Insertion\n(multiple of 3)"
+    insertion_not_x3bp:
+      color: "#3182BD"
+      label: "Insertion\n(NOT multiple of 3)"
+
   indel_length:
-    # --- Deletions (Light Green to Dark Green) ---
-    short_deletion:
-      color: "#90EE90"  # Light Green (Lightest)
+    # --- Deletions (Sequential Green Gradient) ---
+    deletion_1bp:
+      color: "#C7E9C0"  # Very Light Green
       label: "1bp Deletion"
-    medium_deletion:
-      color: "#3CB371"  # Medium Sea Green (Medium)
+    deletion_2_3bp:
+      color: "#74C476"  # Light Green
       label: "2-3bp Deletion"
-    long_deletion:
-      color: "#006400"  # Dark Green (Darkest)
-      label: ">3bp Deletion"
-    # --- Insertions (Light Blue to Dark Blue) ---
-    short_insertion:
-      color: "#ADD8E6"  # Light Blue (Lightest)
+    deletion_4_10bp:
+      color: "#41AB5D"  # Medium Green
+      label: "4-10bp Deletion"
+    deletion_11_50bp:
+      color: "#238B45"  # Dark Green
+      label: "11-50bp Deletion"
+    deletion_50bp:
+      color: "#005A32"  # Deep Forest Green
+      label: ">50bp Deletion"
+    # --- Insertions (Sequential Blue Gradient) ---
+    insertion_1bp:
+      color: "#C6DBEF"  # Very Light Blue
       label: "1bp Insertion"
-    medium_insertion:
-      color: "#4682B4"  # Steel Blue (Medium)
+    insertion_2_3bp:
+      color: "#9ECAE1"  # Light Blue
       label: "2-3bp Insertion"
-    long_insertion:
-      color: "#191970"  # Midnight Blue (Darkest)
-      label: ">3bp Insertion"
+    insertion_4_10bp:
+      color: "#6BAED6"  # Medium Blue
+      label: "4-10bp Insertion"
+    insertion_11_50bp:
+      color: "#3182BD"  # Dark Blue
+      label: "11-50bp Insertion"
+    insertion_50bp:
+      color: "#08519C"  # Deep Navy Blue
+      label: ">50bp Insertion"
 
   5utr_annotator:
     # --- 5' UTR Frameshift (Distinct Cyan/Teal) ---
