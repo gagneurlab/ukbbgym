@@ -124,6 +124,23 @@ rare_variant_annotations:
     #   color: "#A6CEE3"   # Light Blue
     #   label: "Other UTR"
 
+  missense:
+    mobi_disorder_full:
+      color: "#E31A1C"  # Dark Red
+      label: "MobiDB Disorder (full)"
+    mobi_disorder_curated:
+      color: "#FB9A99"  # Light Red
+      label: "MobiDB Disorder (curated)"
+    mobi_structured_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "MobiDB Structured Domain"
+    mobi_lip_full:
+      color: "#1E90FF"  # Dodger Blue
+      label: "MobiDB LIP (full)"
+    consequence_missense_variant:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "VEP Missense"
+
   plof:
     # --- Highest Confidence LoF (Deep Red) ---
     loftee_hc:
@@ -148,11 +165,6 @@ rare_variant_annotations:
     consequence_start_lost:
       color: "#FFCCCC"  # Very Light Red/Pink
       label: "Start Lost"
-
-  missense:
-    consequence_missense_variant:
-      color: "#FF9933" # Amber/Dark Orange (Clear separation from Red LoF)
-      label: "VEP Missense"
 
   indel_categories:
     # --- Frameshift (Primary Indel Severity) ---
