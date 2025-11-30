@@ -124,7 +124,35 @@ rare_variant_annotations:
     #   color: "#A6CEE3"   # Light Blue
     #   label: "Other UTR"
 
+  plof:
+    # --- Highest Confidence LoF (Deep Red) ---
+    loftee_hc:
+      color: "#990000"  # Darkest Red (Highest confidence/most critical)
+      label: "LOFTEE HC"
+    # --- Standard LoF (Mid-Red Shades) ---
+    consequence_stop_gained:
+      color: "#CC0000"  # Standard Red
+      label: "Stop Gained"
+    consequence_splice_acceptor_variant:
+      color: "#FF3333"  # Lighter Red
+      label: "Splice Acceptor"
+    consequence_splice_donor_variant:
+      color: "#FF6666"  # Even Lighter Red
+      label: "Splice Donor"
+    # --- Less Certain LoF (Pink/Soft Red) ---
+    consequence_stop_lost:
+      color: "#FF9999"  # Pinkish Red
+      label: "Stop Lost"
+    consequence_start_lost:
+      color: "#FFCCCC"  # Very Light Red/Pink
+      label: "Start Lost"
+
   missense:
+    consequence_missense_variant:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "VEP Missense"
+
+  mobi_categories:
     mobi_disorder_full:
       color: "#E31A1C"  # Dark Red
       label: "MobiDB Disorder (full)"
@@ -140,31 +168,6 @@ rare_variant_annotations:
     consequence_missense_variant:
       color: "#FF9933"  # Amber/Dark Orange
       label: "VEP Missense"
-
-  plof:
-    # --- Highest Confidence LoF (Deep Red) ---
-    loftee_hc:
-      color: "#990000"  # Darkest Red (Highest confidence/most critical)
-      label: "LOFTEE HC"
-
-    # --- Standard LoF (Mid-Red Shades) ---
-    consequence_stop_gained:
-      color: "#CC0000"  # Standard Red
-      label: "Stop Gained"
-    consequence_splice_acceptor_variant:
-      color: "#FF3333"  # Lighter Red
-      label: "Splice Acceptor"
-    consequence_splice_donor_variant:
-      color: "#FF6666"  # Even Lighter Red
-      label: "Splice Donor"
-      
-    # --- Less Certain LoF (Pink/Soft Red) ---
-    consequence_stop_lost:
-      color: "#FF9999"  # Pinkish Red
-      label: "Stop Lost"
-    consequence_start_lost:
-      color: "#FFCCCC"  # Very Light Red/Pink
-      label: "Start Lost"
 
   indel_categories:
     # --- Frameshift (Primary Indel Severity) ---
