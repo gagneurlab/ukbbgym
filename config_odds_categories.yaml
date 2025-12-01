@@ -125,31 +125,34 @@ rare_variant_annotations:
     #   label: "Other UTR"
 
   plof:
-    # --- Highest Confidence LoF (Deep Red) ---
-    loftee_hc:
-      color: "#990000"  # Darkest Red (Highest confidence/most critical)
-      label: "LOFTEE HC"
     # --- Standard LoF (Mid-Red Shades) ---
+    consequence_frameshift_variant:
+      color: "#E31A1C"  # Dark Red
+      label: "VEP Frameshift"
     consequence_stop_gained:
-      color: "#CC0000"  # Standard Red
+      color: "#FB9A99"  # Light Red
       label: "Stop Gained"
-    consequence_splice_acceptor_variant:
-      color: "#FF3333"  # Lighter Red
-      label: "Splice Acceptor"
     consequence_splice_donor_variant:
-      color: "#FF6666"  # Even Lighter Red
+      color: "#6A1B9A"  # Deep Purple
       label: "Splice Donor"
-    # --- Less Certain LoF (Pink/Soft Red) ---
-    consequence_stop_lost:
-      color: "#FF9999"  # Pinkish Red
-      label: "Stop Lost"
+    consequence_splice_acceptor_variant:
+      color: "#AB47BC"  # Lighter Orchid/Purple
+      label: "Splice Acceptor"
+    # --- Start/Stop Lost Family (Oranges/Gold) ---
     consequence_start_lost:
-      color: "#FFCCCC"  # Very Light Red/Pink
+      color: "#E65100"  # Dark Orange
       label: "Start Lost"
+    consequence_stop_lost:
+      color: "#FFB300"  # Golden Yellow
+      label: "Stop Lost"
+    # --- Highest Confidence LoF (Deep Red) ---
+    # loftee_hc:
+    #   color: "#990000"  # Darkest Red (Highest confidence/most critical)
+    #   label: "LOFTEE HC"
 
   missense:
     consequence_missense_variant:
-      color: "#FF9933"  # Amber/Dark Orange
+      color: "#1E90FF"  # Dodger Blue
       label: "VEP Missense"
 
   mobi_categories:
@@ -163,17 +166,11 @@ rare_variant_annotations:
       color: "#2E8B57"  # Sea Green
       label: "MobiDB Structured Domain"
     mobi_lip_full:
-      color: "#1E90FF"  # Dodger Blue
-      label: "MobiDB LIP (full)"
-    consequence_missense_variant:
       color: "#FF9933"  # Amber/Dark Orange
-      label: "VEP Missense"
+      label: "MobiDB LIP (full)"
 
   indel_categories:
     # --- Frameshift (Primary Indel Severity) ---
-    consequence_frameshift_variant:
-      color: "#00A99D"  # Dark Green (Kept original, signifies severity within indels)
-      label: "VEP Frameshift"
     deletion:
       color: "#2E8B57" # Sea Green (A moderate, general green)
       label: "Deletion"
@@ -256,6 +253,9 @@ rare_variant_annotations:
     encode_annotated:
       color: "peru"
       label: "Variant in ENCODE\nannotated region"
+    core_promoter:
+      color: "#4DAF4A" # Green
+      label: "Core promoter\n(TSS ± 50bp)"
   
   encode_enhancer:
     # --- Promoter/Enhancer Spectrum ---
