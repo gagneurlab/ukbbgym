@@ -131,10 +131,10 @@ rare_variant_annotations:
       color: "#942c80"
       label: "GPN-Star"
       direction: -1
-    gpn_score: 
-      color: "pink"
-      label: "GPN-MSA"
-      direction: -1
+    # gpn_score: 
+    #   color: "pink"
+    #   label: "GPN-MSA"
+    #   direction: -1
     verphylop: 
       color: "#483D8B"  # Dark Slate Blue
       label: "Vertebrate PhyloP"
@@ -143,30 +143,28 @@ rare_variant_annotations:
     #   label: "Mammalian PhyloP"
 
   splicing:
-    pangolin_score:
-      color: "#28a745"
-      label: "Pangolin"
+    # --- The "Classic" Predictors (Greens) ---
     delta_score:
-      color: "green"
+      color: "#8BC34A"  # Light Green (SpliceAI)
       label: "SpliceAI"
-    # spliceai_delta_score:
-    #   color: "#28a745"
-    #   label: "SpliceAI"
-    absplice_dna_max:
-      color: "#28a745"
-      label: "AbSplice (max)"
+    # pangolin_score:
+    #   color: "#2E7D32"  # Forest Green (Pangolin)
+    #   label: "Pangolin"
+    # absplice_dna_max:
+    #   color: "#26C6DA"  # Bright Turquoise / Cyan
+    #   label: "AbSplice (max)"
     absplice2_max:
-      color: "#28a745"
+      color: "#00838F"  # Deep Cyan
       label: "AbSplice2 (max)"
   
   regulatory_nondir:
     promoterai_abs:
-      color: "#1565C0"  # Strong Royal Blue
+      color: "#80CBC4"  # Pale Teal
       label: "PromoterAI abs"
-    abexp_min:
-      color: "#80CBC4"  # Pale Teal (Low/Min)
-      label: "AbExp min"
-      direction: -1
+    # abexp_min:
+    #   color: "#80CBC4"  # Pale Teal (Low/Min)
+    #   label: "AbExp min"
+    #   direction: -1
     abexp_abs_max:
       color: "#00897B"  # Rich Teal (High/Max)
       label: "AbExp abs max"
