@@ -111,15 +111,15 @@ rare_variant_annotations:
 
   missense:
     am_pathogenicity: 
-      color: "#feb72d"
+      color: "#FFCA28"  # Amber / Golden Yellow
       label: "AlphaMissense"
-    score_pai3d: 
-      color: "peru"
-      label: "PrimateAI-3D"
     esmscoremissense: 
-      color: "#feb72d"
+      color: "#FB8C00"  # Rich Orange
       label: "ESM1v"
       direction: -1
+    score_pai3d: 
+      color: "#D84315"  # Deep Burnt Orange (A more vibrant 'Peru')
+      label: "PrimateAI-3D"
 
   genetic_diversity:
     cadd_raw:
@@ -136,11 +136,11 @@ rare_variant_annotations:
       label: "GPN-MSA"
       direction: -1
     verphylop: 
-      color: "#942c80"
+      color: "#483D8B"  # Dark Slate Blue
       label: "Vertebrate PhyloP"
-    mamphylop: 
-      color: "#942c80"
-      label: "Mammalian PhyloP"
+    # mamphylop: 
+    #   color: "#942c80"
+    #   label: "Mammalian PhyloP"
 
   splicing:
     pangolin_score:
