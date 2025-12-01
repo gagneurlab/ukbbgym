@@ -149,9 +149,6 @@ rare_variant_annotations:
     delta_score:
       color: "#28a745"
       label: "SpliceAI"
-    # spliceai_delta_score:
-    #   color: "#28a745"
-    #   label: "SpliceAI"
     absplice_dna_max:
       color: "#28a745"
       label: "AbSplice (max)"
@@ -190,19 +187,12 @@ rare_variant_annotations:
     promoterai:
       color: "#00A99D"
       label: "PromoterAI"
-    # promoterai_under:
-    #   color: "#00A99D"
-    #   label: "PromoterAI under"
-    #   direction: -1
-    # promoterai_over:
-    #   color: "#00A99D"
-    #   label: "PromoterAI over"
     # abexp_whole_blood:
     #   color: "#00A99D"
     #   label: "AbExp whole blood"
-    # abexp_max:
-    #   color: "#00A99D"
-    #   label: "AbExp max"
+    # spliceai_delta_score:
+    #   color: "#28a745"
+    #   label: "SpliceAI"
 
   # naive:
   #   relative_cds_position:
