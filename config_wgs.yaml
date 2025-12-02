@@ -159,15 +159,16 @@ rare_variant_annotations:
   
   regulatory_nondir:
     promoterai_abs:
-      color: "#80CBC4"  # Deep Purple
+      color: "#80CBC4"  # Pale Teal (Low/Min)
       label: "PromoterAI abs"
+      direction: -1
+    abexp_abs_max:
+      color: "#80CBC4"  # Pale Teal (Low/Min)
+      label: "AbExp abs max"
     abexp_min:
       color: "#80CBC4"  # Pale Teal (Low/Min)
       label: "AbExp min"
       direction: -1
-    abexp_abs_max:
-      color: "#80CBC4"  # Rich Teal (High/Max)
-      label: "AbExp abs max"
     # --- 5' UTR Gained Events (Bright Yellow/Gold) ---
     five_prime_utr_variant_consequence_uaug_gained:
       color: "#DAA520"  # Goldenrod
