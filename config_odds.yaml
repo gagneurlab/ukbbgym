@@ -118,7 +118,7 @@ rare_variant_annotations:
       label: "ESM1v"
       direction: -1
     score_pai3d: 
-      color: "#D84315"  # Deep Burnt Orange (A more vibrant 'Peru')
+      color: "#D84315"  # Deep Burnt Orange
       label: "PrimateAI-3D"
 
   genetic_diversity:
