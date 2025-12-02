@@ -126,14 +126,14 @@ rare_variant_annotations:
       color: "#942c80"
       label: "GPN-MSA"
       # direction: -1
-    mamphylop: 
-      color: "#942c80"
-      label: "Mammalian PhyloP"
-      direction: -1
     verphylop: 
       color: "#942c80"
       label: "Vertebrate PhyloP"
       direction: -1
+    # mamphylop: 
+    #   color: "#942c80"
+    #   label: "Mammalian PhyloP"
+    #   direction: -1
     # zoomamphylop: 
     #   color: "#6a1c81"
     #   label: "Zoonomia mammalian\nPhyloP"
