@@ -147,27 +147,28 @@ rare_variant_annotations:
     delta_score:
       color: "#8BC34A"  # Light Green (SpliceAI)
       label: "SpliceAI"
-    # pangolin_score:
-    #   color: "#2E7D32"  # Forest Green (Pangolin)
-    #   label: "Pangolin"
-    # absplice_dna_max:
-    #   color: "#26C6DA"  # Bright Turquoise / Cyan
-    #   label: "AbSplice (max)"
-    absplice2_max:
+    pangolin_score:
+      color: "#2E7D32"  # Forest Green (Pangolin)
+      label: "Pangolin"
+    absplice_dna_max:
       color: "#00838F"  # Deep Cyan
+      label: "AbSplice (max)"
+    absplice2_max:
+      color: "#26C6DA"  # Bright Turquoise / Cyan
       label: "AbSplice2 (max)"
   
   regulatory_nondir:
     promoterai_abs:
       color: "#80CBC4"  # Pale Teal
       label: "PromoterAI abs"
+      direction: -1
+    abexp_abs_max:
+      color: "#00897B"  # Rich Teal (High/Max)
+      label: "AbExp abs max"
     # abexp_min:
     #   color: "#80CBC4"  # Pale Teal (Low/Min)
     #   label: "AbExp min"
     #   direction: -1
-    abexp_abs_max:
-      color: "#00897B"  # Rich Teal (High/Max)
-      label: "AbExp abs max"
     # --- 5' UTR Gained Events (Bright Yellow/Gold) ---
     # five_prime_utr_variant_consequence_uaug_gained:
     #   color: "#FFD700"  # Gold (AUG Start Gained)
