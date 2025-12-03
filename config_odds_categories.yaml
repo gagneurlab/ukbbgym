@@ -105,6 +105,9 @@ variant_consequences:
 
 rare_variant_annotations:
   genomic_region:
+    vep_cds_relaxed:
+      color: "#E31A1C"   # Dark Red
+      label: "VEP CDS"
     mane_cds:
       color: "#E31A1C"   # Dark Red
       label: "MANE CDS"
@@ -131,20 +134,20 @@ rare_variant_annotations:
       label: "VEP Frameshift"
     consequence_stop_gained:
       color: "#FB9A99"  # Light Red
-      label: "Stop Gained"
+      label: "VEP Stop Gained"
     consequence_splice_donor_variant:
       color: "#6A1B9A"  # Deep Purple
-      label: "Splice Donor"
+      label: "VEP Splice Donor"
     consequence_splice_acceptor_variant:
       color: "#AB47BC"  # Lighter Orchid/Purple
-      label: "Splice Acceptor"
+      label: "VEP Splice Acceptor"
     # --- Start/Stop Lost Family (Oranges/Gold) ---
     consequence_start_lost:
       color: "#E65100"  # Dark Orange
-      label: "Start Lost"
+      label: "VEP Start Lost"
     consequence_stop_lost:
       color: "#FFB300"  # Golden Yellow
-      label: "Stop Lost"
+      label: "VEP Stop Lost"
     # --- Highest Confidence LoF (Deep Red) ---
     # loftee_hc:
     #   color: "#990000"  # Darkest Red (Highest confidence/most critical)
@@ -154,7 +157,12 @@ rare_variant_annotations:
     consequence_missense_variant:
       color: "#1E90FF"  # Dodger Blue
       label: "VEP Missense"
-
+  
+  synonymous:
+    consequence_synonymous_variant:
+      color: "#C6DBEF"
+      label: "VEP Synonymous"
+  
   mobi_categories:
     mobi_disorder_full:
       color: "#E31A1C"  # Dark Red
@@ -253,9 +261,9 @@ rare_variant_annotations:
     encode_annotated:
       color: "peru"
       label: "Variant in ENCODE\nannotated region"
-    core_promoter:
-      color: "#4DAF4A" # Green
-      label: "Core promoter\n(TSS ± 50bp)"
+    # core_promoter:
+    #   color: "#4DAF4A" # Green
+    #   label: "Core promoter\n(TSS ± 50bp)"
   
   encode_enhancer:
     # --- Promoter/Enhancer Spectrum ---
