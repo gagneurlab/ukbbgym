@@ -195,6 +195,32 @@ rare_variant_annotations:
     #   color: "#28a745"
     #   label: "SpliceAI"
 
+  vep_consequences:
+    consequence_frameshift_variant:
+      color: "#E31A1C"  # Dark Red
+      label: "VEP Frameshift"
+    consequence_stop_gained:
+      color: "#FB9A99"  # Light Red
+      label: "VEP Stop Gained"
+    consequence_splice_donor_variant:
+      color: "#6A1B9A"  # Deep Purple
+      label: "VEP Splice Donor"
+    consequence_splice_acceptor_variant:
+      color: "#AB47BC"  # Lighter Orchid/Purple
+      label: "VEP Splice Acceptor"
+    # --- Start/Stop Lost Family (Oranges/Gold) ---
+    consequence_start_lost:
+      color: "#E65100"  # Dark Orange
+      label: "VEP Start Lost"
+    consequence_stop_lost:
+      color: "#FFB300"  # Golden Yellow
+      label: "VEP Stop Lost"
+    consequence_missense_variant:
+      color: "#1E90FF"  # Dodger Blue
+      label: "VEP Missense"
+    consequence_synonymous_variant:
+      color: "#C6DBEF"
+      label: "VEP Synonymous"
   # naive:
   #   relative_cds_position:
   #     color: "#b5de2b"
