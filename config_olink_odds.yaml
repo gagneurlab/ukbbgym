@@ -1,0 +1,210 @@
+anngeno_file: PATH_TO_FILE
+maf: 0.001
+
+covariates:
+  - age
+  - age2
+  - age_sex
+  - sex
+  - genetic_pc_1
+  - genetic_pc_2
+  - genetic_pc_3
+  - genetic_pc_4
+  - genetic_pc_5
+  - genetic_pc_6
+  - genetic_pc_7
+  - genetic_pc_8
+  - genetic_pc_9
+  - genetic_pc_10
+  - genetic_pc_11
+  - genetic_pc_12
+  - genetic_pc_13
+  - genetic_pc_14
+  - genetic_pc_15
+  - genetic_pc_16
+  - genetic_pc_17
+  - genetic_pc_18
+  - genetic_pc_19
+  - genetic_pc_20
+
+variant_consequences:
+  intronic:
+    - consequence_intron_variant
+  missense:
+    - consequence_missense_variant
+  plof:
+    - consequence_frameshift_variant
+    - consequence_start_lost
+    - consequence_stop_gained
+    - consequence_stop_lost
+    - consequence_splice_donor_variant
+    - consequence_splice_acceptor_variant
+  5utr_upstream10kb:
+    - consequence_5_prime_utr_variant
+    - consequence_upstream_gene_variant
+  utr_annotator:
+    - five_prime_utr_variant_consequence_uaug_gained
+    - five_prime_utr_variant_consequence_uaug_lost
+    - five_prime_utr_variant_consequence_uframeshift
+    - five_prime_utr_variant_consequence_ustop_gained
+    - five_prime_utr_variant_consequence_ustop_lost
+  splicing:
+    - consequence_splice_donor_variant
+    - consequence_splice_acceptor_variant
+    - consequence_splice_donor_5th_base_variant
+    - consequence_splice_donor_region_variant
+    - consequence_splice_polypyrimidine_tract_variant
+    - consequence_splice_region_variant
+  3utr_downstream10kb:
+    - consequence_3_prime_utr_variant
+    - consequence_downstream_gene_variant
+  other_low_impact:
+    - consequence_splice_donor_5th_base_variant
+    - consequence_splice_donor_region_variant
+    - consequence_splice_polypyrimidine_tract_variant
+    - consequence_splice_region_variant
+    - consequence_inframe_deletion
+    - consequence_inframe_insertion
+    - consequence_intergenic_variant
+    - consequence_non_coding_transcript_exon_variant
+    - consequence_non_coding_transcript_variant
+    - consequence_protein_altering_variant
+    - consequence_start_retained_variant
+    - consequence_stop_retained_variant
+    - consequence_synonymous_variant
+    - consequence_coding_sequence_variant
+    # - consequence_NMD_transcript_variant
+  coding:
+    - consequence_frameshift_variant
+    - consequence_start_lost
+    - consequence_stop_gained
+    - consequence_stop_lost
+    - consequence_splice_donor_variant
+    - consequence_splice_acceptor_variant
+    - consequence_missense_variant
+    - consequence_protein_altering_variant
+    - consequence_start_retained_variant
+    - consequence_stop_retained_variant
+    - consequence_synonymous_variant
+    - consequence_coding_sequence_variant
+    - consequence_inframe_deletion
+    - consequence_inframe_insertion
+
+rare_variant_annotations:
+  plof:
+    loftee_hc:
+      color: "#DD4344"
+      label: "LOFTEE HC"
+      # direction: -1
+
+  genetic_diversity:
+    cadd_raw:
+      color: "#1f77b4"
+      label: "CADD Raw"
+      direction: -1
+
+  missense:
+    am_pathogenicity: 
+      color: "#feb72d"
+      label: "AlphaMissense"
+      # direction: -1
+    score_pai3d: 
+      color: "#feb72d"
+      label: "PrimateAI-3D"
+      # direction: -1
+    esmscoremissense: 
+      color: "#feb72d"
+      label: "ESM1v"
+      direction: -1
+
+  conservation:
+    gpn_star_llr_calibrated_mean: 
+      color: "#942c80"
+      label: "GPN-Star"
+      # direction: -1
+    # gpn_score: 
+    #   color: "#942c80"
+    #   label: "GPN-MSA"
+    #   direction: -1
+    # verphylop: 
+    #   color: "#942c80"
+    #   label: "Vertebrate PhyloP"
+      # direction: -1
+    # mamphylop: 
+    #   color: "#942c80"
+    #   label: "Mammalian PhyloP"
+    #   direction: -1
+    # zoomamphylop: 
+    #   color: "#6a1c81"
+    #   label: "Zoonomia mammalian\nPhyloP"
+    #   direction: -1
+    # zooverphylop: 
+    #   color: "#6a1c81"
+    #   label: "Zoonomia vertebrate\nPhyloP"
+    #   direction: -1
+
+  splicing:
+    pangolin_score:
+      color: "#28a745"
+      label: "Pangolin"
+      # direction: -1
+    delta_score:
+      color: "#28a745"
+      label: "SpliceAI"
+      # direction: -1
+    absplice_dna_max:
+      color: "#28a745"
+      label: "AbSplice (max)"
+      # direction: -1
+    absplice2_max:
+      color: "#28a745"
+      label: "AbSplice2 (max)"
+      # direction: -1
+  
+  regulatory_nondir:
+    promoterai_abs:
+        color: "#00A99D"
+        label: "PromoterAI abs"
+        # direction: -1
+    max_fz_blood:
+      color: "pink"
+      label: "Flashzoi abs max\nacross blood"
+    abexp_abs_max:
+      color: "#80CBC4"  # Pale Teal (Low/Min)
+      label: "AbExp abs max"
+
+  regulatory:
+    promoterai:
+      color: "#00A99D"
+      label: "PromoterAI"
+    # fz_delta_score:
+    #   color: "salmon"
+    #   label: "Most deviant\nFz score"
+    fz_blood:
+      color: "crimson"
+      label: "Flashzoi Blood"
+    abexp_min:
+        color: "#80CBC4"
+        label: "AbExp min"
+        # direction: -1
+        
+    # abexp_whole_blood:
+    #   color: "#00A99D"
+    #   label: "AbExp whole blood"
+    # abexp_max:
+    #   color: "#00A99D"
+    #   label: "AbExp max"
+    # promoterai_under:
+    #   color: "#00A99D"
+    #   label: "PromoterAI under"
+    # promoterai_over:
+    #   color: "#00A99D"
+    #   label: "PromoterAI over"
+    
+  # naive:
+  #   relative_cds_position:
+  #     color: "#b5de2b"
+  #     label: "Relative CDS\nPosition"
+  #     direction: -1    
+
+
