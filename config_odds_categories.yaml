@@ -294,3 +294,22 @@ rare_variant_annotations:
       color: "#984EA3"  # Purple (For Transcription Factor Binding)
       label: "Transcription Factor Binding Only"
     
+  phylogeny:
+    verphylop: 
+      color: "#4A148C"  # Darkest Purple (Deepest history)
+      label: "Vertebrate PhyloP"
+    mamphylop: 
+      color: "#9C27B0"  # Medium Purple
+      label: "Mammalian PhyloP"
+    priphylop:
+      color: "#E1BEE7"  # Light Lavender (Most recent)
+      label: "Primate PhyloP"
+    verphcons:
+      color: "#0D47A1"  # Darkest Blue (Deepest history)
+      label: "Vertebrate PhastCons"
+    mamphcons:
+      color: "#2196F3"  # Medium Blue
+      label: "Mammalian PhastCons"
+    priphcons:
+      color: "#BBDEFB"  # Light Blue (Most recent)
+      label: "Primate PhastCons"
