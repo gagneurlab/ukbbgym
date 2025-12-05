@@ -105,9 +105,6 @@ variant_consequences:
 
 rare_variant_annotations:
   genomic_region:
-    vep_cds_relaxed:
-      color: "#E31A1C"   # Dark Red
-      label: "VEP CDS"
     mane_cds:
       color: "#E31A1C"   # Dark Red
       label: "MANE CDS"
@@ -134,20 +131,20 @@ rare_variant_annotations:
       label: "VEP Frameshift"
     consequence_stop_gained:
       color: "#FB9A99"  # Light Red
-      label: "VEP Stop Gained"
+      label: "Stop Gained"
     consequence_splice_donor_variant:
       color: "#6A1B9A"  # Deep Purple
-      label: "VEP Splice Donor"
+      label: "Splice Donor"
     consequence_splice_acceptor_variant:
       color: "#AB47BC"  # Lighter Orchid/Purple
-      label: "VEP Splice Acceptor"
+      label: "Splice Acceptor"
     # --- Start/Stop Lost Family (Oranges/Gold) ---
     consequence_start_lost:
       color: "#E65100"  # Dark Orange
-      label: "VEP Start Lost"
+      label: "Start Lost"
     consequence_stop_lost:
       color: "#FFB300"  # Golden Yellow
-      label: "VEP Stop Lost"
+      label: "Stop Lost"
     # --- Highest Confidence LoF (Deep Red) ---
     # loftee_hc:
     #   color: "#990000"  # Darkest Red (Highest confidence/most critical)
@@ -157,25 +154,20 @@ rare_variant_annotations:
     consequence_missense_variant:
       color: "#1E90FF"  # Dodger Blue
       label: "VEP Missense"
-  
-  synonymous:
-    consequence_synonymous_variant:
-      color: "#C6DBEF"
-      label: "VEP Synonymous"
-  
-  mobi_categories:
-    mobi_disorder_full:
+
+  protein_domains:
+    mobi_curated_disorder_priority:
       color: "#E31A1C"  # Dark Red
-      label: "MobiDB Disorder (full)"
-    mobi_disorder_curated:
-      color: "#FB9A99"  # Light Red
-      label: "MobiDB Disorder (curated)"
-    mobi_structured_domain:
-      color: "#2E8B57"  # Sea Green
-      label: "MobiDB Structured Domain"
+      label: "Disordered domain"
     mobi_lip_full:
+      color: "#1E90FF"  # Dodger Blue
+      label: "LIP domain"
+    ted_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    low_complexity_domain:
       color: "#FF9933"  # Amber/Dark Orange
-      label: "MobiDB LIP (full)"
+      label: "Low complexity domain"
 
   indel_categories:
     # --- Frameshift (Primary Indel Severity) ---
@@ -261,9 +253,9 @@ rare_variant_annotations:
     encode_annotated:
       color: "peru"
       label: "Variant in ENCODE\nannotated region"
-    # core_promoter:
-    #   color: "#4DAF4A" # Green
-    #   label: "Core promoter\n(TSS ± 50bp)"
+    core_promoter:
+      color: "#4DAF4A" # Green
+      label: "Core promoter\n(TSS ± 50bp)"
   
   encode_enhancer:
     # --- Promoter/Enhancer Spectrum ---
@@ -294,22 +286,3 @@ rare_variant_annotations:
       color: "#984EA3"  # Purple (For Transcription Factor Binding)
       label: "Transcription Factor Binding Only"
     
-  phylogeny:
-    verphylop: 
-      color: "#4A148C"  # Darkest Purple (Deepest history)
-      label: "Vertebrate PhyloP"
-    mamphylop: 
-      color: "#9C27B0"  # Medium Purple
-      label: "Mammalian PhyloP"
-    priphylop:
-      color: "#E1BEE7"  # Light Lavender (Most recent)
-      label: "Primate PhyloP"
-    verphcons:
-      color: "#0D47A1"  # Darkest Blue (Deepest history)
-      label: "Vertebrate PhastCons"
-    mamphcons:
-      color: "#2196F3"  # Medium Blue
-      label: "Mammalian PhastCons"
-    priphcons:
-      color: "#BBDEFB"  # Light Blue (Most recent)
-      label: "Primate PhastCons"
