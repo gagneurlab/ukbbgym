@@ -249,7 +249,7 @@ rare_variant_annotations:
   encode_boolean:
     not_in_encode:
       color: "black"
-      label: "Not annotated in ENCODE\nannotated region"
+      label: "Region not annotated in ENCODE"
     encode_annotated:
       color: "peru"
       label: "Variant in ENCODE\nannotated region"
@@ -257,6 +257,17 @@ rare_variant_annotations:
       color: "#4DAF4A" # Green
       label: "Core promoter\n(TSS ± 50bp)"
   
+  encode_custom:
+  not_in_encode:
+      color: "black"
+      label: "Region not annotated in ENCODE"
+    encode_eh_pr:
+      color: "#FF8C00"
+      label: "Enhancer/Promoter region (ENCODE)"
+    encode_tf:
+      color: "#1D6498"
+      label: "TF binding region (ENCODE)"
+
   encode_enhancer:
     # --- Promoter/Enhancer Spectrum ---
     encode_pls:
