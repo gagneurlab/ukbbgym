@@ -109,6 +109,11 @@ rare_variant_annotations:
       color: "#DD4344"
       label: "LOFTEE HC"
 
+  genetic_diversity:
+    cadd_raw:
+      color: "#1f77b4"
+      label: "CADD Raw"
+
   missense:
     am_pathogenicity: 
       color: "#feb72d"
@@ -121,10 +126,19 @@ rare_variant_annotations:
       label: "ESM1v"
       direction: -1
 
-  genetic_diversity:
-    cadd_raw:
-      color: "#1f77b4"
-      label: "CADD Raw"
+  protein_domains:
+    mobi_curated_disorder_priority:
+      color: "#E31A1C"  # Dark Red
+      label: "Disordered domain"
+    mobi_lip_full:
+      color: "#1E90FF"  # Dodger Blue
+      label: "LIP domain"
+    ted_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    low_complexity_domain:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "Low complexity domain"
 
   conservation:
     gpn_star_llr_calibrated_mean: 
@@ -195,6 +209,33 @@ rare_variant_annotations:
     #   color: "#28a745"
     #   label: "SpliceAI"
 
+  encode_custom:
+    encode_eh_pr:
+      color: "#FF8C00"
+      label: "Not annotated in ENCODE\nannotated region"
+    encode_tf:
+      color: "#1D6498"
+      label: "Variant in ENCODE\nannotated region"
+
+  encode_regions:
+    # --- Enhancer/Promoter regions ---
+    encode_pls:
+      color: "#E41A1C"  # Red (Standard for Active Promoters)
+      label: "Promoter-Like Signature"
+    encode_pels:
+      color: "#FF8C00"
+      label: "Proximal Enhancer-Like Signature"
+    encode_dels:
+      color: "#FFD700"
+      label: "Distal Enhancer-Like Signature"
+    # --- TF binding sites ---
+    encode_tf:
+      color: "#984EA3"  # Purple (For Transcription Factor Binding)
+      label: "Transcription Factor Binding Only"
+    encode_ca_tf:
+      color: "#1D6498"
+      label: "Accessible Region with TF Binding"
+    
   vep_consequences:
     consequence_frameshift_variant:
       color: "#E31A1C"  # Dark Red
