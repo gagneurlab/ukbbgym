@@ -252,7 +252,7 @@ rare_variant_annotations:
       label: "Region not annotated in ENCODE"
     encode_annotated:
       color: "peru"
-      label: "Variant in ENCODE\nannotated region"
+      label: "ENCODE annotated region"
     core_promoter:
       color: "#4DAF4A" # Green
       label: "Core promoter\n(TSS ± 50bp)"
