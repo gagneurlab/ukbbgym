@@ -131,10 +131,10 @@ rare_variant_annotations:
       color: "#942c80"
       label: "GPN-Star"
       direction: -1
-    # gpn_score: 
-    #   color: "pink"
-    #   label: "GPN-MSA"
-    #   direction: -1
+    gpn_score: 
+      color: "pink"
+      label: "GPN-MSA"
+      direction: -1
     verphylop: 
       color: "#483D8B"  # Dark Slate Blue
       label: "Vertebrate PhyloP"
@@ -143,7 +143,6 @@ rare_variant_annotations:
     #   label: "Mammalian PhyloP"
 
   splicing:
-    # --- The "Classic" Predictors (Greens) ---
     delta_score:
       color: "#8BC34A"  # Light Green (SpliceAI)
       label: "SpliceAI"
@@ -163,7 +162,7 @@ rare_variant_annotations:
       label: "PromoterAI abs"
       direction: -1
     abexp_abs_max:
-      color: "#00897B"  # Rich Teal (High/Max)
+      color: "#FFD700"  # Gold
       label: "AbExp abs max"
     # abexp_min:
     #   color: "#80CBC4"  # Pale Teal (Low/Min)
