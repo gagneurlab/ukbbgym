@@ -104,10 +104,10 @@ variant_consequences:
     - consequence_downstream_gene_variant
 
 rare_variant_annotations:
-  plof:
-    loftee_hc:
-      color: "#DD4344"
-      label: "LOFTEE HC"
+  # plof:
+  #   loftee_hc:
+  #     color: "#DD4344"
+  #     label: "LOFTEE HC"
 
   genetic_diversity:
     cadd_raw:
