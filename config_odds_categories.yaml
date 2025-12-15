@@ -168,6 +168,20 @@ rare_variant_annotations:
     low_complexity_domain:
       color: "#FF9933"  # Amber/Dark Orange
       label: "Low complexity domain"
+  
+  loftee_protein_domains:
+    loftee_disorder:
+      color: "#E31A1C"  # Dark Red
+      label: "Disordered domain"
+    loftee_lip:
+      color: "#1E90FF"  # Dodger Blue
+      label: "LIP domain"
+    loftee_ted:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    loftee_low_complexity:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "Low complexity domain"
 
   indel_categories:
     # --- Frameshift (Primary Indel Severity) ---
