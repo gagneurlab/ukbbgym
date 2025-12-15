@@ -134,6 +134,11 @@ rare_variant_annotations:
     loftee_lc:
       color: "#C6DBEF" # light blue
       label: "LOFTEE LC"
+  
+  dubious_plof:
+    start_stop_lost:
+      color: "#C6DBEF" # light blue
+      label: "Start/Stop Lost"
 
   genetic_diversity:
     cadd_raw:

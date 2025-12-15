@@ -124,31 +124,53 @@ rare_variant_annotations:
     #   color: "#A6CEE3"   # Light Blue
     #   label: "Other UTR"
 
-  plof:
-    # --- Standard LoF (Mid-Red Shades) ---
+  # plof:
+  #   # --- Standard LoF (Mid-Red Shades) ---
+  #   consequence_frameshift_variant:
+  #     color: "#E31A1C"  # Dark Red
+  #     label: "VEP Frameshift"
+  #   consequence_stop_gained:
+  #     color: "#FB9A99"  # Light Red
+  #     label: "Stop Gained"
+  #   consequence_splice_donor_variant:
+  #     color: "#6A1B9A"  # Deep Purple
+  #     label: "Splice Donor"
+  #   consequence_splice_acceptor_variant:
+  #     color: "#AB47BC"  # Lighter Orchid/Purple
+  #     label: "Splice Acceptor"
+  #   # --- Start/Stop Lost Family (Oranges/Gold) ---
+  #   consequence_start_lost:
+  #     color: "#E65100"  # Dark Orange
+  #     label: "Start Lost"
+  #   consequence_stop_lost:
+  #     color: "#FFB300"  # Golden Yellow
+  #     label: "Stop Lost"
+  
+  plof_consequences:
     consequence_frameshift_variant:
       color: "#E31A1C"  # Dark Red
       label: "VEP Frameshift"
     consequence_stop_gained:
       color: "#FB9A99"  # Light Red
-      label: "Stop Gained"
+      label: "VEP Stop Gained"
     consequence_splice_donor_variant:
       color: "#6A1B9A"  # Deep Purple
-      label: "Splice Donor"
+      label: "VEP Splice Donor"
     consequence_splice_acceptor_variant:
       color: "#AB47BC"  # Lighter Orchid/Purple
-      label: "Splice Acceptor"
-    # --- Start/Stop Lost Family (Oranges/Gold) ---
+      label: "VEP Splice Acceptor"
     consequence_start_lost:
       color: "#E65100"  # Dark Orange
-      label: "Start Lost"
+      label: "VEP Start Lost"
     consequence_stop_lost:
       color: "#FFB300"  # Golden Yellow
-      label: "Stop Lost"
-    # --- Highest Confidence LoF (Deep Red) ---
-    # loftee_hc:
-    #   color: "#990000"  # Darkest Red (Highest confidence/most critical)
-    #   label: "LOFTEE HC"
+      label: "VEP Stop Lost"
+    loftee_hc:
+      color: "#1E90FF"  # Dodger Blue
+      label: "LOFTEE HC"
+    loftee_lc:
+      color: "#C6DBEF" # light blue
+      label: "LOFTEE LC"
 
   missense:
     consequence_missense_variant:
