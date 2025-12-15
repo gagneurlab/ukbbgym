@@ -104,11 +104,11 @@ variant_consequences:
     - consequence_downstream_gene_variant
 
 rare_variant_annotations:
-  plof:
-    loftee_hc:
-      color: "#DD4344"
-      label: "LOFTEE HC"
-
+  # plof:
+  #   loftee_hc:
+  #     color: "#DD4344"
+  #     label: "LOFTEE HC"
+      
   missense:
     am_pathogenicity: 
       color: "#FFCA28"  # Amber / Golden Yellow
