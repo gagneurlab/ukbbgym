@@ -98,7 +98,6 @@ overall_phenotype:
   - body_fat_percentage_int
   - body_mass_index_bmi_int
   - diastolic_blood_pressure_automated_reading_int
-  - fathers_age_at_death_int
   - fluid_intelligence_score_int
   - forced_expiratory_volume_in_1second_fev1_best_measure_int
   - forced_expiratory_volume_in_1second_fev1_int
@@ -123,15 +122,12 @@ overall_phenotype:
   - leg_predicted_mass_left_int
   - leg_predicted_mass_right_int
   - mean_time_to_correctly_identify_matches_int
-  - mothers_age_at_death_int
   - peak_expiratory_flow_pef_int
   - pulse_rate_automated_reading_int
   - pulse_rate_int
-  - seated_height_int
   - sitting_height_int
   - standing_height_int
   - systolic_blood_pressure_automated_reading_int
-  - townsend_deprivation_index_at_recruitment_int
   - trunk_fat_mass_int
   - trunk_fat_percentage_int
   - trunk_fatfree_mass_int
@@ -141,6 +137,10 @@ overall_phenotype:
   - whole_body_fat_mass_int
   - whole_body_fatfree_mass_int
   - whole_body_water_mass_int
+  # - seated_height_int
+  # - fathers_age_at_death_int
+  # - mothers_age_at_death_int
+  # - townsend_deprivation_index_at_recruitment_int
 
 
 variant_consequences:
