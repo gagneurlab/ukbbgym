@@ -3,7 +3,7 @@ rare_variant_annotations:
     loftee_hc:
       color: "#DD4344"
       label: "LOFTEE HC"
-      # direction: -1
+      direction: -1
 
   genetic_diversity:
     cadd_raw:
@@ -15,25 +15,22 @@ rare_variant_annotations:
     am_pathogenicity: 
       color: "#feb72d"
       label: "AlphaMissense"
-      # direction: -1
+      direction: -1
     score_pai3d: 
       color: "#feb72d"
       label: "PrimateAI-3D"
-      # direction: -1
+      direction: -1
     esmscoremissense: 
       color: "#feb72d"
       label: "ESM1v"
-      direction: -1
 
   conservation:
     gpn_star_llr_calibrated_mean: 
       color: "#942c80"
       label: "GPN-Star"
-      # direction: -1
-    # gpn_score: 
-    #   color: "#942c80"
-    #   label: "GPN-MSA"
-    #   direction: -1
+    gpn_score: 
+      color: "#942c80"
+      label: "GPN-MSA"
     # verphylop: 
     #   color: "#942c80"
     #   label: "Vertebrate PhyloP"
@@ -55,47 +52,44 @@ rare_variant_annotations:
     pangolin_score:
       color: "#28a745"
       label: "Pangolin"
-      # direction: -1
+      direction: -1
     delta_score:
       color: "#28a745"
       label: "SpliceAI"
-      # direction: -1
+      direction: -1
     absplice_dna_max:
       color: "#28a745"
       label: "AbSplice (max)"
-      # direction: -1
+      direction: -1
     absplice2_max:
       color: "#28a745"
       label: "AbSplice2 (max)"
-      # direction: -1
-  
-  regulatory_nondir:
-    promoterai_abs:
-        color: "#00A99D"
-        label: "PromoterAI abs"
-        # direction: -1
-    max_fz_blood:
-      color: "pink"
-      label: "Flashzoi abs max\nacross blood"
-    abexp_abs_max:
-      color: "#80CBC4"  # Pale Teal (Low/Min)
-      label: "AbExp abs max"
+      direction: -1
 
   regulatory:
     promoterai:
       color: "#00A99D"
       label: "PromoterAI"
-    # fz_delta_score:
-    #   color: "salmon"
-    #   label: "Most deviant\nFz score"
     fz_blood:
       color: "crimson"
       label: "Flashzoi Blood"
     abexp_min:
         color: "#80CBC4"
         label: "AbExp min"
-        # direction: -1
-        
+
+  regulatory_nondir:
+    promoterai_abs:
+      color: "#00A99D"
+      label: "PromoterAI abs"
+      direction: -1
+    max_fz_blood:
+      color: "pink"
+      label: "Flashzoi abs max\nacross blood"
+      direction: -1
+    abexp_abs_max:
+      color: "#80CBC4"  # Pale Teal (Low/Min)
+      label: "AbExp abs max"
+      direction: -1
     # abexp_whole_blood:
     #   color: "#00A99D"
     #   label: "AbExp whole blood"
