@@ -107,11 +107,6 @@ overall_phenotype:
   - forced_vital_capacity_fvc_int
   - hand_grip_strength_left_int
   - hand_grip_strength_right_int
-  - heel_bone_mineral_density_bmd_left_int
-  - heel_bone_mineral_density_bmd_right_int
-  - heel_bone_mineral_density_bmd_tscore_automated_int
-  - heel_bone_mineral_density_bmd_tscore_automated_left_int
-  - heel_bone_mineral_density_bmd_tscore_automated_right_int
   - hip_circumference_int
   - leg_fat_mass_left_int
   - leg_fat_mass_right_int
@@ -141,6 +136,11 @@ overall_phenotype:
   # - fathers_age_at_death_int
   # - mothers_age_at_death_int
   # - townsend_deprivation_index_at_recruitment_int
+  # - heel_bone_mineral_density_bmd_left_int
+  # - heel_bone_mineral_density_bmd_right_int
+  # - heel_bone_mineral_density_bmd_tscore_automated_int
+  # - heel_bone_mineral_density_bmd_tscore_automated_left_int
+  # - heel_bone_mineral_density_bmd_tscore_automated_right_int
 
 
 variant_consequences:
