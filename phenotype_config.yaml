@@ -26,7 +26,7 @@ covariates:
   - genetic_pc_19
   - genetic_pc_20
 
-biochemistry:
+biomarkers:
   - alanine_aminotransferase_int
   - albumin_int
   - alkaline_phosphatase_int
