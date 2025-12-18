@@ -27,10 +27,11 @@ covariates:
   - genetic_pc_20
 
 rare_variant_annotations:
-  # plof:
-  #   loftee_hc:
-  #     color: "#DD4344"
-  #     label: "LOFTEE HC"
+  plof:
+    loftee_hc:
+      color: "#E31A1C"
+      label: "LOFTEE HC"
+
   plof_consequences:
     consequence_frameshift_variant:
       color: "#E31A1C"  # Dark Red
@@ -138,20 +139,31 @@ rare_variant_annotations:
       color: "#28a745"
       label: "AbSplice2 (max)"
   
-  
   regulatory_nondir:
     promoterai_abs:
       color: "#80CBC4"  # Pale Teal (Low/Min)
       label: "PromoterAI abs"
-      direction: -1
+      # direction: -1
     abexp_abs_max:
       color: "#80CBC4"  # Pale Teal (Low/Min)
       label: "AbExp abs max"
-    abexp_min:
-      color: "#80CBC4"  # Pale Teal (Low/Min)
-      label: "AbExp min"
-      direction: -1
-    # --- 5' UTR Gained Events (Bright Yellow/Gold) ---
+    # abexp_min:
+    #   color: "#80CBC4"  # Pale Teal (Low/Min)
+    #   label: "AbExp min"
+    #   direction: -1
+  
+  regulatory:
+    promoterai:
+      color: "#00A99D"
+      label: "PromoterAI"
+    # abexp_whole_blood:
+    #   color: "#00A99D"
+    #   label: "AbExp whole blood"
+    # spliceai_delta_score:
+    #   color: "#28a745"
+    #   label: "SpliceAI"
+
+  utr_annotator:
     five_prime_utr_variant_consequence_uaug_gained:
       color: "#DAA520"  # Goldenrod
       label: "5' UTR Start Gain"
@@ -165,17 +177,6 @@ rare_variant_annotations:
     five_prime_utr_variant_consequence_ustop_lost:
       color: "#DAA520"  # Goldenrod
       label: "5' UTR Stop Lost"
-
-  regulatory:
-    promoterai:
-      color: "#00A99D"
-      label: "PromoterAI"
-    # abexp_whole_blood:
-    #   color: "#00A99D"
-    #   label: "AbExp whole blood"
-    # spliceai_delta_score:
-    #   color: "#28a745"
-    #   label: "SpliceAI"
 
   encode_custom:
     encode_eh_pr:
