@@ -53,11 +53,11 @@ rare_variant_annotations:
   
   regulatory_nondir:
     promoterai_abs:
-      color: "#80CBC4"  # Pale Teal
+      color: "#00A99D"
       label: "PromoterAI abs"
       direction: -1
     abexp_abs_max:
-      color: "#FFD700"  # Gold
+      color: "#80CBC4"  # Pale Teal
       label: "AbExp abs max"
     # abexp_min:
     #   color: "#80CBC4"  # Pale Teal (Low/Min)
