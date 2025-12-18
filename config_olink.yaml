@@ -1,7 +1,7 @@
 rare_variant_annotations:
   plof:
     loftee_hc:
-      color: "#DD4344"
+      color: "#E31A1C" # Dark Red
       label: "LOFTEE HC"
       direction: -1
 
