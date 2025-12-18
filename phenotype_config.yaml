@@ -84,6 +84,37 @@ biochemistry:
   - vitamin_d_int
   - white_blood_cell_leukocyte_count_int
 
+fitness_phenotypes:
+  # Physiological Reserve (Strength & Frailty)
+  - hand_grip_strength_left_int
+  - hand_grip_strength_right_int
+  
+  # Respiratory Function (Vitality & Aging)
+  - forced_expiratory_volume_in_1second_fev1_best_measure_int
+  - forced_vital_capacity_fvc_best_measure_int
+  - peak_expiratory_flow_pef_int
+
+  # Cardiovascular Health
+  - pulse_rate_automated_reading_int
+  - systolic_blood_pressure_automated_reading_int
+  - diastolic_blood_pressure_automated_reading_int
+
+  # Metabolic Health & Body Composition
+  - basal_metabolic_rate_int
+  - body_mass_index_bmi_int
+  - waist_circumference_int
+  - body_fat_percentage_int
+  - whole_body_fatfree_mass_int
+  - whole_body_water_mass_int
+
+  # Cognitive Function (Processing & Intelligence)
+  - fluid_intelligence_score_int
+  - mean_time_to_correctly_identify_matches_int
+
+  # Developmental Stability & Structure
+  - birth_weight_int
+  - standing_height_int
+
 overall_phenotype:
   - arm_fat_mass_left_int
   - arm_fat_mass_right_int
