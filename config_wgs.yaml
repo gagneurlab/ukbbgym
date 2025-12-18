@@ -52,12 +52,12 @@ rare_variant_annotations:
     consequence_stop_lost:
       color: "#FFB300"  # Golden Yellow
       label: "VEP Stop Lost"
+    loftee_lc:
+      color: "#C6DBEF" # light blue
+      label: "LOFTEE LC"
     # loftee_hc:
     #   color: "#1E90FF"  # Dodger Blue
     #   label: "LOFTEE HC"
-    # loftee_lc:
-    #   color: "#C6DBEF" # light blue
-    #   label: "LOFTEE LC"
   
   dubious_plof:
     start_stop_lost:
