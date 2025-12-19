@@ -103,11 +103,23 @@ rare_variant_annotations:
   indel_categories:
     # --- Frameshift (Primary Indel Severity) ---
     deletion:
-      color: "#2E8B57" # Sea Green (A moderate, general green)
+      color: "#005A32"  # Deep Forest Green
       label: "Deletion"
+    deletion_gt2bp:
+      color: "#41AB5D"  # Medium Green
+      label: ">=2bp Deletion"
+    deletion_gt5bp:
+      color: "#C7E9C0"  # Very Light Green
+      label: ">=5bp Deletion"
     insertion:
-      color: "#1E90FF" # Dodger Blue (A vibrant, general blue)
+      color: "#08519C"  # Deep Navy Blue
       label: "Insertion"
+    insertion_gt2bp:
+      color: "#6BAED6"  # Medium Blue
+      label: ">=2bp Insertion"
+    insertion_gt5bp:
+      color: "#C6DBEF"  # Very Light Blue.  "#1E90FF" # Dodger Blue
+      label: ">=5bp Insertion"
   
   indel_cds:
     deletion_x3bp:
@@ -188,6 +200,34 @@ rare_variant_annotations:
     #   color: "#4DAF4A" # Green
     #   label: "Core promoter\n(TSS ± 50bp)"
   
+  encode_indels:
+    not_in_encode:
+      color: "black"
+      label: "Region not annotated in ENCODE"
+    encode_snp:
+      color: "peru"
+      label: "ENCODE annotated SNP"
+    encode_deletion:
+      color: "#005A32"  # Deep Forest Green
+      label: "ENCODE annotated Deletion"
+    encode_insertion:
+      color: "#08519C"  # Deep Navy Blue
+      label: "ENCODE annotated Insertion"
+    
+  encode_deletions:
+    encode_snp:
+      color: "peru"
+      label: "ENCODE annotated SNP"
+    encode_deletion:
+      color: "#238B45"  # Dark Green
+      label: "ENCODE region Deletion"
+    encode_deletion_gt2bp:
+      color: "#41AB5D"  # Medium Green
+      label: "ENCODE region Deletion (>=2bp)"
+    encode_deletion_gt5bp:
+      color: "#C7E9C0"  # Very Light Green
+      label: "ENCODE region Deletion (>=5bp)"
+    
   encode_custom:
     not_in_encode:
       color: "black"
