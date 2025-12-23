@@ -111,10 +111,10 @@ def generate_gene_metadata(gtf_file):
 # 3. RUN THE PURE PYTHON FUNCTIONS
 # ==============================================================================
 
-OUT_FOLDER = "./data/outputs/"
-scores_df = pl.read_parquet("./data/burdens_caucasians.parquet")
+OUT_FOLDER = "/home/dnanexus/regenie_files/"
+scores_df = pl.read_parquet("/home/dnanexus/burdens_wes_loftee_hc.parquet")
 scores_df = scores_df.rename({'sample': 'IID'}).fill_null(0)
-gtf_file = './data/gencode.v39.annotation.gtf.gz'
+gtf_file = '/home/dnanexus/gencode.v40.annotation.gtf.gz'
 
 # Generate the gene_info_df automatically
 gene_info_df = generate_gene_metadata(gtf_file)
@@ -123,8 +123,8 @@ sample_ids = scores_df.get_column('IID').to_list()
 logger.info(f"{len(sample_ids)} samples found in the scores DataFrame.")
 
 
-write_sample_file(sample_ids, OUT_FOLDER + "scores_bgen_deeprvat.sample")
-write_bgen_from_scores(scores_df, gene_info_df, OUT_FOLDER + "scores_bgen_deeprvat.bgen")
+write_sample_file(sample_ids, OUT_FOLDER + "scores_bgen_lofteeHC.sample")
+write_bgen_from_scores(scores_df, gene_info_df, OUT_FOLDER + "scores_bgen_lofteeHC.bgen")
 
 logger.info("\nBGEN and SAMPLE files have been created directly from Python!")
 logger.info("You can now run REGENIE Step 2.")
