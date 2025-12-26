@@ -112,6 +112,7 @@ def generate_gene_metadata(gtf_file):
 # ==============================================================================
 
 OUT_FOLDER = "PATH_TO_FILE"
+# scores_df = pl.read_parquet("PATH_TO_FILE")
 scores_df = pl.read_parquet("PATH_TO_FILE")
 scores_df = scores_df.rename({'sample': 'IID'}).fill_null(0)
 gtf_file = 'PATH_TO_FILE'
@@ -123,8 +124,9 @@ sample_ids = scores_df.get_column('IID').to_list()
 logger.info(f"{len(sample_ids)} samples found in the scores DataFrame.")
 
 
-write_sample_file(sample_ids, OUT_FOLDER + "scores_bgen_lofteeHC_maf1e3.sample")
-write_bgen_from_scores(scores_df, gene_info_df, OUT_FOLDER + "scores_bgen_lofteeHC_maf1e3.bgen")
+# write_sample_file(sample_ids, OUT_FOLDER + "scores_bgen_lofteeHC_maf1e3.sample")
+write_sample_file(sample_ids, OUT_FOLDER + "scores_bgen_am_lofteeHC_maf1e3.sample")
+write_bgen_from_scores(scores_df, gene_info_df, OUT_FOLDER + "scores_bgen_am_lofteeHC_maf1e3.bgen")
 
 logger.info("\nBGEN and SAMPLE files have been created directly from Python!")
 logger.info("You can now run REGENIE Step 2.")
