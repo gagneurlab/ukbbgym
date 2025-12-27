@@ -112,8 +112,10 @@ def generate_gene_metadata(gtf_file):
 # ==============================================================================
 
 OUT_FOLDER = "PATH_TO_FILE"
+burdens_FOLDER = "PATH_TO_FILE"
+scores_df = pl.read_parquet(burdens_FOLDER + "loftee_hc.parquet")
+# scores_df = pl.read_parquet(burdens_FOLDER + "am_loftee.parquet")
 # scores_df = pl.read_parquet("PATH_TO_FILE")
-scores_df = pl.read_parquet("PATH_TO_FILE")
 scores_df = scores_df.rename({'sample': 'IID'}).fill_null(0)
 gtf_file = 'PATH_TO_FILE'
 
