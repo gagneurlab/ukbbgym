@@ -112,8 +112,10 @@ def generate_gene_metadata(gtf_file):
 # ==============================================================================
 
 OUT_FOLDER = "/home/dnanexus/regenie_files/"
+burdens_FOLDER = "/home/dnanexus/ukbgym/utils/REGENIE_RAP/"
+scores_df = pl.read_parquet(burdens_FOLDER + "loftee_hc.parquet")
+# scores_df = pl.read_parquet(burdens_FOLDER + "am_loftee.parquet")
 # scores_df = pl.read_parquet("/home/dnanexus/data_dir/burdens/loftee_hc.parquet")
-scores_df = pl.read_parquet("/home/dnanexus/data_dir/burdens/am_loftee.parquet")
 scores_df = scores_df.rename({'sample': 'IID'}).fill_null(0)
 gtf_file = '/home/dnanexus/gencode.v40.annotation.gtf.gz'
 
