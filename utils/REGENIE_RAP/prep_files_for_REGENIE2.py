@@ -113,9 +113,10 @@ def generate_gene_metadata(gtf_file):
 
 OUT_FOLDER = "/home/dnanexus/regenie_files/"
 burdens_FOLDER = "/home/dnanexus/ukbgym/utils/REGENIE_RAP/"
-scores_df = pl.read_parquet(burdens_FOLDER + "loftee_hc.parquet")
-# scores_df = pl.read_parquet(burdens_FOLDER + "am_loftee.parquet")
-# scores_df = pl.read_parquet("/home/dnanexus/data_dir/burdens/loftee_hc.parquet")
+# burdens_file = "loftee_hc.parquet"
+burdens_file = "am_loftee.parquet"
+scores_df = pl.read_parquet(burdens_FOLDER + burdens_file)
+# scores_df = pl.read_parquet("/home/dnanexus/data_dir/burdens/loftee_hc.parquet")\
 scores_df = scores_df.rename({'sample': 'IID'}).fill_null(0)
 gtf_file = '/home/dnanexus/gencode.v40.annotation.gtf.gz'
 
@@ -127,8 +128,8 @@ logger.info(f"{len(sample_ids)} samples found in the scores DataFrame.")
 
 
 # write_sample_file(sample_ids, OUT_FOLDER + "scores_bgen_lofteeHC_maf1e3.sample")
-write_sample_file(sample_ids, OUT_FOLDER + "scores_bgen_am_lofteeHC_maf1e3.sample")
-write_bgen_from_scores(scores_df, gene_info_df, OUT_FOLDER + "scores_bgen_am_lofteeHC_maf1e3.bgen")
+write_sample_file(sample_ids, OUT_FOLDER + "scores_bgen_lofteeHC_AM_mac20.sample")
+write_bgen_from_scores(scores_df, gene_info_df, OUT_FOLDER + "scores_bgen_lofteeHC_AM_mac20.bgen")
 
 logger.info("\nBGEN and SAMPLE files have been created directly from Python!")
 logger.info("You can now run REGENIE Step 2.")
