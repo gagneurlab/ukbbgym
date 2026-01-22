@@ -52,10 +52,10 @@ rare_variant_annotations:
       label: "AbSplice2 (max)"
   
   regulatory_nondir:
-    promoterai_abs:
-      color: "#00A99D"
-      label: "PromoterAI abs"
-      direction: -1
+    # promoterai_abs:
+    #   color: "#00A99D"
+    #   label: "PromoterAI abs"
+    #   direction: -1
     abexp_abs_max:
       color: "#80CBC4"  # Pale Teal
       label: "AbExp abs max"
