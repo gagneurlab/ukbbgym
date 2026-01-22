@@ -99,8 +99,8 @@ rare_variant_annotations:
     #   color: "#00A99D"
     #   label: "AbExp max"
 
-  # naive:
-  #   relative_cds_position:
-  #     color: "#b5de2b"
-  #     label: "Relative CDS\nPosition"
-  #     direction: -1
+  naive:
+    relative_cds_position:
+      color: "#b5de2b"
+      label: "Relative CDS\nPosition"
+      direction: -1
