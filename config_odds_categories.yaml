@@ -100,6 +100,17 @@ rare_variant_annotations:
       color: "#FF9933"  # Amber/Dark Orange
       label: "Low complexity domain"
 
+  splicing:
+    consequence_splice_donor_variant:
+      color: "#6A1B9A"  # Deep Purple
+      label: "VEP Splice Donor"
+    consequence_splice_acceptor_variant:
+      color: "#AB47BC"  # Lighter Orchid/Purple
+      label: "VEP Splice Acceptor"
+    canonical_splice_variant:
+      color: "#E31A1C"  # Dark Red
+      label: "Canonical splice variant"
+
   indel_categories:
     # --- Frameshift (Primary Indel Severity) ---
     deletion:
