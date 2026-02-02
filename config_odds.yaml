@@ -63,7 +63,7 @@ rare_variant_annotations:
       color: "#FFA500"  # Orange (uSTOP Gained)
       label: "Flashzoi abs max\nacross RNA all"
     fz_RNA_blood_abs_max:
-      color: "pink"
+      color: "crimson"
       label: "Flashzoi abs max\nacross RNA blood"
     # abexp_min:
     #   color: "#80CBC4"  # Pale Teal (Low/Min)
