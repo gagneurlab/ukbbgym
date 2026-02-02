@@ -25,16 +25,16 @@ rare_variant_annotations:
       label: "ESM1v"
 
   conservation:
-    gpn_star_llr_calibrated_mean: 
-      color: "#942c80"
-      label: "GPN-Star"
+    # gpn_star_llr_calibrated_mean: 
+    #   color: "#942c80"
+    #   label: "GPN-Star"
     gpn_score: 
       color: "#942c80"
       label: "GPN-MSA"
-    # verphylop: 
-    #   color: "#942c80"
-    #   label: "Vertebrate PhyloP"
-      # direction: -1
+    verphylop: 
+      color: "#942c80"
+      label: "Vertebrate PhyloP"
+      direction: -1
     # mamphylop: 
     #   color: "#942c80"
     #   label: "Mammalian PhyloP"
@@ -70,26 +70,29 @@ rare_variant_annotations:
     promoterai:
       color: "#00A99D"
       label: "PromoterAI"
-    fz_blood:
+    fz_blood_mean:
       color: "crimson"
-      label: "Flashzoi Blood"
-    abexp_min:
-        color: "#80CBC4"
-        label: "AbExp min"
+      label: "Flashzoi mean\nacross RNA blood"
+    fz_all_mean:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "Flashzoi mean\nacross RNA all"
+    # abexp_min:
+    #     color: "#80CBC4"
+    #     label: "AbExp min"
 
   regulatory_nondir:
     promoterai_abs:
       color: "#00A99D"
       label: "PromoterAI abs"
       direction: -1
-    max_fz_blood:
-      color: "pink"
-      label: "Flashzoi abs max\nacross blood"
-      direction: -1
     abexp_abs_max:
       color: "#80CBC4"  # Pale Teal (Low/Min)
       label: "AbExp abs max"
       direction: -1
+    # max_fz_blood:
+    #   color: "pink"
+    #   label: "Flashzoi abs max\nacross blood"
+    #   direction: -1
     # abexp_whole_blood:
     #   color: "#00A99D"
     #   label: "AbExp whole blood"
