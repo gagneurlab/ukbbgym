@@ -52,16 +52,19 @@ rare_variant_annotations:
       label: "AbSplice2 (max)"
   
   regulatory_nondir:
-    # promoterai_abs:
-    #   color: "#00A99D"
-    #   label: "PromoterAI abs"
-    #   direction: -1
     abexp_abs_max:
       color: "#80CBC4"  # Pale Teal
       label: "AbExp abs max"
-    # max_fz_blood:
-    #   color: "pink"
-    #   label: "Flashzoi abs max\nacross blood"
+    promoterai_abs:
+      color: "#00A99D"
+      label: "PromoterAI abs"
+      # direction: -1
+    fz_RNA_all_abs_max:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "Flashzoi abs max\nacross RNA all"
+    fz_RNA_blood_abs_max:
+      color: "pink"
+      label: "Flashzoi abs max\nacross RNA blood"
     # abexp_min:
     #   color: "#80CBC4"  # Pale Teal (Low/Min)
     #   label: "AbExp min"
@@ -80,24 +83,6 @@ rare_variant_annotations:
     # five_prime_utr_variant_consequence_ustop_lost:
     #   color: "#B8860B"  # Dark Goldenrod (uSTOP Lost)
     #   label: "5UTR Stop Lost"
-
-  regulatory:
-    promoterai:
-      color: "#00A99D"
-      label: "PromoterAI"
-    # promoterai_under:
-    #   color: "#00A99D"
-    #   label: "PromoterAI under"
-    #   direction: -1
-    # promoterai_over:
-    #   color: "#00A99D"
-    #   label: "PromoterAI over"
-    # abexp_whole_blood:
-    #   color: "#00A99D"
-    #   label: "AbExp whole blood"
-    # abexp_max:
-    #   color: "#00A99D"
-    #   label: "AbExp max"
 
   naive:
     relative_cds_position:
