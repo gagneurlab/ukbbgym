@@ -3,38 +3,38 @@ rare_variant_annotations:
     loftee_hc:
       color: "#DD4344"
       label: "LOFTEE HC"
-      direction: -1
+      # direction: -1
 
   genetic_diversity:
     cadd_raw:
       color: "#1f77b4"
       label: "CADD Raw"
-      direction: -1
+      # direction: -1
 
   missense:
     am_pathogenicity: 
-      color: "#feb72d"
+      color: "#FFCA28"  # Amber / Golden Yellow
       label: "AlphaMissense"
+    esmscoremissense: 
+      color: "#FB8C00"  # Rich Orange
+      label: "ESM1v"
       direction: -1
     score_pai3d: 
-      color: "#feb72d"
+      color: "#D84315"  # Deep Burnt Orange
       label: "PrimateAI-3D"
-      direction: -1
-    esmscoremissense: 
-      color: "#feb72d"
-      label: "ESM1v"
 
   conservation:
     # gpn_star_llr_calibrated_mean: 
     #   color: "#942c80"
     #   label: "GPN-Star"
     gpn_score: 
-      color: "#942c80"
+      color: "pink"
       label: "GPN-MSA"
-    verphylop: 
-      color: "#942c80"
-      label: "Vertebrate PhyloP"
       direction: -1
+    verphylop: 
+      color: "#483D8B"
+      label: "Vertebrate PhyloP"
+      # direction: -1
     # mamphylop: 
     #   color: "#942c80"
     #   label: "Mammalian PhyloP"
