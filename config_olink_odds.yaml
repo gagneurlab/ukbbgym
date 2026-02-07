@@ -70,6 +70,7 @@ rare_variant_annotations:
     promoterai:
       color: "#00A99D"
       label: "PromoterAI"
+      direction: -1
     fz_blood_mean:
       color: "crimson"
       label: "Flashzoi mean\nacross RNA blood"
