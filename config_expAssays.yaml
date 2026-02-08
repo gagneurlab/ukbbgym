@@ -1,0 +1,152 @@
+maf: 0.001
+
+covariates:
+  - age
+  - age2
+  - age_sex
+  - sex
+  - genetic_pc_1
+  - genetic_pc_2
+  - genetic_pc_3
+  - genetic_pc_4
+  - genetic_pc_5
+  - genetic_pc_6
+  - genetic_pc_7
+  - genetic_pc_8
+  - genetic_pc_9
+  - genetic_pc_10
+  - genetic_pc_11
+  - genetic_pc_12
+  - genetic_pc_13
+  - genetic_pc_14
+  - genetic_pc_15
+  - genetic_pc_16
+  - genetic_pc_17
+  - genetic_pc_18
+  - genetic_pc_19
+  - genetic_pc_20
+
+rare_variant_annotations:
+  exp_assays:
+    scaled_fitness:
+      color: "#DAA520"  # Goldenrod
+      label: 'aPCA fitness'
+
+  missense:
+    am_pathogenicity: 
+      color: "#feb72d"
+      label: "AlphaMissense"
+    score_pai3d: 
+      color: "#feb72d"
+      label: "PrimateAI-3D"
+    esmscoremissense: 
+      color: "#feb72d"
+      label: "ESM1v"
+      direction: -1
+
+  plof:
+    loftee_hc:
+      color: "#E31A1C" # Dark Red
+      label: "LOFTEE HC"
+
+  plof_consequences:
+    consequence_frameshift_variant:
+      color: "#E31A1C"  # Dark Red
+      label: "VEP Frameshift"
+    consequence_stop_gained:
+      color: "#FB9A99"  # Light Red
+      label: "VEP Stop Gained"
+    consequence_splice_donor_variant:
+      color: "#6A1B9A"  # Deep Purple
+      label: "VEP Splice Donor"
+    consequence_splice_acceptor_variant:
+      color: "#AB47BC"  # Lighter Orchid/Purple
+      label: "VEP Splice Acceptor"
+    # --- Start/Stop Lost Family (Oranges/Gold) ---
+    consequence_start_lost:
+      color: "#E65100"  # Dark Orange
+      label: "VEP Start Lost"
+    consequence_stop_lost:
+      color: "#FFB300"  # Golden Yellow
+      label: "VEP Stop Lost"
+    loftee_lc:
+      color: "#C6DBEF" # light blue
+      label: "LOFTEE LC"
+    # loftee_hc:
+    #   color: "#1E90FF"  # Dodger Blue
+    #   label: "LOFTEE HC"
+  
+  dubious_plof:
+    start_stop_lost:
+      color: "#C6DBEF" # light blue
+      label: "Start/Stop Lost"
+
+  genetic_diversity:
+    cadd_raw:
+      color: "#1f77b4"
+      label: "CADD Raw"
+
+  protein_domains:
+    mobi_curated_disorder_priority:
+      color: "#E31A1C"  # Dark Red
+      label: "Disordered Domain"
+    mobi_lip_full:
+      color: "#1E90FF"  # Dodger Blue
+      label: "Linear Interacting Peptides"
+    ted_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    low_complexity_domain:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "Low Complexity Domain"
+  
+  loftee_protein_domains:
+    loftee_disorder:
+      color: "#E31A1C"  # Dark Red
+      label: "Disordered Domain"
+    loftee_lip:
+      color: "#1E90FF"  # Dodger Blue
+      label: "Linear Interacting Peptides"
+    loftee_ted:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    loftee_low_complexity:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "Low Complexity Domain"
+
+  conservation:
+    # gpn_star_llr_calibrated_mean: 
+    #   color: "#942c80"
+    #   label: "GPN-Star"
+    #   direction: -1
+    gpn_score: 
+      color: "#942c80"
+      label: "GPN-MSA"
+      direction: -1
+    verphylop: 
+      color: "#942c80"
+      label: "Vertebrate PhyloP"
+    # mamphylop: 
+    #   color: "#942c80"
+    #   label: "Mammalian PhyloP"
+
+  utr_annotator:
+    five_prime_utr_variant_consequence_uaug_gained:
+      color: "#DAA520"  # Goldenrod
+      label: "5' UTR Start Gain"
+    five_prime_utr_variant_consequence_ustop_gained:
+      color: "#DAA520"  # Goldenrod
+      label: "5' UTR Stop Gain"
+    # --- 5' UTR Lost Events (Duller Yellow/Orange) ---
+    five_prime_utr_variant_consequence_uaug_lost:
+      color: "#DAA520"  # Goldenrod
+      label: "5' UTR Start Lost"
+    five_prime_utr_variant_consequence_ustop_lost:
+      color: "#DAA520"  # Goldenrod
+      label: "5' UTR Stop Lost"
+  
+  naive:
+    relative_cds_position:
+      color: "#b5de2b"
+      label: "Relative CDS\nPosition"
+      direction: -1
