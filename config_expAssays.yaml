@@ -33,11 +33,11 @@ rare_variant_annotations:
       label: 'aPCA fitness'
     LDL_uptake_functional:
       color: "#6A1B9A"  # Deep Purple
-      label: 'LDL uptake\nfunctional'
+      label: 'LDL uptake functional'
       direction: -1
     LDLR_cell_surface_abundance:
       color: "#AB47BC"  # Lighter Orchid/Purple
-      label: 'LDLR cell\nsurface abundance'
+      label: 'LDLR cell surface abundance'
       direction: -1
 
   missense:
