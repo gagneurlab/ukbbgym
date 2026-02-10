@@ -49,22 +49,18 @@ rare_variant_annotations:
     #   direction: -1
 
   splicing:
-    pangolin_score:
-      color: "#28a745"
-      label: "Pangolin"
-      direction: -1
     delta_score:
-      color: "#28a745"
+      color: "#00838F"  # Deep Cyan
       label: "SpliceAI"
-      direction: -1
+    pangolin_score:
+      color: "#8BC34A"  # Light Green
+      label: "Pangolin"
     absplice_dna_max:
-      color: "#28a745"
+      color: "#26C6DA"  # Bright Turquoise / Cyan
       label: "AbSplice (max)"
-      direction: -1
     absplice2_max:
-      color: "#28a745"
+      color: "#2E7D32"  # Forest Green
       label: "AbSplice2 (max)"
-      direction: -1
 
   regulatory:
     promoterai:
