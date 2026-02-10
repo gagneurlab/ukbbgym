@@ -9,12 +9,12 @@ rare_variant_annotations:
       color: "#FFCA28"  # Amber / Golden Yellow
       label: "AlphaMissense"
     esmscoremissense: 
-      color: "#FB8C00"  # Rich Orange
+      color: "#D84315"  # Deep Burnt Orange
       label: "ESM1v"
       direction: -1
-    score_pai3d: 
-      color: "#D84315"  # Deep Burnt Orange
-      label: "PrimateAI-3D"
+    # score_pai3d: 
+    #   color: "#FB8C00"  # Rich Orange
+    #   label: "PrimateAI-3D"
 
   genetic_diversity:
     cadd_raw:
@@ -84,9 +84,14 @@ rare_variant_annotations:
     # five_prime_utr_variant_consequence_ustop_lost:
     #   color: "#B8860B"  # Dark Goldenrod (uSTOP Lost)
     #   label: "5UTR Stop Lost"
-
-  naive:
-    relative_cds_position:
+  
+  3utr:
+    aparent2:
       color: "#b5de2b"
-      label: "Relative CDS\nPosition"
-      direction: -1
+      label: "Aparent 2"
+
+  # naive:
+  #   relative_cds_position:
+  #     color: "#b5de2b"
+  #     label: "Relative CDS\nPosition"
+  #     direction: -1
