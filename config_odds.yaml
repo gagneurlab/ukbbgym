@@ -39,25 +39,25 @@ rare_variant_annotations:
 
   splicing:
     delta_score:
-      color: "#8BC34A"  # Light Green (SpliceAI)
+      color: "#00838F"  # Deep Cyan
       label: "SpliceAI"
     pangolin_score:
-      color: "#2E7D32"  # Forest Green (Pangolin)
+      color: "#8BC34A"  # Light Green
       label: "Pangolin"
     absplice_dna_max:
-      color: "#00838F"  # Deep Cyan
+      color: "#26C6DA"  # Bright Turquoise / Cyan
       label: "AbSplice (max)"
     absplice2_max:
-      color: "#26C6DA"  # Bright Turquoise / Cyan
+      color: "#2E7D32"  # Forest Green
       label: "AbSplice2 (max)"
   
   regulatory_nondir:
     promoterai_abs:
-      color: "#80CBC4"  # Pale Teal (Low/Min)
+      color: "#00838F"  # Deep Cyan
       label: "PromoterAI abs"
       # direction: -1
     abexp_abs_max:
-      color: "#b5de2b"
+      color: "#80CBC4"  # Pale Teal (Low/Min)
       label: "AbExp abs max"
       # direction: -1
     fz_RNA_all_abs_max:
