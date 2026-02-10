@@ -73,13 +73,13 @@ rare_variant_annotations:
     am_pathogenicity: 
       color: "#feb72d"
       label: "AlphaMissense"
-    score_pai3d: 
-      color: "#feb72d"
-      label: "PrimateAI-3D"
     esmscoremissense: 
       color: "#feb72d"
       label: "ESM1v"
       direction: -1
+  # score_pai3d: 
+  #   color: "#feb72d"
+  #   label: "PrimateAI-3D"
 
   protein_domains:
     mobi_curated_disorder_priority:
