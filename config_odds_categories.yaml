@@ -111,6 +111,23 @@ rare_variant_annotations:
       color: "#E31A1C"  # Dark Red
       label: "Canonical splice variant"
 
+  non_coding_regions:
+    not_annotated_in_encode:
+      color: "black"
+      label: "Region not annotated in ENCODE"
+    core_promoter:
+      color: "#00A99D"
+      label: "Core promoter (TSS±50bp)"
+    encode_promoter:
+      color: "#FF8C00"
+      label: "Promoter region (ENCODE)"
+    encode_enhancer:
+      color: "#1D6498"
+      label: "Enhancer region (ENCODE)"
+    encode_any_tf:
+      color: "#1D6498"
+      label: "TF binding region (ENCODE)"
+
   indel_categories:
     # --- Frameshift (Primary Indel Severity) ---
     deletion:
@@ -207,9 +224,6 @@ rare_variant_annotations:
     encode_annotated:
       color: "peru"
       label: "ENCODE annotated region"
-    # core_promoter:
-    #   color: "#4DAF4A" # Green
-    #   label: "Core promoter\n(TSS ± 50bp)"
   
   encode_indels:
     not_annotated_in_encode:
