@@ -19,9 +19,9 @@ rare_variant_annotations:
       color: "#FB8C00"  # Rich Orange
       label: "ESM1v"
       direction: -1
-    # score_pai3d: 
-    #     color: "#D84315"  # Deep Burnt Orange
-    #   label: "PrimateAI-3D"
+    score_pai3d: 
+      color: "#D84315"  # Deep Burnt Orange
+      label: "PrimateAI-3D"
 
   conservation:
     # gpn_star_llr_calibrated_mean: 
