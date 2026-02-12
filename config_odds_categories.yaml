@@ -209,7 +209,7 @@ rare_variant_annotations:
       label: "Region not annotated in ENCODE"
     encode_annotated:
       color: "peru"
-      label: "ENCODE annotated region"
+      label: "Enhancers, Promoters, and TF binding sites"
   
   encode_indels:
     not_annotated_in_encode:
