@@ -67,6 +67,10 @@ rare_variant_annotations:
       color: "#00A99D"
       label: "PromoterAI"
       direction: -1
+    abexp_min:
+      color: "#b5de2b"
+      label: "AbExp min"
+      direction: -1
     fz_blood_mean:
       color: "crimson"
       label: "Flashzoi mean\nacross RNA blood"
@@ -93,9 +97,6 @@ rare_variant_annotations:
     # abexp_whole_blood:
     #   color: "#00A99D"
     #   label: "AbExp whole blood"
-    # abexp_max:
-    #   color: "#00A99D"
-    #   label: "AbExp max"
     # promoterai_under:
     #   color: "#00A99D"
     #   label: "PromoterAI under"

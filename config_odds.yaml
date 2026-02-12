@@ -57,7 +57,7 @@ rare_variant_annotations:
       label: "PromoterAI abs"
       # direction: -1
     abexp_abs_max:
-      color: "#80CBC4"  # Pale Teal (Low/Min)
+      color: "#b5de2b"
       label: "AbExp abs max"
       # direction: -1
     fz_RNA_all_abs_max:
