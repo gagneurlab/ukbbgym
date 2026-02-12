@@ -87,7 +87,7 @@ rare_variant_annotations:
   
   3utr:
     aparent2:
-      color: "#b5de2b"
+      color: "#FFA500"  # Orange (uSTOP Gained)
       label: "Aparent 2"
 
   # naive:
