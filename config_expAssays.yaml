@@ -29,15 +29,23 @@ covariates:
 rare_variant_annotations:
   exp_assays:
     scaled_fitness:
-      color: "#6A1B9A"  # Deep Purple
+      color: "#66BB6A"  # Light Green
       label: 'aPCA fitness'
     LDL_uptake_functional:
-      color: "#6A1B9A"  # Deep Purple
+      color: "#66BB6A"  # Light Green
       label: 'LDL uptake functional'
       direction: -1
     LDLR_cell_surface_abundance:
-      color: "#AB47BC"  # Lighter Orchid/Purple
+      color: "#81C784"  # Lighter Green
       label: 'LDLR cell surface abundance'
+      direction: -1
+    proteingym_DMS_score:
+      color: "#4DB6AC"  # Teal/Mint
+      label: 'ProteinGym DMS'
+      direction: -1
+    marsh_DMS_score:
+      color: "#26A69A"  # Darker Teal
+      label: 'Marsh VEP DMS'
       direction: -1
 
   missense:
@@ -80,38 +88,6 @@ rare_variant_annotations:
     loftee_hc:
       color: "#E31A1C" # Dark Red
       label: "LOFTEE HC"
-
-  plof_consequences:
-    consequence_frameshift_variant:
-      color: "#E31A1C"  # Dark Red
-      label: "VEP Frameshift"
-    consequence_stop_gained:
-      color: "#FB9A99"  # Light Red
-      label: "VEP Stop Gained"
-    consequence_splice_donor_variant:
-      color: "#6A1B9A"  # Deep Purple
-      label: "VEP Splice Donor"
-    consequence_splice_acceptor_variant:
-      color: "#AB47BC"  # Lighter Orchid/Purple
-      label: "VEP Splice Acceptor"
-    # --- Start/Stop Lost Family (Oranges/Gold) ---
-    consequence_start_lost:
-      color: "#E65100"  # Dark Orange
-      label: "VEP Start Lost"
-    consequence_stop_lost:
-      color: "#FFB300"  # Golden Yellow
-      label: "VEP Stop Lost"
-    loftee_lc:
-      color: "#C6DBEF" # light blue
-      label: "LOFTEE LC"
-    # loftee_hc:
-    #   color: "#1E90FF"  # Dodger Blue
-    #   label: "LOFTEE HC"
-  
-  dubious_plof:
-    start_stop_lost:
-      color: "#C6DBEF" # light blue
-      label: "Start/Stop Lost"
 
   protein_domains:
     mobi_curated_disorder_priority:
