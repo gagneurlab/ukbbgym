@@ -31,6 +31,10 @@ rare_variant_annotations:
     scaled_fitness:
       color: "#66BB6A"  # Light Green
       label: 'aPCA fitness'
+    DMS_score_combined:
+      color: "#4DB6AC"  # Teal/Mint
+      label: 'DMS (combined)'
+      direction: -1
     LDL_uptake_functional:
       color: "#66BB6A"  # Light Green
       label: 'LDL uptake functional'
@@ -38,14 +42,6 @@ rare_variant_annotations:
     LDLR_cell_surface_abundance:
       color: "#81C784"  # Lighter Green
       label: 'LDLR cell surface abundance'
-      direction: -1
-    proteingym_DMS_score:
-      color: "#4DB6AC"  # Teal/Mint
-      label: 'ProteinGym DMS'
-      direction: -1
-    marsh_DMS_score:
-      color: "#26A69A"  # Darker Teal
-      label: 'Marsh VEP DMS'
       direction: -1
 
   missense:
