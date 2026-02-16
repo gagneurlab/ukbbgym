@@ -67,10 +67,14 @@ rare_variant_annotations:
       color: "#00A99D"
       label: "PromoterAI"
       direction: -1
-    promoterai_rev:
+    promoterai_under:
       color: "#00A99D"
       label: "PromoterAI"
       direction: -1
+    promoterai_over:
+      color: "#00A99D"
+      label: "PromoterAI"
+      # direction: -1
     abexp_min:
       color: "#b5de2b"
       label: "AbExp min"
