@@ -89,6 +89,7 @@ rare_variant_annotations:
     aparent2:
       color: "#FFA500"  # Orange (uSTOP Gained)
       label: "Aparent 2"
+      direction: -1
 
   # naive:
   #   relative_cds_position:
