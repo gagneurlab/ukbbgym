@@ -83,12 +83,20 @@ rare_variant_annotations:
       color: "#b5de2b"
       label: "AbExp max"
       # direction: -1
-    fz_blood_mean:
+    fz_blood_min:
       color: "crimson"
-      label: "Flashzoi mean\nacross RNA blood"
-    fz_all_mean:
+      label: "Flashzoi min\nacross RNA (blood)"
+      direction: -1
+    fz_all_min:
       color: "#FFA500"  # Orange (uSTOP Gained)
-      label: "Flashzoi mean\nacross RNA all"
+      label: "Flashzoi min\nacross RNA (all)"
+      direction: -1
+    fz_blood_max:
+      color: "crimson"
+      label: "Flashzoi max\nacross RNA (blood)"
+    fz_all_max:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "Flashzoi max\nacross RNA (all)"
     # abexp_min:
     #     color: "#80CBC4"
     #     label: "AbExp min"
