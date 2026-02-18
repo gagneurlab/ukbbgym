@@ -24,9 +24,6 @@ rare_variant_annotations:
       label: "PrimateAI-3D"
 
   conservation:
-    # gpn_star_llr_calibrated_mean: 
-    #   color: "#942c80"
-    #   label: "GPN-Star"
     gpn_score: 
       color: "pink"
       label: "GPN-MSA"
@@ -34,32 +31,19 @@ rare_variant_annotations:
     verphylop: 
       color: "#483D8B"
       label: "Vertebrate PhyloP"
-      # direction: -1
-    # mamphylop: 
-    #   color: "#942c80"
-    #   label: "Mammalian PhyloP"
-    #   direction: -1
-    # zoomamphylop: 
-    #   color: "#6a1c81"
-    #   label: "Zoonomia mammalian\nPhyloP"
-    #   direction: -1
-    # zooverphylop: 
-    #   color: "#6a1c81"
-    #   label: "Zoonomia vertebrate\nPhyloP"
-    #   direction: -1
 
   splicing:
     delta_score:
-      color: "#00838F"  # Deep Cyan
+      color: "#8BC34A"  # Light Green
       label: "SpliceAI"
     pangolin_score:
-      color: "#8BC34A"  # Light Green
+      color: "#2E7D32"  # Forest Green
       label: "Pangolin"
     absplice_dna_max:
       color: "#26C6DA"  # Bright Turquoise / Cyan
       label: "AbSplice (max)"
     absplice2_max:
-      color: "#2E7D32"  # Forest Green
+      color: "#00838F"  # Deep Cyan
       label: "AbSplice2 (max)"
 
   regulatory:
@@ -97,9 +81,6 @@ rare_variant_annotations:
     fz_all_max:
       color: "#FFA500"  # Orange (uSTOP Gained)
       label: "Flashzoi max\nacross RNA (all)"
-    # abexp_min:
-    #     color: "#80CBC4"
-    #     label: "AbExp min"
 
   regulatory_nondir:
     promoterai_abs:
@@ -110,19 +91,6 @@ rare_variant_annotations:
       color: "#b5de2b"
       label: "AbExp abs max"
       direction: -1
-    # max_fz_blood:
-    #   color: "pink"
-    #   label: "Flashzoi abs max\nacross blood"
-    #   direction: -1
-    # abexp_whole_blood:
-    #   color: "#00A99D"
-    #   label: "AbExp whole blood"
-    # promoterai_under:
-    #   color: "#00A99D"
-    #   label: "PromoterAI under"
-    # promoterai_over:
-    #   color: "#00A99D"
-    #   label: "PromoterAI over"
     
   3utr:
     aparent2:
