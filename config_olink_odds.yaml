@@ -81,26 +81,10 @@ rare_variant_annotations:
     fz_all_max:
       color: "#FFA500"  # Orange (uSTOP Gained)
       label: "Flashzoi max\nacross RNA (all)"
-
-  regulatory_nondir:
-    promoterai_abs:
-      color: "#80CBC4"  # Pale Teal (Low/Min)
-      label: "PromoterAI abs"
-      direction: -1
-    abexp_abs_max:
-      color: "#b5de2b"
-      label: "AbExp abs max"
-      direction: -1
     
   3utr:
     aparent2:
       color: "#FFA500"  # Orange (uSTOP Gained)
       label: "Aparent 2"
-    
-  # naive:
-  #   relative_cds_position:
-  #     color: "#b5de2b"
-  #     label: "Relative CDS\nPosition"
-  #     direction: -1    
 
 

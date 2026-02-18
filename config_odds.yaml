@@ -33,66 +33,73 @@ rare_variant_annotations:
     verphylop: 
       color: "#483D8B"  # Dark Slate Blue
       label: "Vertebrate PhyloP"
-    # mamphylop: 
-    #   color: "#942c80"
-    #   label: "Mammalian PhyloP"
 
   splicing:
     delta_score:
-      color: "#00838F"  # Deep Cyan
+      color: "#8BC34A"  # Light Green
       label: "SpliceAI"
     pangolin_score:
-      color: "#8BC34A"  # Light Green
+      color: "#2E7D32"  # Forest Green
       label: "Pangolin"
     absplice_dna_max:
       color: "#26C6DA"  # Bright Turquoise / Cyan
       label: "AbSplice (max)"
     absplice2_max:
-      color: "#2E7D32"  # Forest Green
+      color: "#00838F"  # Deep Cyan
       label: "AbSplice2 (max)"
   
   regulatory_nondir:
     promoterai_abs:
       color: "#80CBC4"  # Pale Teal (Low/Min)
       label: "PromoterAI abs"
-      # direction: -1
     abexp_abs_max:
       color: "#b5de2b"
       label: "AbExp abs max"
-      # direction: -1
-    fz_RNA_all_abs_max:
-      color: "#FFA500"  # Orange (uSTOP Gained)
-      label: "Flashzoi abs max\nacross RNA all"
-    fz_RNA_blood_abs_max:
-      color: "crimson"
-      label: "Flashzoi abs max\nacross RNA blood"
-    # abexp_min:
-    #   color: "#80CBC4"  # Pale Teal (Low/Min)
-    #   label: "AbExp min"
-    #   direction: -1
-    # --- 5' UTR Gained Events (Bright Yellow/Gold) ---
-    # five_prime_utr_variant_consequence_uaug_gained:
-    #   color: "#FFD700"  # Gold (AUG Start Gained)
-    #   label: "5UTR Start Gain"
-    # five_prime_utr_variant_consequence_ustop_gained:
-    #   color: "#FFA500"  # Orange (uSTOP Gained)
-    #   label: "5UTR Stop Gain"
-    # # --- 5' UTR Lost Events (Duller Yellow/Orange) ---
-    # five_prime_utr_variant_consequence_uaug_lost:
-    #   color: "#DAA520"  # Goldenrod (AUG Start Lost)
-    #   label: "5UTR Start Lost"
-    # five_prime_utr_variant_consequence_ustop_lost:
-    #   color: "#B8860B"  # Dark Goldenrod (uSTOP Lost)
-    #   label: "5UTR Stop Lost"
   
   3utr:
     aparent2:
       color: "#FFA500"  # Orange (uSTOP Gained)
       label: "Aparent 2"
-      direction: -1
+      # direction: -1
 
   # naive:
   #   relative_cds_position:
   #     color: "#b5de2b"
   #     label: "Relative CDS\nPosition"
   #     direction: -1
+
+  regulatory:
+    promoterai:
+      color: "#00A99D"
+      label: "PromoterAI"
+      direction: -1
+    promoterai_under:
+      color: "#00A99D"
+      label: "PromoterAI"
+      direction: -1
+    promoterai_over:
+      color: "#00A99D"
+      label: "PromoterAI"
+      # direction: -1
+    abexp_min:
+      color: "#b5de2b"
+      label: "AbExp min"
+      direction: -1
+    abexp_max:
+      color: "#b5de2b"
+      label: "AbExp max"
+      # direction: -1
+    fz_blood_min:
+      color: "crimson"
+      label: "Flashzoi min\nacross RNA (blood)"
+      direction: -1
+    fz_all_min:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "Flashzoi min\nacross RNA (all)"
+      direction: -1
+    fz_blood_max:
+      color: "crimson"
+      label: "Flashzoi max\nacross RNA (blood)"
+    fz_all_max:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "Flashzoi max\nacross RNA (all)"
