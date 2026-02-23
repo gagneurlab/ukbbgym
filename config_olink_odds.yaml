@@ -7,7 +7,7 @@ rare_variant_annotations:
 
   genetic_diversity:
     cadd_raw:
-      color: "#1f77b4"
+      color: "chocolate"
       label: "CADD Raw"
       # direction: -1
 
@@ -72,19 +72,17 @@ rare_variant_annotations:
       label: "Flashzoi min\nacross RNA (blood)"
       direction: -1
     fz_all_min:
-      color: "#FFA500"  # Orange (uSTOP Gained)
+      color: "#1f77b4" #"#FFA500"  # Orange (uSTOP Gained)
       label: "Flashzoi min\nacross RNA (all)"
       direction: -1
     fz_blood_max:
       color: "crimson"
       label: "Flashzoi max\nacross RNA (blood)"
     fz_all_max:
-      color: "#FFA500"  # Orange (uSTOP Gained)
+      color: "#1f77b4"
       label: "Flashzoi max\nacross RNA (all)"
     
   3utr:
     aparent2:
       color: "#FFA500"  # Orange (uSTOP Gained)
       label: "Aparent 2"
-
-
