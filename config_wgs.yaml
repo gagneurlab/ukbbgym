@@ -66,7 +66,7 @@ rare_variant_annotations:
 
   genetic_diversity:
     cadd_raw:
-      color: "#1f77b4"
+      color: "chocolate"
       label: "CADD Raw"
 
   missense:
@@ -139,31 +139,25 @@ rare_variant_annotations:
       color: "#28a745"
       label: "AbSplice2 (max)"
   
-  regulatory_nondir:
-    abexp_abs_max:
-      color: "#80CBC4"  # Pale Teal (Low/Min)
-      label: "AbExp abs max"
-    # promoterai_abs:
-    #   color: "#80CBC4"  # Pale Teal (Low/Min)
-    #   label: "PromoterAI abs"
-    #   # direction: -1
-    # abexp_min:
-    #   color: "#80CBC4"  # Pale Teal (Low/Min)
-    #   label: "AbExp min"
-    #   direction: -1
-  
   regulatory:
     promoterai:
-      color: "#00A99D"
+      color: "#1f77b4"
       label: "PromoterAI"
-    # abexp_whole_blood:
+      direction: -1
+    # promoterai_under:
     #   color: "#00A99D"
-    #   label: "AbExp whole blood"
-    # spliceai_delta_score:
-    #   color: "#28a745"
-    #   label: "SpliceAI"
+    #   label: "PromoterAI"
+    #   direction: -1
+    abexp_min:
+      color: "#1f77b4"
+      label: "AbExp min"
+      direction: -1
+    fz_all_min:
+      color: "#1f77b4"
+      label: "Flashzoi min\nacross RNA (all)"
+      direction: -1
 
-  utr_annotator:
+  5utr:
     five_prime_utr_variant_consequence_uaug_gained:
       color: "#DAA520"  # Goldenrod
       label: "5' UTR Start Gain"
@@ -177,6 +171,11 @@ rare_variant_annotations:
     five_prime_utr_variant_consequence_ustop_lost:
       color: "#DAA520"  # Goldenrod
       label: "5' UTR Stop Lost"
+
+  3utr:
+    aparent2:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "Aparent 2"
 
   encode_custom:
     encode_eh_pr:
@@ -237,3 +236,8 @@ rare_variant_annotations:
       color: "#b5de2b"
       label: "Relative CDS\nPosition"
       direction: -1
+
+  regulatory_nondir:
+    abexp_abs_max:
+      color: "#80CBC4"  # Pale Teal (Low/Min)
+      label: "AbExp abs max"
