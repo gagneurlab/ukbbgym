@@ -50,15 +50,15 @@ rare_variant_annotations:
 
   missense:
     am_pathogenicity: 
-      color: "#feb72d"
+      color: "#FFCA28"  # Amber / Golden Yellow
       label: "AlphaMissense"
-    score_pai3d: 
-      color: "#feb72d"
-      label: "PrimateAI-3D"
     esmscoremissense: 
-      color: "#feb72d"
+      color: "#FB8C00"  # Rich Orange
       label: "ESM1v"
       direction: -1
+    score_pai3d: 
+      color: "#D84315"  # Deep Burnt Orange
+      label: "PrimateAI-3D"
 
   genetic_diversity:
     cadd_raw:
@@ -66,17 +66,17 @@ rare_variant_annotations:
       label: "CADD Raw"
 
   conservation:
-    gpn_score: 
-      color: "#942c80"
-      label: "GPN-MSA"
-      direction: -1
-    verphylop: 
-      color: "#942c80"
-      label: "Vertebrate PhyloP"
     # gpn_star_llr_calibrated_mean: 
     #   color: "#942c80"
     #   label: "GPN-Star"
     #   direction: -1
+    gpn_score: 
+      color: "pink"
+      label: "GPN-MSA"
+      direction: -1
+    verphylop: 
+      color: "#483D8B"  # Dark Slate Blue
+      label: "Vertebrate PhyloP"
 
   naive:
     relative_cds_position:
