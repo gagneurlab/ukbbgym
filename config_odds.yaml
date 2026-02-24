@@ -89,6 +89,9 @@ rare_variant_annotations:
       color: "#b5de2b"
       label: "AbExp max"
       # direction: -1
+    fz_all_mean:
+      color: "#1f77b4"
+      label: "Flashzoi mean\nacross RNA (all)"
     fz_blood_min:
       color: "crimson"
       label: "Flashzoi min\nacross RNA (blood)"
