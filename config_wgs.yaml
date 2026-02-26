@@ -77,9 +77,19 @@ rare_variant_annotations:
       color: "#feb72d"
       label: "ESM1v"
       direction: -1
-  # score_pai3d: 
-  #   color: "#feb72d"
-  #   label: "PrimateAI-3D"
+    esm1b_llr:
+      color: "#feb72d"
+      label: "ESM1b"
+      direction: -1
+    cpt1_llr:
+      color: "#feb72d"
+      label: "CPT-1"
+    revel_score:
+      color: "#feb72d"
+      label: "REVEL"
+    # score_pai3d: 
+    #   color: "#feb72d"
+    #   label: "PrimateAI-3D"
 
   protein_domains:
     mobi_curated_disorder_priority:
