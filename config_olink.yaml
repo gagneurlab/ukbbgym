@@ -15,15 +15,23 @@ rare_variant_annotations:
     am_pathogenicity: 
       color: "#feb72d"
       label: "AlphaMissense"
-      # direction: -1
     esmscoremissense: 
       color: "#feb72d"
       label: "ESM1v"
       # direction: -1
+    esm1b_llr:
+      color: "#feb72d"
+      label: "ESM1b"
+      # direction: -1
+    cpt1_llr:
+      color: "#feb72d"
+      label: "CPT-1"
+    revel_score:
+      color: "#feb72d"
+      label: "REVEL"
     # score_pai3d: 
     #   color: "#feb72d"
     #   label: "PrimateAI-3D"
-    #   # direction: -1
 
   conservation:
     # gpn_star_llr_calibrated_mean: 

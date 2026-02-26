@@ -56,8 +56,18 @@ rare_variant_annotations:
       color: "#FB8C00"  # Rich Orange
       label: "ESM1v"
       direction: -1
-    score_pai3d: 
+    esm1b_llr:
+      color: "#FF7043"  # Coral Orange
+      label: "ESM1b"
+      direction: -1
+    cpt1_llr:
       color: "#D84315"  # Deep Burnt Orange
+      label: "CPT-1"
+    revel_score:
+      color: "#E53935"  # Warm Red
+      label: "REVEL"
+    score_pai3d: 
+      color: "#FFE082"  # Light Gold
       label: "PrimateAI-3D"
 
   genetic_diversity:
