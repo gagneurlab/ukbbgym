@@ -6,25 +6,25 @@ rare_variant_annotations:
       
   missense:
     am_pathogenicity: 
-      color: "#FFCA28"  # Amber / Golden Yellow
+      color: "#FFD700"  # Pure Gold Yellow
       label: "AlphaMissense"
     esmscoremissense: 
-      color: "#FB8C00"  # Rich Orange
+      color: "#FFA500"  # Pure Orange
       label: "ESM1v"
       direction: -1
     esm1b_llr:
-      color: "#FF7043"  # Coral Orange
+      color: "#FF6600"  # Vivid Orange-Red
       label: "ESM1b"
       direction: -1
     cpt1_llr:
-      color: "#D84315"  # Deep Burnt Orange
+      color: "#E63000"  # Strong Red-Orange
       label: "CPT-1"
     revel_score:
-      color: "#E53935"  # Warm Red
+      color: "darkred"  # Deep Pure Red
       label: "REVEL"
-    score_pai3d: 
-      color: "#FFE082"  # Light Gold
-      label: "PrimateAI-3D"
+    # score_pai3d: 
+    #   color: "#FFEC80"  # Pale Yellow (lighter end)
+    #   label: "PrimateAI-3D"
 
   genetic_diversity:
     cadd_raw:
