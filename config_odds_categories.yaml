@@ -19,27 +19,13 @@ rare_variant_annotations:
     #   color: "#A6CEE3"   # Light Blue
     #   label: "Other UTR"
 
-  # plof:
-  #   # --- Standard LoF (Mid-Red Shades) ---
-  #   consequence_frameshift_variant:
-  #     color: "#E31A1C"  # Dark Red
-  #     label: "VEP Frameshift"
-  #   consequence_stop_gained:
-  #     color: "#FB9A99"  # Light Red
-  #     label: "Stop Gained"
-  #   consequence_splice_donor_variant:
-  #     color: "#6A1B9A"  # Deep Purple
-  #     label: "Splice Donor"
-  #   consequence_splice_acceptor_variant:
-  #     color: "#AB47BC"  # Lighter Orchid/Purple
-  #     label: "Splice Acceptor"
-  #   # --- Start/Stop Lost Family (Oranges/Gold) ---
-  #   consequence_start_lost:
-  #     color: "#E65100"  # Dark Orange
-  #     label: "Start Lost"
-  #   consequence_stop_lost:
-  #     color: "#FFB300"  # Golden Yellow
-  #     label: "Stop Lost"
+  loftee_categories:
+    loftee_hc:
+      color: "#E31A1C"  # Dark Red
+      label: "LOFTEE HC"
+    loftee_lc:
+      color: "#FB9A99"  # Light Red
+      label: "LOFTEE LC"
   
   plof_consequences:
     consequence_frameshift_variant:
@@ -60,12 +46,12 @@ rare_variant_annotations:
     consequence_stop_lost:
       color: "#FFB300"  # Golden Yellow
       label: "VEP Stop Lost"
-    loftee_hc:
-      color: "#1E90FF"  # Dodger Blue
-      label: "LOFTEE HC"
-    loftee_lc:
-      color: "#C6DBEF" # light blue
-      label: "LOFTEE LC"
+    # loftee_hc:
+    #   color: "#1E90FF"  # Dodger Blue
+    #   label: "LOFTEE HC"
+    # loftee_lc:
+    #   color: "#C6DBEF" # light blue
+    #   label: "LOFTEE LC"
 
   missense:
     consequence_missense_variant:
@@ -111,20 +97,38 @@ rare_variant_annotations:
       color: "#E31A1C"  # Dark Red
       label: "Canonical splice variant"
 
-  indel_categories:
-    # --- Frameshift (Primary Indel Severity) ---
+  non_coding_regions:
+    not_annotated_in_encode:
+      color: "black"
+      label: "Region not annotated in ENCODE"
+    core_promoter:
+      color: "#00A99D"
+      label: "Core promoter (TSS±50bp)"
+    encode_promoter:
+      color: "#FF8C00"
+      label: "Promoter region (ENCODE)"
+    encode_enhancer:
+      color: "#1D6498"
+      label: "Enhancer region (ENCODE)"
+    encode_any_tf:
+      color: "#41AB5D"  # Medium Green
+      label: "TF binding region (ENCODE)"
+
+  in_or_del:
     deletion:
       color: "#005A32"  # Deep Forest Green
       label: "Deletion"
+    insertion:
+      color: "#08519C"  # Deep Navy Blue
+      label: "Insertion"
+  
+  indel_lengths:
     deletion_gt2bp:
       color: "#41AB5D"  # Medium Green
       label: ">=2bp Deletion"
     deletion_gt5bp:
       color: "#C7E9C0"  # Very Light Green
       label: ">=5bp Deletion"
-    insertion:
-      color: "#08519C"  # Deep Navy Blue
-      label: "Insertion"
     insertion_gt2bp:
       color: "#6BAED6"  # Medium Blue
       label: ">=2bp Insertion"
@@ -132,89 +136,15 @@ rare_variant_annotations:
       color: "#C6DBEF"  # Very Light Blue.  "#1E90FF" # Dodger Blue
       label: ">=5bp Insertion"
   
-  indel_cds:
-    deletion_x3bp:
-      color: "#C7E9C0"
-      label: "Deletion\n(multiple of 3)"
-    deletion_not_x3bp:
-      color: "#238B45"
-      label: "Deletion\n(NOT multiple of 3)"
-    insertion_x3bp:
-      color: "#C6DBEF"
-      label: "Insertion\n(multiple of 3)"
-    insertion_not_x3bp:
-      color: "#3182BD"
-      label: "Insertion\n(NOT multiple of 3)"
-
-  indel_length:
-    # --- Deletions (Sequential Green Gradient) ---
-    deletion_1bp:
-      color: "#C7E9C0"  # Very Light Green
-      label: "1bp Deletion"
-    deletion_2_3bp:
-      color: "#74C476"  # Light Green
-      label: "2-3bp Deletion"
-    deletion_4_10bp:
-      color: "#41AB5D"  # Medium Green
-      label: "4-10bp Deletion"
-    deletion_11_50bp:
-      color: "#238B45"  # Dark Green
-      label: "11-50bp Deletion"
-    deletion_50bp:
-      color: "#005A32"  # Deep Forest Green
-      label: ">50bp Deletion"
-    # --- Insertions (Sequential Blue Gradient) ---
-    insertion_1bp:
-      color: "#C6DBEF"  # Very Light Blue
-      label: "1bp Insertion"
-    insertion_2_3bp:
-      color: "#9ECAE1"  # Light Blue
-      label: "2-3bp Insertion"
-    insertion_4_10bp:
-      color: "#6BAED6"  # Medium Blue
-      label: "4-10bp Insertion"
-    insertion_11_50bp:
-      color: "#3182BD"  # Dark Blue
-      label: "11-50bp Insertion"
-    insertion_50bp:
-      color: "#08519C"  # Deep Navy Blue
-      label: ">50bp Insertion"
-
-  5utr_annotator:
-    # --- 5' UTR Frameshift (Distinct Cyan/Teal) ---
-    five_prime_utr_variant_consequence_uframeshift:
-      color: "#00A99D" # Teal (Kept original, but now distinct from all other indels)
-      label: "5UTR Frameshift"
-    # --- 5' UTR Gained Events (Bright Yellow/Gold) ---
-    five_prime_utr_variant_consequence_uaug_gained:
-      color: "#FFD700"  # Gold (AUG Start Gained)
-      label: "5UTR Start Gain"
-    five_prime_utr_variant_consequence_ustop_gained:
-      color: "#FFA500"  # Orange (uSTOP Gained)
-      label: "5UTR Stop Gain"
-    # --- 5' UTR Lost Events (Duller Yellow/Orange) ---
-    five_prime_utr_variant_consequence_uaug_lost:
-      color: "#DAA520"  # Goldenrod (AUG Start Lost)
-      label: "5UTR Start Lost"
-    five_prime_utr_variant_consequence_ustop_lost:
-      color: "#B8860B"  # Dark Goldenrod (uSTOP Lost)
-      label: "5UTR Stop Lost"
-  
   encode_boolean:
     not_annotated_in_encode:
       color: "black"
       label: "Region not annotated in ENCODE"
     encode_annotated:
       color: "peru"
-      label: "ENCODE annotated region"
-    # core_promoter:
-    #   color: "#4DAF4A" # Green
-    #   label: "Core promoter\n(TSS ± 50bp)"
+      label: "Enhancers, Promoters, and TF binding sites"
   
   encode_indels:
-    not_annotated_in_encode:
-      color: "black"
-      label: "Region not annotated in ENCODE"
     encode_snp:
       color: "peru"
       label: "ENCODE annotated SNP"
@@ -224,6 +154,9 @@ rare_variant_annotations:
     encode_insertion:
       color: "#08519C"  # Deep Navy Blue
       label: "ENCODE annotated Insertion"
+    # not_annotated_in_encode:
+    #   color: "black"
+    #   label: "Region not annotated in ENCODE"
     
   encode_deletions:
     encode_snp:
@@ -238,19 +171,8 @@ rare_variant_annotations:
     encode_deletion_gt5bp:
       color: "#C7E9C0"  # Very Light Green
       label: "ENCODE region Deletion (>=5bp)"
-    
-  encode_custom:
-    not_annotated_in_encode:
-      color: "black"
-      label: "Region not annotated in ENCODE"
-    encode_eh_pr:
-      color: "#FF8C00"
-      label: "Enhancer/Promoter region (ENCODE)"
-    encode_all_tf:
-      color: "#1D6498"
-      label: "TF binding region (ENCODE)"
 
-  encode_enhancer:
+  all_encode_annotations:
     # --- Promoter/Enhancer Spectrum ---
     encode_pls:
       color: "#E41A1C"  # Red (Standard for Active Promoters)
@@ -278,4 +200,37 @@ rare_variant_annotations:
     encode_tf:
       color: "#984EA3"  # Purple (For Transcription Factor Binding)
       label: "Transcription Factor Binding Only"
-    
+
+  indel_cds:
+    deletion_x3bp:
+      color: "#C7E9C0"
+      label: "Deletion\n(multiple of 3)"
+    deletion_not_x3bp:
+      color: "#238B45"
+      label: "Deletion\n(NOT multiple of 3)"
+    insertion_x3bp:
+      color: "#C6DBEF"
+      label: "Insertion\n(multiple of 3)"
+    insertion_not_x3bp:
+      color: "#3182BD"
+      label: "Insertion\n(NOT multiple of 3)"
+
+  5utr_annotator:
+    # --- 5' UTR Frameshift (Distinct Cyan/Teal) ---
+    five_prime_utr_variant_consequence_uframeshift:
+      color: "#00A99D" # Teal (Kept original, but now distinct from all other indels)
+      label: "5UTR Frameshift"
+    # --- 5' UTR Gained Events (Bright Yellow/Gold) ---
+    five_prime_utr_variant_consequence_uaug_gained:
+      color: "#FFD700"  # Gold (AUG Start Gained)
+      label: "5UTR Start Gain"
+    five_prime_utr_variant_consequence_ustop_gained:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "5UTR Stop Gain"
+    # --- 5' UTR Lost Events (Duller Yellow/Orange) ---
+    five_prime_utr_variant_consequence_uaug_lost:
+      color: "#DAA520"  # Goldenrod (AUG Start Lost)
+      label: "5UTR Start Lost"
+    five_prime_utr_variant_consequence_ustop_lost:
+      color: "#B8860B"  # Dark Goldenrod (uSTOP Lost)
+      label: "5UTR Stop Lost"

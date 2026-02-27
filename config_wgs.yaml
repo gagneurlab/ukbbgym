@@ -66,48 +66,58 @@ rare_variant_annotations:
 
   genetic_diversity:
     cadd_raw:
-      color: "#1f77b4"
+      color: "chocolate"
       label: "CADD Raw"
 
   missense:
     am_pathogenicity: 
       color: "#feb72d"
       label: "AlphaMissense"
-    score_pai3d: 
-      color: "#feb72d"
-      label: "PrimateAI-3D"
     esmscoremissense: 
       color: "#feb72d"
       label: "ESM1v"
       direction: -1
+    esm1b_llr:
+      color: "#feb72d"
+      label: "ESM1b"
+      direction: -1
+    cpt1_llr:
+      color: "#feb72d"
+      label: "CPT-1"
+    revel_score:
+      color: "#feb72d"
+      label: "REVEL"
+    # score_pai3d: 
+    #   color: "#feb72d"
+    #   label: "PrimateAI-3D"
 
   protein_domains:
     mobi_curated_disorder_priority:
       color: "#E31A1C"  # Dark Red
-      label: "Disordered domain"
+      label: "Disordered Domain"
     mobi_lip_full:
       color: "#1E90FF"  # Dodger Blue
-      label: "LIP domain"
+      label: "Linear Interacting Peptides"
     ted_domain:
       color: "#2E8B57"  # Sea Green
       label: "Structured Domain"
     low_complexity_domain:
       color: "#FF9933"  # Amber/Dark Orange
-      label: "Low complexity domain"
+      label: "Low Complexity Domain"
   
   loftee_protein_domains:
     loftee_disorder:
       color: "#E31A1C"  # Dark Red
-      label: "Disordered domain"
+      label: "Disordered Domain"
     loftee_lip:
       color: "#1E90FF"  # Dodger Blue
-      label: "LIP domain"
+      label: "Linear Interacting Peptides"
     loftee_ted:
       color: "#2E8B57"  # Sea Green
       label: "Structured Domain"
     loftee_low_complexity:
       color: "#FF9933"  # Amber/Dark Orange
-      label: "Low complexity domain"
+      label: "Low Complexity Domain"
 
   conservation:
     # gpn_star_llr_calibrated_mean: 
@@ -139,31 +149,25 @@ rare_variant_annotations:
       color: "#28a745"
       label: "AbSplice2 (max)"
   
-  regulatory_nondir:
-    abexp_abs_max:
-      color: "#80CBC4"  # Pale Teal (Low/Min)
-      label: "AbExp abs max"
-    # promoterai_abs:
-    #   color: "#80CBC4"  # Pale Teal (Low/Min)
-    #   label: "PromoterAI abs"
-    #   # direction: -1
-    # abexp_min:
-    #   color: "#80CBC4"  # Pale Teal (Low/Min)
-    #   label: "AbExp min"
-    #   direction: -1
-  
   regulatory:
     promoterai:
-      color: "#00A99D"
+      color: "#1f77b4"
       label: "PromoterAI"
-    # abexp_whole_blood:
+      direction: -1
+    # promoterai_under:
     #   color: "#00A99D"
-    #   label: "AbExp whole blood"
-    # spliceai_delta_score:
-    #   color: "#28a745"
-    #   label: "SpliceAI"
+    #   label: "PromoterAI"
+    #   direction: -1
+    abexp_min:
+      color: "#1f77b4"
+      label: "AbExp min"
+      direction: -1
+    fz_all_min:
+      color: "#1f77b4"
+      label: "Flashzoi min\nacross RNA (all)"
+      direction: -1
 
-  utr_annotator:
+  5utr:
     five_prime_utr_variant_consequence_uaug_gained:
       color: "#DAA520"  # Goldenrod
       label: "5' UTR Start Gain"
@@ -177,6 +181,11 @@ rare_variant_annotations:
     five_prime_utr_variant_consequence_ustop_lost:
       color: "#DAA520"  # Goldenrod
       label: "5' UTR Stop Lost"
+
+  3utr:
+    aparent2:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "Aparent 2"
 
   encode_custom:
     encode_eh_pr:
@@ -237,3 +246,8 @@ rare_variant_annotations:
       color: "#b5de2b"
       label: "Relative CDS\nPosition"
       direction: -1
+
+  regulatory_nondir:
+    abexp_abs_max:
+      color: "#80CBC4"  # Pale Teal (Low/Min)
+      label: "AbExp abs max"
