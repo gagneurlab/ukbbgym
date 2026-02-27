@@ -1,0 +1,128 @@
+maf: 0.001
+
+covariates:
+  - age
+  - age2
+  - age_sex
+  - sex
+  - genetic_pc_1
+  - genetic_pc_2
+  - genetic_pc_3
+  - genetic_pc_4
+  - genetic_pc_5
+  - genetic_pc_6
+  - genetic_pc_7
+  - genetic_pc_8
+  - genetic_pc_9
+  - genetic_pc_10
+  - genetic_pc_11
+  - genetic_pc_12
+  - genetic_pc_13
+  - genetic_pc_14
+  - genetic_pc_15
+  - genetic_pc_16
+  - genetic_pc_17
+  - genetic_pc_18
+  - genetic_pc_19
+  - genetic_pc_20
+
+rare_variant_annotations:
+  exp_assays:
+    scaled_fitness:
+      color: "#66BB6A"  # Light Green
+      label: 'aPCA fitness'
+    DMS:
+      color: "#66BB6A"  # Light Green
+      label: 'DMS'
+      direction: -1
+    DMS_score_combined:
+      color: "#4DB6AC"  # Teal/Mint
+      label: 'DMS (combined)'
+      direction: -1
+    LDL_uptake_functional:
+      color: "#66BB6A"  # Light Green
+      label: 'LDL uptake functional'
+      direction: -1
+    LDLR_cell_surface_abundance:
+      color: "#81C784"  # Lighter Green
+      label: 'LDLR cell surface abundance'
+      direction: -1
+
+  missense:
+    am_pathogenicity: 
+      color: "#FFD700"  # Pure Gold Yellow
+      label: "AlphaMissense"
+    esmscoremissense: 
+      color: "#FFA500"  # Pure Orange
+      label: "ESM1v"
+      direction: -1
+    esm1b_llr:
+      color: "#FF6600"  # Vivid Orange-Red
+      label: "ESM1b"
+      direction: -1
+    cpt1_llr:
+      color: "#E63000"  # Strong Red-Orange
+      label: "CPT-1"
+    revel_score:
+      color: "darkred"  # Deep Pure Red
+      label: "REVEL"
+    # score_pai3d: 
+    #   color: "#FFEC80"  # Pale Yellow (lighter end)
+    #   label: "PrimateAI-3D"
+
+  genetic_diversity:
+    cadd_raw:
+      color: "#1f77b4"
+      label: "CADD Raw"
+
+  conservation:
+    # gpn_star_llr_calibrated_mean: 
+    #   color: "#942c80"
+    #   label: "GPN-Star"
+    #   direction: -1
+    gpn_score: 
+      color: "pink"
+      label: "GPN-MSA"
+      direction: -1
+    verphylop: 
+      color: "#483D8B"  # Dark Slate Blue
+      label: "Vertebrate PhyloP"
+
+  naive:
+    relative_cds_position:
+      color: "#b5de2b"
+      label: "Relative CDS\nPosition"
+      direction: -1
+
+  plof:
+    loftee_hc:
+      color: "#E31A1C" # Dark Red
+      label: "LOFTEE HC"
+
+  protein_domains:
+    mobi_curated_disorder_priority:
+      color: "#E31A1C"  # Dark Red
+      label: "Disordered Domain"
+    mobi_lip_full:
+      color: "#1E90FF"  # Dodger Blue
+      label: "Linear Interacting Peptides"
+    ted_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    low_complexity_domain:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "Low Complexity Domain"
+  
+  loftee_protein_domains:
+    loftee_disorder:
+      color: "#E31A1C"  # Dark Red
+      label: "Disordered Domain"
+    loftee_lip:
+      color: "#1E90FF"  # Dodger Blue
+      label: "Linear Interacting Peptides"
+    loftee_ted:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    loftee_low_complexity:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "Low Complexity Domain"

@@ -3,110 +3,100 @@ rare_variant_annotations:
     loftee_hc:
       color: "#DD4344"
       label: "LOFTEE HC"
-      direction: -1
+      # direction: -1
 
   genetic_diversity:
     cadd_raw:
-      color: "#1f77b4"
+      color: "chocolate"
       label: "CADD Raw"
-      direction: -1
+      # direction: -1
 
   missense:
     am_pathogenicity: 
-      color: "#feb72d"
+      color: "#FFD700"  # Pure Gold Yellow
       label: "AlphaMissense"
-      direction: -1
-    score_pai3d: 
-      color: "#feb72d"
-      label: "PrimateAI-3D"
-      direction: -1
     esmscoremissense: 
-      color: "#feb72d"
+      color: "#FFA500"  # Pure Orange
       label: "ESM1v"
+      direction: -1
+    esm1b_llr:
+      color: "#FF6600"  # Vivid Orange-Red
+      label: "ESM1b"
+      direction: -1
+    cpt1_llr:
+      color: "#E63000"  # Strong Red-Orange
+      label: "CPT-1"
+    revel_score:
+      color: "darkred"  # Deep Pure Red
+      label: "REVEL"
+    # score_pai3d: 
+    #   color: "#FFEC80"  # Pale Yellow (lighter end)
+    #   label: "PrimateAI-3D"
 
   conservation:
-    gpn_star_llr_calibrated_mean: 
-      color: "#942c80"
-      label: "GPN-Star"
     gpn_score: 
-      color: "#942c80"
+      color: "pink"
       label: "GPN-MSA"
-    # verphylop: 
-    #   color: "#942c80"
-    #   label: "Vertebrate PhyloP"
-      # direction: -1
-    # mamphylop: 
-    #   color: "#942c80"
-    #   label: "Mammalian PhyloP"
-    #   direction: -1
-    # zoomamphylop: 
-    #   color: "#6a1c81"
-    #   label: "Zoonomia mammalian\nPhyloP"
-    #   direction: -1
-    # zooverphylop: 
-    #   color: "#6a1c81"
-    #   label: "Zoonomia vertebrate\nPhyloP"
-    #   direction: -1
+      direction: -1
+    verphylop: 
+      color: "#483D8B"
+      label: "Vertebrate PhyloP"
 
   splicing:
-    pangolin_score:
-      color: "#28a745"
-      label: "Pangolin"
-      direction: -1
     delta_score:
-      color: "#28a745"
+      color: "#8BC34A"  # Light Green
       label: "SpliceAI"
-      direction: -1
+    pangolin_score:
+      color: "#2E7D32"  # Forest Green
+      label: "Pangolin"
     absplice_dna_max:
-      color: "#28a745"
+      color: "#26C6DA"  # Bright Turquoise / Cyan
       label: "AbSplice (max)"
-      direction: -1
     absplice2_max:
-      color: "#28a745"
+      color: "#00838F"  # Deep Cyan
       label: "AbSplice2 (max)"
-      direction: -1
 
   regulatory:
     promoterai:
       color: "#00A99D"
       label: "PromoterAI"
-    fz_blood:
-      color: "crimson"
-      label: "Flashzoi Blood"
-    abexp_min:
-        color: "#80CBC4"
-        label: "AbExp min"
-
-  regulatory_nondir:
-    promoterai_abs:
+      direction: -1
+    promoterai_under:
       color: "#00A99D"
-      label: "PromoterAI abs"
+      label: "PromoterAI"
       direction: -1
-    max_fz_blood:
-      color: "pink"
-      label: "Flashzoi abs max\nacross blood"
+    promoterai_over:
+      color: "#00A99D"
+      label: "PromoterAI"
+      # direction: -1
+    abexp_min:
+      color: "#b5de2b"
+      label: "AbExp min"
       direction: -1
-    abexp_abs_max:
-      color: "#80CBC4"  # Pale Teal (Low/Min)
-      label: "AbExp abs max"
+    abexp_max:
+      color: "#b5de2b"
+      label: "AbExp max"
+      # direction: -1
+    fz_all_mean:
+      color: "#1f77b4"
+      label: "Flashzoi mean\nacross RNA (all)"
+      # direction: -1
+    fz_blood_min:
+      color: "crimson"
+      label: "Flashzoi min\nacross RNA (blood)"
       direction: -1
-    # abexp_whole_blood:
-    #   color: "#00A99D"
-    #   label: "AbExp whole blood"
-    # abexp_max:
-    #   color: "#00A99D"
-    #   label: "AbExp max"
-    # promoterai_under:
-    #   color: "#00A99D"
-    #   label: "PromoterAI under"
-    # promoterai_over:
-    #   color: "#00A99D"
-    #   label: "PromoterAI over"
+    fz_all_min:
+      color: "#1f77b4" #"#FFA500"  # Orange (uSTOP Gained)
+      label: "Flashzoi min\nacross RNA (all)"
+      direction: -1
+    fz_blood_max:
+      color: "crimson"
+      label: "Flashzoi max\nacross RNA (blood)"
+    fz_all_max:
+      color: "#1f77b4"
+      label: "Flashzoi max\nacross RNA (all)"
     
-  # naive:
-  #   relative_cds_position:
-  #     color: "#b5de2b"
-  #     label: "Relative CDS\nPosition"
-  #     direction: -1    
-
-
+  3utr:
+    aparent2:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "Aparent 2"
