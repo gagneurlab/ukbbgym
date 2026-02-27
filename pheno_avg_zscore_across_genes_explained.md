@@ -440,36 +440,33 @@ For each of 1000 bootstrap iterations:
 
 ## 5. Confidence Intervals: How They Are Computed
 
-After all 1000 bootstrap iterations, the notebook computes **SE-based 95% confidence intervals**:
+After all 1000 bootstrap iterations, the notebook computes **percentile-based 95% confidence intervals**:
 
 ```python
 pm = point_means[annotation].astype(np.float32)
-se = np.nanstd(bm, axis=0).astype(np.float32)
 
 all_results.append(pl.DataFrame({
     'annotation': annotation,
     'bin_end': d['bin_ends'].astype(np.float64),
     'mean_zscore': pm,
-    'se_zscore': se,
-    'ci_lower': (pm - 1.96 * se).astype(np.float32),
-    'ci_upper': (pm + 1.96 * se).astype(np.float32),
+    'ci_lower': np.nanpercentile(bm, 2.5, axis=0).astype(np.float32),
+    'ci_upper': np.nanpercentile(bm, 97.5, axis=0).astype(np.float32),
 }))
 ```
 
 | Statistic | Computation | Meaning |
 |-----------|-------------|---------|
 | `mean_zscore` | Unweighted sliding window mean (point estimate on full data) | Best estimate of mean z-score in the window |
-| `se_zscore` | `np.nanstd(boot_means, axis=0)` | Standard deviation of the 1000 bootstrap means |
-| `ci_lower` | `mean_zscore - 1.96 × se_zscore` | Lower bound of 95% CI |
-| `ci_upper` | `mean_zscore + 1.96 × se_zscore` | Upper bound of 95% CI |
+| `ci_lower` | `np.nanpercentile(boot_means, 2.5, axis=0)` | 2.5th percentile of 1000 bootstrap means |
+| `ci_upper` | `np.nanpercentile(boot_means, 97.5, axis=0)` | 97.5th percentile of 1000 bootstrap means |
 
-### Why SE-based rather than percentile-based CIs?
+### Why percentile-based CIs?
 
-With the re-ranking bootstrap, the virtual expanded array has a different length in each iteration (since some genes are dropped and others duplicated). At large bin_end values near the tail of the ranking, some iterations may not have enough expanded variants to fill that window, producing `NaN`. Two practical implications:
+Percentile-based CIs are a natural choice for the bootstrap: they directly reflect the distribution of the bootstrap replicates, making no assumptions about normality or symmetry. If the bootstrap distribution is skewed at certain rank positions (e.g. at the top of the ranking where a few large genes dominate), the percentile CI will correctly capture that asymmetry.
 
-1. **`np.nanstd` and `np.nanpercentile` both skip `NaN` values**, so either method works mechanically. However, if many iterations are `NaN` at a given position, percentile estimates become unstable (based on a small effective sample).
+### NaN handling at the tail
 
-2. **The sliding window mean is a sum over 1000 variants**, which is approximately normal by the CLT. SE-based CIs (mean ± 1.96 × SE) are therefore well-justified and are symmetric around the point estimate, making the plot easier to interpret.
+With the re-ranking bootstrap, the virtual expanded array has a different length in each iteration (since some genes are dropped and others duplicated). When the expanded array is shorter than the original variant count N, bin positions near the tail exceed the expanded array length and are set to `NaN` for that iteration. However, every bin that fits within the expanded array contains exactly `window_size` variants — there are no sparse or partially-filled bins. `np.nanpercentile` simply ignores the `NaN` values, computing the percentile over whichever iterations had enough expanded variants to reach that bin position.
 
 The confidence intervals are plotted as semi-transparent ribbons (`geom_ribbon`) around the point estimate lines.
 
@@ -499,6 +496,6 @@ Gene-trait associations (670 genes)
                 │       ├── Build virtual expanded array (cumulative weights + binary search)
                 │       └── Sliding window on expanded array (no materialization)
                 │
-                └── Output: mean_zscore, se, ci_lower, ci_upper per (annotation, bin_end)
-                            (SE-based CIs: point_estimate ± 1.96 × SE)
+                └── Output: mean_zscore, ci_lower, ci_upper per (annotation, bin_end)
+                            (Percentile CIs: 2.5th / 97.5th of bootstrap means)
 ```
