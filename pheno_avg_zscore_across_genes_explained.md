@@ -146,32 +146,80 @@ So the first window covers variants at positions `[0, 1000)`, the next covers `[
 
 ### Efficient Computation via Prefix Sums
 
-Rather than recomputing the mean for each window from scratch, the notebook uses **prefix sums** for O(1) per-window computation:
+#### The problem
+
+A naive approach would loop over every window and sum the z-scores inside it:
+
+```
+for each window position:
+    mean = sum(zscores[start:end]) / window_size   # O(window_size) per window
+```
+
+With ~30,000+ window positions and `window_size=1000`, that is ~30 million additions. The prefix sum trick reduces each window to a single subtraction.
+
+#### What is a prefix sum?
+
+A **prefix sum** (or cumulative sum) array `csum` is defined so that `csum[i]` = sum of the first `i` elements:
+
+```
+zscores:  [ z0,   z1,   z2,   z3,   z4,  ... ]
+csum:  [ 0,  z0,  z0+z1, z0+z1+z2, z0+z1+z2+z3, ... ]
+         ^
+         csum[0] = 0 (sentinel)
+```
+
+The key identity: **the sum of any contiguous slice `[a, b)` is just `csum[b] - csum[a]`**. No matter how wide the window, computing its sum is always one subtraction — O(1).
+
+#### Concrete walkthrough (unweighted)
+
+Suppose `window_size = 3` and we have 6 z-scores sorted by annotation rank:
+
+```
+index:     0     1     2     3     4     5
+zscores: [0.5,  0.3,  0.4,  0.1,  0.2, -0.1]
+csum:    [0.0,  0.5,  0.8,  1.2,  1.3,  1.5,  1.4]
+               ^csum[1]                      ^csum[6]
+```
+
+`bin_ends = [3, 4, 5, 6]` (with `step_size=1` here for illustration).
+
+| bin_end | window slice | sum via prefix sums | mean |
+|---------|-------------|---------------------|------|
+| 3 | `zscores[0:3]` = [0.5, 0.3, 0.4] | `csum[3] - csum[0]` = 1.2 - 0.0 = 1.2 | 0.40 |
+| 4 | `zscores[1:4]` = [0.3, 0.4, 0.1] | `csum[4] - csum[1]` = 1.3 - 0.5 = 0.8 | 0.27 |
+| 5 | `zscores[2:5]` = [0.4, 0.1, 0.2] | `csum[5] - csum[2]` = 1.5 - 0.8 = 0.7 | 0.23 |
+| 6 | `zscores[3:6]` = [0.1, 0.2, -0.1] | `csum[6] - csum[3]` = 1.4 - 1.2 = 0.2 | 0.07 |
+
+Each window mean costs one subtraction and one division, regardless of `window_size`.
+
+#### The code
 
 ```python
 def sliding_window_means(zscores, bin_ends, window_size, weights=None):
     if weights is not None:
-        wz = zscores * weights
+        # --- Weighted case (used during bootstrap) ---
+        wz = zscores * weights                          # element-wise z * w
         csum_wz = np.empty(len(wz) + 1, dtype=np.float64)
         csum_wz[0] = 0
-        np.cumsum(wz, out=csum_wz[1:])
+        np.cumsum(wz, out=csum_wz[1:])                  # prefix sum of (z * w)
         csum_w = np.empty(len(weights) + 1, dtype=np.float64)
         csum_w[0] = 0
-        np.cumsum(weights, out=csum_w[1:])
-        num = csum_wz[bin_ends] - csum_wz[bin_ends - window_size]
-        den = csum_w[bin_ends] - csum_w[bin_ends - window_size]
+        np.cumsum(weights, out=csum_w[1:])               # prefix sum of w
+        num = csum_wz[bin_ends] - csum_wz[bin_ends - window_size]  # sum(z*w) in window
+        den = csum_w[bin_ends] - csum_w[bin_ends - window_size]    # sum(w) in window
         with np.errstate(divide='ignore', invalid='ignore'):
             return np.where(den > 0, num / den, np.nan)
     else:
+        # --- Unweighted case (used for point estimates) ---
         csum = np.empty(len(zscores) + 1, dtype=np.float64)
         csum[0] = 0
-        np.cumsum(zscores, out=csum[1:])
+        np.cumsum(zscores, out=csum[1:])                 # prefix sum of z
         return (csum[bin_ends] - csum[bin_ends - window_size]) / window_size
 ```
 
-**Unweighted case** (point estimates): Build a prefix sum of z-scores. The mean of window `[e - W, e)` is `(csum[e] - csum[e - W]) / W`.
+**Unweighted case** (point estimates): Build one prefix sum of z-scores. The mean of window `[e - W, e)` is `(csum[e] - csum[e - W]) / W`.
 
-**Weighted case** (bootstrap): Build prefix sums of both `z * w` and `w`. The weighted mean is `sum(z*w) / sum(w)` over the window.
+**Weighted case** (bootstrap): Build two prefix sums — one for `z * w` and one for `w`. The weighted mean of window `[e - W, e)` is `sum(z*w) / sum(w)` = `(csum_wz[e] - csum_wz[e - W]) / (csum_w[e] - csum_w[e - W])`. If the denominator is zero (all variants in the window have weight 0), the result is `NaN`.
 
 ---
 
@@ -195,7 +243,7 @@ The x-axis of the final plot is `log10(1 / bin_end)`, so:
 
 ## 4. Bootstrap Resampling: How It Works
 
-The bootstrap resamples **genes (regions)**, not individual variants. This accounts for the fact that variants within the same gene are not independent.
+The bootstrap resamples **genes (regions)**, not individual variants. This accounts for the fact that variants within the same gene are not independent (they share the same gene-trait association, the same set of carriers, etc.).
 
 ### Setup: Region Index Mapping
 
@@ -211,16 +259,9 @@ region_idx_map = pl.DataFrame({
 ranked_zscores = ranked_zscores.join(region_idx_map, on='region', how='left')
 ```
 
-Each variant in `ranked_zscores` now carries its gene's integer index (`_region_idx`).
+Each variant in `ranked_zscores` now carries its gene's integer index (`_region_idx`). This allows the bootstrap loop to work entirely with fast numpy integer arrays rather than string comparisons.
 
 ### Bootstrap Loop
-
-For each of 1000 bootstrap iterations:
-
-1. **Resample genes with replacement**: Draw `n_regions` gene indices from `[0, n_regions)` with replacement.
-2. **Compute region weights**: Use `np.bincount` to count how many times each gene was selected. This produces a weight vector of length `n_regions` — a gene drawn twice gets weight 2, a gene not drawn gets weight 0.
-3. **Map to variant weights**: Each variant inherits the weight of its gene via `region_weights[d['region_idx']]`.
-4. **Compute weighted sliding window means**: Call `sliding_window_means` with the per-variant weights, which computes `sum(z * w) / sum(w)` over each window.
 
 ```python
 rng = np.random.default_rng(42)
@@ -237,7 +278,98 @@ for b in tqdm(range(n_boot), desc='Bootstrapping'):
         )
 ```
 
-This is equivalent to a **cluster bootstrap** where genes are the clusters, but implemented efficiently via weighted means rather than literal subsetting.
+For each of 1000 bootstrap iterations:
+
+1. **Resample genes with replacement**: Draw `n_regions` gene indices from `[0, n_regions)` with replacement.
+2. **Compute region weights**: `np.bincount(idx, minlength=n_regions)` counts how many times each gene was drawn. A gene drawn twice gets weight 2, a gene not drawn gets weight 0.
+3. **Map to variant weights**: Each variant inherits the weight of its parent gene: `variant_weights = region_weights[d['region_idx']]`. So if gene G was sampled 3 times, every variant from gene G gets weight 3.
+4. **Compute weighted sliding window means**: The `sliding_window_means` function computes `sum(z * w) / sum(w)` over each window using the prefix sum trick (see section 2).
+
+### Reweighting vs. Re-ranking: Why the Rank Order Is Fixed
+
+You might expect that a bootstrap resample should produce a **new ranking** — after all, if some genes are dropped (weight 0) and others duplicated (weight 2+), shouldn't the variant positions shift? Here is why the notebook does **not** re-rank, and what that design choice implies.
+
+#### What a literal "re-rank" bootstrap would do
+
+1. Resample genes with replacement.
+2. Take all variants from the sampled genes (with duplicates for genes sampled >1 time).
+3. **Re-sort** these variants by annotation score and assign new ranks.
+4. Compute sliding windows over the new ranking.
+
+Because the annotation scores are intrinsic to each variant (not gene-dependent), duplicating a gene's variants just inserts tied copies at the same score. Removing a gene's variants creates gaps. After re-sorting, the relative order of the remaining variants is unchanged — only the positions shift. This is computationally expensive (re-sorting ~300k variants × 1000 iterations × 6 annotations), but conceptually clean.
+
+#### What the notebook actually does (fixed-rank reweighting)
+
+Instead of re-ranking, the notebook:
+
+1. Keeps the original sorted array of variants fixed in its original rank order.
+2. Assigns each variant a weight (0, 1, 2, ...) based on how many times its gene was sampled.
+3. Computes a **weighted mean** over the same fixed windows.
+
+A variant from a gene that was not sampled (weight = 0) contributes nothing to either the numerator `sum(z*w)` or denominator `sum(w)` — it is effectively invisible. A variant from a gene sampled twice contributes double.
+
+#### The key difference and what it means
+
+The difference shows up at window boundaries. Consider a concrete example:
+
+```
+Original rank order (window_size=3):
+Position:  1     2     3  |  4     5     6
+Gene:      A     A     B  |  B     C     C
+z-score:   0.5   0.4   0.3  0.2   0.1   0.0
+
+Window [1-3]: variants from genes A, A, B
+Window [4-6]: variants from genes B, C, C
+```
+
+Now suppose bootstrap samples genes {A, C} (gene B has weight 0):
+
+**Fixed-rank reweighting** (what the code does):
+```
+Position:  1     2     3  |  4     5     6
+Weight:    1     1     0  |  0     1     1
+Window [1-3]: weighted mean = (0.5×1 + 0.4×1 + 0.3×0) / (1+1+0) = 0.45
+Window [4-6]: weighted mean = (0.2×0 + 0.1×1 + 0.0×1) / (0+1+1) = 0.05
+```
+
+**Re-ranking** (the alternative approach):
+```
+Remaining variants after removing gene B:
+Position:  1     2     3     4
+Gene:      A     A     C     C
+z-score:   0.5   0.4   0.1   0.0
+
+Window [1-3]: mean of [0.5, 0.4, 0.1] = 0.33
+(Gene C's variants have "slid up" into the top window)
+```
+
+The fixed-rank approach gives 0.45 for window [1-3]; the re-ranking approach gives 0.33 because gene C's low-z variants have filled the gap left by gene B. In other words:
+
+- **Fixed-rank reweighting** answers: *"At this rank position in the annotation, what is the mean z-score accounting for gene-level sampling uncertainty?"*
+- **Re-ranking** answers: *"If the population of genes were different, what would the top-N variants' mean z-score be?"*
+
+#### Why fixed-rank reweighting is the appropriate choice here
+
+The notebook's goal is to estimate **how mean phenotypic effect varies as a function of annotation rank**, with uncertainty bands. The x-axis is "rank position in the annotation," and the question at each x-position is: "how uncertain is the mean z-score at this rank, given that genes are the independent units?"
+
+Fixed-rank reweighting is the standard approach for this because:
+
+1. **The x-axis should remain stable across bootstrap iterations.** Each window position corresponds to a fixed annotation score range. Re-ranking would shift what scores each window corresponds to in every iteration, making the x-axis meaning inconsistent.
+
+2. **It is a standard cluster bootstrap.** This is the textbook "weighted bootstrap" or "Bayesian bootstrap" approach for clustered data (see Davison & Hinkley, 1997). Rather than literally duplicating and removing observations, you assign multinomial weights to clusters. It is mathematically equivalent to the literal approach when computing means and other smooth statistics at fixed positions.
+
+3. **Annotation rank is a variant property, not a gene property.** The annotation score (and therefore the rank) is determined by the variant's protein-level impact. It does not change when you resample genes. Re-ranking would conflate two sources of variation: gene sampling and rank assignment.
+
+#### Potential edge-case to be aware of
+
+If a window happens to contain variants from very few genes, and the bootstrap assigns weight 0 to most of those genes, the denominator `sum(w)` can become very small, producing noisy or `NaN` estimates for that window in that iteration. The code handles the `sum(w) = 0` case explicitly:
+
+```python
+with np.errstate(divide='ignore', invalid='ignore'):
+    return np.where(den > 0, num / den, np.nan)
+```
+
+These `NaN` values are handled downstream by `np.nanstd` and `np.nanpercentile`, which skip them. In practice, with `window_size=1000` spanning variants from many genes, this is rarely an issue except possibly at the extreme tails.
 
 ---
 
