@@ -66,6 +66,9 @@ rare_variant_annotations:
     revel_score:
       color: "darkred"  # Deep Pure Red
       label: "REVEL"
+    polyphen:
+      color: "peru"
+      label: "PolyPhen2"
     # score_pai3d: 
     #   color: "#FFEC80"  # Pale Yellow (lighter end)
     #   label: "PrimateAI-3D"
