@@ -5,12 +5,6 @@ rare_variant_annotations:
       label: "LOFTEE HC"
       # direction: -1
 
-  genetic_diversity:
-    cadd_raw:
-      color: "chocolate"
-      label: "CADD Raw"
-      # direction: -1
-
   missense:
     am_pathogenicity: 
       color: "#FFD700"  # Pure Gold Yellow
@@ -35,6 +29,12 @@ rare_variant_annotations:
     # score_pai3d: 
     #   color: "#FFEC80"  # Pale Yellow (lighter end)
     #   label: "PrimateAI-3D"
+
+  genetic_diversity:
+    cadd_raw:
+      color: "chocolate"
+      label: "CADD Raw"
+      # direction: -1
 
   conservation:
     gpn_score: 
