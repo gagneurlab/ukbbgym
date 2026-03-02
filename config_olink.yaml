@@ -32,6 +32,28 @@ rare_variant_annotations:
     polyphen:
       color: "#feb72d"
       label: "PolyPhen2"
+    clinpred_score:
+      color: "#feb72d"
+      label: "ClinPred"
+    bayes_del:
+      color: "#feb72d"
+      label: "BayesDel"
+    popeve_score:
+      color: "#feb72d"
+      label: "popEVE"
+      direction: -1
+    eve_score:
+      color: "#feb72d"
+      label: "EVE"
+      direction: -1
+    pop_adj_eve:
+      color: "#feb72d"
+      label: "pop-adj-EVE"
+      direction: -1
+    pop_adj_esm1v:
+      color: "#feb72d"
+      label: "pop-adj-ESM1v"
+      direction: -1
     # score_pai3d: 
     #   color: "#feb72d"
     #   label: "PrimateAI-3D"

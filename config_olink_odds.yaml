@@ -6,26 +6,51 @@ rare_variant_annotations:
       # direction: -1
 
   missense:
+    # YELLOWS - ClinVar-based tools (curated databases)
+    clinpred_score:
+      color: "#FFE700"  # Bright Yellow
+      label: "ClinPred"
+    bayes_del:
+      color: "#FFD700"  # Gold Yellow
+      label: "BayesDel"
+    revel_score:
+      color: "#FFC700"  # Darker Gold
+      label: "REVEL"
+    polyphen:
+      color: "#FFBB00"  # Golden Yellow
+      label: "PolyPhen2"
+
+    # ORANGE/REDS - Curation-free tools (AI/evolutionary models)
     am_pathogenicity: 
-      color: "#FFD700"  # Pure Gold Yellow
+      color: "#FFA500"  # Orange
       label: "AlphaMissense"
     esmscoremissense: 
-      color: "#FFA500"  # Pure Orange
+      color: "#FF8C00"  # Dark Orange
       label: "ESM1v"
       direction: -1
     esm1b_llr:
-      color: "#FF6600"  # Vivid Orange-Red
+      color: "#FF6B35"  # Orange-Red
       label: "ESM1b"
       direction: -1
     cpt1_llr:
-      color: "#E63000"  # Strong Red-Orange
+      color: "#FF4500"  # Orange-Red Deep
       label: "CPT-1"
-    revel_score:
-      color: "darkred"  # Deep Pure Red
-      label: "REVEL"
-    polyphen:
-      color: "peru"
-      label: "PolyPhen2"
+    popeve_score:
+      color: "#E63946"  # Crimson Red
+      label: "popEVE"
+      direction: -1
+    eve_score:
+      color: "#D62828"  # Deep Red
+      label: "EVE"
+      direction: -1
+    pop_adj_eve:
+      color: "#C1121F"  # Darker Red
+      label: "pop-adj-EVE"
+      direction: -1
+    pop_adj_esm1v:
+      color: "#A4031F"  # Deep Maroon Red
+      label: "pop-adj-ESM1v"
+      direction: -1
     # score_pai3d: 
     #   color: "#FFEC80"  # Pale Yellow (lighter end)
     #   label: "PrimateAI-3D"
