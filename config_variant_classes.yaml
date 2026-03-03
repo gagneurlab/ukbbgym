@@ -3,7 +3,7 @@ missense:
     - "pl.col('consequence_missense_variant') == True"
   tool_categories:
     - missense
-  x_label: "Top N missense variants"
+  x_label: "Missense"
 
 missense_structured:
   variant_filtering:
@@ -11,7 +11,7 @@ missense_structured:
     - "pl.col('ted_domain') == True"
   tool_categories:
     - missense
-  x_label: "Top N structured domain (missense) variants"
+  x_label: "Dtructured domain (missense)"
 
 missense_non_structured:
   variant_filtering:
@@ -19,7 +19,7 @@ missense_non_structured:
     - "pl.col('ted_domain') == False"
   tool_categories:
     - missense
-  x_label: "Top N non-structured domain (missense) variants"
+  x_label: "Non-structured domain (missense)"
 
 missense_disordered:
   variant_filtering:
@@ -27,7 +27,7 @@ missense_disordered:
     - "pl.col('mobi_full_disorder_priority') == True"
   tool_categories:
     - missense
-  x_label: "Top N disordered domain (missense) variants"
+  x_label: "Disordered domain (missense)"
 
 missense_lip:
   variant_filtering:
@@ -35,7 +35,7 @@ missense_lip:
     - "pl.col('mobi_full_lip_priority') == True"
   tool_categories:
     - missense
-  x_label: "Top N LIP domain (missense) variants"
+  x_label: "LIP domain (missense)"
 
 intron:
   variant_filtering:
@@ -44,7 +44,7 @@ intron:
   tool_categories:
     - splicing
     - conservation
-  x_label: "Top N intronic variants"
+  x_label: "Intronic"
 
 enhancer_encode:
   variant_filtering:
@@ -53,7 +53,7 @@ enhancer_encode:
     - "pl.col('encode_enhancer') == True"
   tool_categories:
     - regulatory
-  x_label: "Top N enhancer (pELS & dELS) variants"
+  x_label: "Enhancer (pELS & dELS)"
 
 promoter_encode:
   variant_filtering:
@@ -62,7 +62,7 @@ promoter_encode:
     - "pl.col('encode_promoter') == True"
   tool_categories:
     - regulatory
-  x_label: "Top N promoter (PLS & CA-H3K4me3) variants"
+  x_label: "Promoter (PLS & CA-H3K4me3)"
 
 tf_encode:
   variant_filtering:
@@ -71,7 +71,7 @@ tf_encode:
     - "pl.col('encode_any_tf') == True"
   tool_categories:
     - regulatory
-  x_label: "Top N TF binding region (TC & CA-TF) variants"
+  x_label: "TF binding region (TC & CA-TF)"
 
 core_promoter:
   variant_filtering:
@@ -79,4 +79,4 @@ core_promoter:
     - "pl.col('promoterai_is_na') == False"
   tool_categories:
     - regulatory
-  x_label: "Top N core promoter variants"
+  x_label: "Core promoter"
