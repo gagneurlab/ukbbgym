@@ -1,0 +1,83 @@
+missense:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+  tool_categories:
+    - missense
+  x_label: "Top N missense variants"
+
+missense_structured:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('ted_domain') == True"
+  tool_categories:
+    - missense
+  x_label: "Top N structured domain (missense) variants"
+
+missense_non_structured:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('ted_domain') == False"
+  tool_categories:
+    - missense
+  x_label: "Top N non-structured domain (missense) variants"
+
+missense_disordered:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('mobi_full_disorder_priority') == True"
+  tool_categories:
+    - missense
+  x_label: "Top N disordered domain (missense) variants"
+
+missense_lip:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('mobi_full_lip_priority') == True"
+  tool_categories:
+    - missense
+  x_label: "Top N LIP domain (missense) variants"
+
+intron:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('consequence_intron_variant') == True"
+  tool_categories:
+    - splicing
+    - conservation
+  x_label: "Top N intronic variants"
+
+enhancer_encode:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('encode_enhancer') == True"
+  tool_categories:
+    - regulatory
+  x_label: "Top N enhancer (pELS & dELS) variants"
+
+promoter_encode:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('encode_promoter') == True"
+  tool_categories:
+    - regulatory
+  x_label: "Top N promoter (PLS & CA-H3K4me3) variants"
+
+tf_encode:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('encode_any_tf') == True"
+  tool_categories:
+    - regulatory
+  x_label: "Top N TF binding region (TC & CA-TF) variants"
+
+core_promoter:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('promoterai_is_na') == False"
+  tool_categories:
+    - regulatory
+  x_label: "Top N core promoter variants"
