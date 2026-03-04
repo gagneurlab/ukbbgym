@@ -11,7 +11,7 @@ missense_structured:
     - "pl.col('ted_domain') == True"
   tool_categories:
     - missense
-  x_label: "Dtructured domain (missense)"
+  x_label: "Structured domain (missense)"
 
 missense_non_structured:
   variant_filtering:
