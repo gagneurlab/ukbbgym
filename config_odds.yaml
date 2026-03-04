@@ -60,17 +60,25 @@ rare_variant_annotations:
       label: "CADD Raw"
 
   conservation:
-    # gpn_star_llr_calibrated_mean: 
-    #   color: "#942c80"
-    #   label: "GPN-Star"
-    #   direction: -1
     gpn_score: 
-      color: "pink"
+      color: "#D81B60"  # Vibrant Magenta/Pink-Purple
       label: "GPN-MSA"
       direction: -1
     verphylop: 
-      color: "#483D8B"  # Dark Slate Blue
+      color: "#08306B"  # Darkest Blue
       label: "Vertebrate PhyloP"
+    mamphylop: 
+      color: "#2879B9"  # Medium Blue
+      label: "Mammalian PhyloP"
+    priphylop: 
+      color: "#73B3D8"  # Light Blue
+      label: "Primate PhyloP"
+    zooverphylop:
+      color: "#3F007D"  # Darkest Purple
+      label: "Zoonomia Vertebrate PhyloP"
+    zoopriphylop:
+      color: "#807DBA"  # Medium-Light Purple
+      label: "Zoonomia Primate PhyloP"
 
   splicing:
     delta_score:
