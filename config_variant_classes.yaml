@@ -43,7 +43,6 @@ intron:
     - "pl.col('consequence_intron_variant') == True"
   tool_categories:
     - splicing
-    - conservation
   x_label: "Intronic"
 
 enhancer_encode:
@@ -80,3 +79,16 @@ core_promoter:
   tool_categories:
     - regulatory
   x_label: "Core promoter"
+
+all_variants:
+  variant_filtering:
+  tool_categories:
+    - conservation
+  x_label: "All"
+
+all_non_coding:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+  tool_categories:
+    - conservation
+  x_label: "All non-coding"
