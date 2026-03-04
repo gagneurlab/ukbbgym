@@ -7,14 +7,14 @@ rare_variant_annotations:
   missense:
     # YELLOWS - ClinVar-based tools (curated databases)
     clinpred_score:
-      color: "#FFFF00"  # Pure Bright Yellow
+      color: "#FFDC80"  # Pale Yellow (lighter end)
+      # color: "#FFFF00"  # Pure Bright Yellow
       label: "ClinPred"
     bayes_del:
-      color: "#FFDC80"  # Pale Yellow (lighter end)
-      # color: "#FFBF00"  # Gold Yellow
+      color: "#FFBF00"  # Gold Yellow
       label: "BayesDel"
     polyphen:
-      color: "#FFA000"  # Orange
+      color: "#FF90AA"  # Pink
       label: "PolyPhen2"
     revel_score:
       color: "#FF7000"  # Dark Orange
@@ -25,14 +25,14 @@ rare_variant_annotations:
       color: "#E63946"  # Crimson Red
       label: "AlphaMissense"
     cpt1_llr:
-      color: "#8B0000"  # Dark Red
+      color: "#AF0000"  # Dark Red
       label: "CPT-1"
     esmscoremissense:
-      color: "#8B4513"  # Saddle Brown 
+      color: "#CD853F"  # Peru Brown 
       label: "ESM1v"
       direction: -1
     esm1b_llr:
-      color: "#CD853F"  # Peru Brown
+      color: "#8B4513"  # Saddle Brown
       label: "ESM1b"
       direction: -1
     # eve_score:
@@ -49,11 +49,9 @@ rare_variant_annotations:
     #   label: "pop-adj-EVE"
     #   direction: -1
     # pop_adj_esm1v:
-    #   
     #   label: "pop-adj-ESM1v"
     #   direction: -1
     # score_pai3d: 
-    #   
     #   label: "PrimateAI-3D"
 
   genetic_diversity:
@@ -103,10 +101,10 @@ rare_variant_annotations:
       # direction: -1
 
   regulatory:
-    promoterai:
-      color: "#00A99D"
-      label: "PromoterAI"
-      direction: -1
+    # promoterai:
+    #   color: "#00A99D"
+    #   label: "PromoterAI"
+    #   direction: -1
     promoterai_under:
       color: "#00A99D"
       label: "PromoterAI"
