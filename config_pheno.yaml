@@ -276,3 +276,18 @@ rare_variant_annotations:
     abexp_abs_max:
       color: "#80CBC4"  # Pale Teal (Low/Min)
       label: "AbExp abs max"
+  
+  regulatory:
+    promoterai_under:
+      color: "#00A99D"
+      label: "PromoterAI"
+    fz_all_min:
+      color: "salmon"
+      label: "Flashzoi min across\n all RNA tracks"
+    fz_gtex_min:
+      color: "salmon"
+      label: "Flashzoi min across\n all RNA tracks"
+    # abexp_min:
+    #   color: "#00A99D"
+    #   label: "AbExp min"
+    #   direction: -1
