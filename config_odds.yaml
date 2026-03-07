@@ -61,24 +61,31 @@ rare_variant_annotations:
 
   conservation:
     gpn_score: 
-      color: "#D81B60"  # Vibrant Magenta/Pink-Purple
-      label: "GPN-MSA"
-      direction: -1
+        color: "#D81B60"  # Vibrant Magenta/Pink-Purple
+        label: "GPN-MSA"
+        direction: -1
+    # Vertebrates - Blues
     verphylop: 
       color: "#08306B"  # Darkest Blue
       label: "Vertebrate PhyloP"
-    mamphylop: 
-      color: "#2879B9"  # Medium Blue
-      label: "Mammalian PhyloP"
-    priphylop: 
-      color: "#73B3D8"  # Light Blue
-      label: "Primate PhyloP"
     zooverphylop:
-      color: "#3F007D"  # Darkest Purple
+      color: "#2879B9"  # Medium Blue
       label: "Zoonomia Vertebrate PhyloP"
+    
+    # Mammals - Teals/Cyans
+    mamphylop: 
+      color: "#006B6B"  # Teal
+      label: "Mammalian PhyloP"
+    
+    # Primates - Purples
+    priphylop:
+      color: "#3F007D"  # Darkest Purple
+      label: "Primate PhyloP"
     zoopriphylop:
       color: "#807DBA"  # Medium-Light Purple
       label: "Zoonomia Primate PhyloP"
+
+    
 
   splicing:
     delta_score:
@@ -110,42 +117,42 @@ rare_variant_annotations:
 
   regulatory:
     # promoterai:
-    #   color: "#00A99D"
+    #   color: "#1f77b4"
     #   label: "PromoterAI"
     #   direction: -1
     promoterai_under:
-      color: "#00A99D"
+      color: "#1f77b4"
       label: "PromoterAI"
       direction: -1
     promoterai_over:
-      color: "#00A99D"
+      color: "#1f77b4"
       label: "PromoterAI"
       # direction: -1
-    abexp_min:
-      color: "#b5de2b"
-      label: "AbExp min"
-      direction: -1
-    abexp_max:
-      color: "#b5de2b"
-      label: "AbExp max"
-      # direction: -1
-    fz_all_mean:
-      color: "#1f77b4"
-      label: "Flashzoi mean\nacross RNA (all)"
-    fz_blood_min:
-      color: "crimson"
+    
+    # Flashzoi - Yellow-Green
+    fz_gtex_min:
+      color: "#558B2F"
       label: "Flashzoi min\nacross RNA (blood)"
       direction: -1
+    fz_gtex_max:
+      color: "#558B2F"
+      label: "Flashzoi max\nacross RNA (blood)"
     fz_all_min:
-      color: "#FFA500"  # Orange (uSTOP Gained)
+      color: "#7CB342"
       label: "Flashzoi min\nacross RNA (all)"
       direction: -1
-    fz_blood_max:
-      color: "crimson"
-      label: "Flashzoi max\nacross RNA (blood)"
     fz_all_max:
-      color: "#FFA500"  # Orange (uSTOP Gained)
+      color: "#7CB342"
       label: "Flashzoi max\nacross RNA (all)"
+    
+    # AbExp - Purple
+    abexp_min:
+      color: "#00A99D"
+      label: "AbExp min"
+    abexp_max:
+      color: "#9467BD"
+      label: "AbExp max"
+      direction: -1
   
   # naive:
   #   relative_cds_position:
