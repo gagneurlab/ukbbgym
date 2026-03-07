@@ -121,36 +121,37 @@ rare_variant_annotations:
     #   label: "PromoterAI"
     #   direction: -1
     promoterai_under:
-      color: "#1f77b4"
+      color: "#FFA500"
       label: "PromoterAI"
       direction: -1
     promoterai_over:
-      color: "#1f77b4"
+      color: "#FFA500"
       label: "PromoterAI"
       # direction: -1
     
     # Flashzoi - Yellow-Green
     fz_gtex_min:
-      color: "#558B2F"
-      label: "Flashzoi min\nacross RNA (blood)"
+      color: "#00A99D" #"#558B2F"
+      label: "Flashzoi min\nacross RNA (GTEx)"
       direction: -1
     fz_gtex_max:
-      color: "#558B2F"
-      label: "Flashzoi max\nacross RNA (blood)"
+      color: "#00A99D" #"#558B2F"
+      label: "Flashzoi max\nacross RNA (GTEx)"
     fz_all_min:
-      color: "#7CB342"
+      color: "#9467BD"
       label: "Flashzoi min\nacross RNA (all)"
       direction: -1
     fz_all_max:
-      color: "#7CB342"
+      color: "#9467BD"
       label: "Flashzoi max\nacross RNA (all)"
     
     # AbExp - Purple
     abexp_min:
-      color: "#00A99D"
+      # color: 
+      color: "#1f77b4"
       label: "AbExp min"
     abexp_max:
-      color: "#9467BD"
+      color: "#7CB342"
       label: "AbExp max"
       direction: -1
   
