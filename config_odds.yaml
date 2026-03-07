@@ -131,18 +131,18 @@ rare_variant_annotations:
     
     # Flashzoi - Yellow-Green
     fz_gtex_min:
-      color: "#00A99D" #"#558B2F"
+      color: "#9467BD"
       label: "Flashzoi min\nacross RNA (GTEx)"
       direction: -1
     fz_gtex_max:
-      color: "#00A99D" #"#558B2F"
+      color: "#9467BD" #"#558B2F"
       label: "Flashzoi max\nacross RNA (GTEx)"
     fz_all_min:
-      color: "#9467BD"
+      color: "#00A99D"
       label: "Flashzoi min\nacross RNA (all)"
       direction: -1
     fz_all_max:
-      color: "#9467BD"
+      color: "#00A99D"
       label: "Flashzoi max\nacross RNA (all)"
     
     # AbExp - Purple
