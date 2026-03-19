@@ -96,22 +96,6 @@ rare_variant_annotations:
     bayes_del:
       color: "#feb72d"
       label: "BayesDel"
-    popeve_score:
-      color: "#feb72d"
-      label: "popEVE"
-      direction: -1
-    eve_score:
-      color: "#feb72d"
-      label: "EVE"
-      direction: -1
-    pop_adj_eve:
-      color: "#feb72d"
-      label: "pop-adj-EVE"
-      direction: -1
-    pop_adj_esm1v:
-      color: "#feb72d"
-      label: "pop-adj-ESM1v"
-      direction: -1
     # score_pai3d: 
     #   color: "#feb72d"
     #   label: "PrimateAI-3D"
@@ -175,14 +159,13 @@ rare_variant_annotations:
       label: "AbSplice2 (max)"
   
   regulatory:
-    promoterai:
+    promoterai_abs: 
+      color: "#1f77b4"
+      label: "PromoterAI abs"
+    promoterai_under:
       color: "#1f77b4"
       label: "PromoterAI"
       direction: -1
-    # promoterai_under:
-    #   color: "#00A99D"
-    #   label: "PromoterAI"
-    #   direction: -1
     abexp_min:
       color: "#1f77b4"
       label: "AbExp min"
@@ -190,6 +173,10 @@ rare_variant_annotations:
     fz_all_min:
       color: "#1f77b4"
       label: "Flashzoi min\nacross RNA (all)"
+      direction: -1
+    fz_gtex_min:
+      color: "salmon"
+      label: "Flashzoi min across\n all RNA tracks"
       direction: -1
 
   5utr:
@@ -276,18 +263,3 @@ rare_variant_annotations:
     abexp_abs_max:
       color: "#80CBC4"  # Pale Teal (Low/Min)
       label: "AbExp abs max"
-  
-  regulatory:
-    promoterai_under:
-      color: "#00A99D"
-      label: "PromoterAI"
-    fz_all_min:
-      color: "salmon"
-      label: "Flashzoi min across\n all RNA tracks"
-    fz_gtex_min:
-      color: "salmon"
-      label: "Flashzoi min across\n all RNA tracks"
-    # abexp_min:
-    #   color: "#00A99D"
-    #   label: "AbExp min"
-    #   direction: -1
