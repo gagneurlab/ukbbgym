@@ -72,6 +72,15 @@ tf_encode:
     - regulatory
   x_label: "TF binding region (TC & CA-TF)"
 
+proximal_promoter:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('promoterai_is_na') == False"
+  tool_categories:
+    - regulatory
+  x_label: "Core promoter"
+
 core_promoter:
   variant_filtering:
     - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
