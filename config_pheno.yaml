@@ -130,28 +130,28 @@ rare_variant_annotations:
 
   conservation:
     gpn_score: 
-        color: "#D81B60"  # Vibrant Magenta/Pink-Purple
+        color: "#942C80"  # Vibrant Magenta/Pink-Purple
         label: "GPN-MSA"
         direction: -1
     # Vertebrates - Blues
     verphylop: 
-      color: "#08306B"  # Darkest Blue
+      color: "#942C80"  # Darkest Blue
       label: "Vertebrate PhyloP"
     zooverphylop:
-      color: "#2879B9"  # Medium Blue
+      color: "#942C80"  # Medium Blue
       label: "Zoonomia Vertebrate PhyloP"
     
     # Mammals - Teals/Cyans
     mamphylop: 
-      color: "#006B6B"  # Teal
+      color: "#942C80"  # Teal
       label: "Mammalian PhyloP"
     
     # Primates - Purples
     priphylop:
-      color: "#3F007D"  # Darkest Purple
+      color: "#942C80"  # Darkest Purple
       label: "Primate PhyloP"
     zoopriphylop:
-      color: "#807DBA"  # Medium-Light Purple
+      color: "#942C80"  # Medium-Light Purple
       label: "Zoonomia Primate PhyloP"
 
   splicing:
