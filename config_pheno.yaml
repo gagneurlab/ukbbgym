@@ -156,37 +156,37 @@ rare_variant_annotations:
 
   splicing:
     pangolin_score:
-      color: "#28a745"
+      color: "#28A745"
       label: "Pangolin"
     delta_score:
-      color: "#28a745"
+      color: "#28A745"
       label: "SpliceAI"
     # absplice_dna_max:
-    #   color: "#28a745"
+    #   color: "#28A745"
     #   label: "AbSplice (max)"
     absplice2_max:
-      color: "#28a745"
+      color: "#28A745"
       label: "AbSplice2 (max)"
   
   regulatory:
     promoterai_abs: 
-      color: "#1f77b4"
+      color: "#1F77B4"
       label: "PromoterAI abs"
     promoterai_under:
-      color: "#1f77b4"
+      color: "#1F77B4"
       label: "PromoterAI"
       direction: -1
     abexp_min:
-      color: "#1f77b4"
+      color: "#1F77B4"
       label: "AbExp min"
       direction: -1
     fz_all_min:
-      color: "#1f77b4"
+      color: "#1F77B4"
       label: "Flashzoi min\nacross RNA (all)"
       direction: -1
     fz_gtex_min:
-      color: "salmon"
-      label: "Flashzoi min across\n all RNA tracks"
+      color: "#1F77B4"
+      label: "Flashzoi min\nacross RNA (GTEx)"
       direction: -1
 
   5utr:
