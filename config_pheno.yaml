@@ -129,20 +129,30 @@ rare_variant_annotations:
       label: "Low Complexity Domain"
 
   conservation:
-    # gpn_star_llr_calibrated_mean: 
-    #   color: "#942c80"
-    #   label: "GPN-Star"
-    #   direction: -1
     gpn_score: 
-      color: "#942c80"
-      label: "GPN-MSA"
-      direction: -1
+        color: "#D81B60"  # Vibrant Magenta/Pink-Purple
+        label: "GPN-MSA"
+        direction: -1
+    # Vertebrates - Blues
     verphylop: 
-      color: "#942c80"
+      color: "#08306B"  # Darkest Blue
       label: "Vertebrate PhyloP"
-    # mamphylop: 
-    #   color: "#942c80"
-    #   label: "Mammalian PhyloP"
+    zooverphylop:
+      color: "#2879B9"  # Medium Blue
+      label: "Zoonomia Vertebrate PhyloP"
+    
+    # Mammals - Teals/Cyans
+    mamphylop: 
+      color: "#006B6B"  # Teal
+      label: "Mammalian PhyloP"
+    
+    # Primates - Purples
+    priphylop:
+      color: "#3F007D"  # Darkest Purple
+      label: "Primate PhyloP"
+    zoopriphylop:
+      color: "#807DBA"  # Medium-Light Purple
+      label: "Zoonomia Primate PhyloP"
 
   splicing:
     pangolin_score:
