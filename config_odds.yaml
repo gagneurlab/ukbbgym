@@ -61,7 +61,7 @@ rare_variant_annotations:
 
   conservation:
     gpn_score: 
-        color: "#D81B60"  # Vibrant Magenta/Pink-Purple
+        color: "#807DBA"  # Vibrant Magenta/Pink-Purple
         label: "GPN-MSA"
         direction: -1
     # Vertebrates - Blues
