@@ -11,6 +11,7 @@ missense_structured:
     - "pl.col('ted_domain') == True"
   tool_categories:
     - missense
+    - conservation
   x_label: "Structured domain (missense)"
 
 missense_non_structured:
@@ -19,6 +20,7 @@ missense_non_structured:
     - "pl.col('ted_domain') == False"
   tool_categories:
     - missense
+    - conservation
   x_label: "Non-structured domain (missense)"
 
 missense_disordered:
@@ -27,6 +29,7 @@ missense_disordered:
     - "pl.col('mobi_full_disorder_priority') == True"
   tool_categories:
     - missense
+    - conservation
   x_label: "Disordered domain (missense)"
 
 missense_lip:
@@ -35,6 +38,7 @@ missense_lip:
     - "pl.col('mobi_full_lip_priority') == True"
   tool_categories:
     - missense
+    - conservation
   x_label: "LIP domain (missense)"
 
 intron:

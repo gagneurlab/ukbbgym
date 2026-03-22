@@ -68,9 +68,9 @@ rare_variant_annotations:
     verphylop: 
       color: "#08306B"  # Darkest Blue
       label: "Vertebrate PhyloP"
-    zooverphylop:
-      color: "#2879B9"  # Medium Blue
-      label: "Zoonomia Vertebrate PhyloP"
+    # zooverphylop:
+    #   color: "#2879B9"  # Medium Blue
+    #   label: "Zoonomia Vertebrate PhyloP"
     
     # Mammals - Teals/Cyans
     mamphylop: 
@@ -81,11 +81,9 @@ rare_variant_annotations:
     priphylop:
       color: "#3F007D"  # Darkest Purple
       label: "Primate PhyloP"
-    zoopriphylop:
-      color: "#807DBA"  # Medium-Light Purple
-      label: "Zoonomia Primate PhyloP"
-
-    
+    # zoopriphylop:
+    #   color: "#807DBA"  # Medium-Light Purple
+    #   label: "Zoonomia Primate PhyloP"
 
   splicing:
     delta_score:
