@@ -48,6 +48,7 @@ intron:
     - "pl.col('consequence_intron_variant') == True"
   tool_categories:
     - splicing
+    - conservation
   x_label: "Intronic"
 
 enhancer_encode:
@@ -88,7 +89,7 @@ proximal_promoter:
   tool_categories:
     - regulatory
     - conservation
-  x_label: "Core promoter"
+  x_label: "Proximal promoter"
 
 core_promoter:
   variant_filtering:
