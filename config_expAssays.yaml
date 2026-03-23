@@ -39,6 +39,14 @@ rare_variant_annotations:
       color: "#66BB6A"  # Teal/Mint
       label: 'DMS (combined)'
       direction: -1
+    GCK_activity:
+      color: "#66BB6A"  # Light Green
+      label: 'GCK activity'
+      direction: -1
+    GCK_abundance:
+      color: "#81C784"  # Lighter Green
+      label: 'GCK abundance'
+      direction: -1
     LDL_uptake_functional:
       color: "#66BB6A"  # Light Green
       label: 'LDL uptake functional'
