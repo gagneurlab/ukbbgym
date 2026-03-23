@@ -35,8 +35,8 @@ rare_variant_annotations:
       color: "#66BB6A"  # Light Green
       label: 'DMS'
       direction: -1
-    DMS_score_combined:
-      color: "#4DB6AC"  # Teal/Mint
+    DMS_b:
+      color: "#66BB6A"  # Teal/Mint
       label: 'DMS (combined)'
       direction: -1
     LDL_uptake_functional:
