@@ -35,24 +35,6 @@ rare_variant_annotations:
       color: "#8B4513"  # Saddle Brown
       label: "ESM1b"
       direction: -1
-    # eve_score:
-    #   color: "#D62828"  # Deep Red
-    #   color: "#A0522D"  # Sienna Brown
-    #   label: "EVE"
-    #   direction: -1
-    # popeve_score:
-    #   color: "#FFBB00"  # Golden Yellow
-    #   label: "popEVE"
-    #   direction: -1
-    # pop_adj_eve:
-    #   color: "#C1121F"  # Darker Red
-    #   label: "pop-adj-EVE"
-    #   direction: -1
-    # pop_adj_esm1v:
-    #   label: "pop-adj-ESM1v"
-    #   direction: -1
-    # score_pai3d: 
-    #   label: "PrimateAI-3D"
 
   genetic_diversity:
     cadd_raw:
