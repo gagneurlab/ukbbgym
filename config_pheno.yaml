@@ -101,10 +101,13 @@ rare_variant_annotations:
     #   label: "PrimateAI-3D"
 
   protein_domains:
-    mobi_curated_disorder_priority:
+    # mobi_curated_disorder_priority:
+    #   color: "#E31A1C"  # Dark Red
+    #   label: "Disordered Domain"
+    mobi_full_disorder_priority:
       color: "#E31A1C"  # Dark Red
       label: "Disordered Domain"
-    mobi_lip_full:
+    mobi_full_lip_priority:
       color: "#1E90FF"  # Dodger Blue
       label: "Linear Interacting Peptides"
     ted_domain:
