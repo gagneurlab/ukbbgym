@@ -52,9 +52,9 @@ rare_variant_annotations:
     consequence_stop_lost:
       color: "#FFB300"  # Golden Yellow
       label: "VEP Stop Lost"
-    loftee_lc:
-      color: "#C6DBEF" # light blue
-      label: "LOFTEE LC"
+    # loftee_lc:
+    #   color: "#C6DBEF" # light blue
+    #   label: "LOFTEE LC"
     # loftee_hc:
     #   color: "#1E90FF"  # Dodger Blue
     #   label: "LOFTEE HC"
@@ -101,6 +101,12 @@ rare_variant_annotations:
     #   label: "PrimateAI-3D"
 
   protein_domains:
+    ted_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    non_ted_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "Non Structured Domain"
     # mobi_curated_disorder_priority:
     #   color: "#E31A1C"  # Dark Red
     #   label: "Disordered Domain"
@@ -110,9 +116,6 @@ rare_variant_annotations:
     mobi_full_lip_priority:
       color: "#1E90FF"  # Dodger Blue
       label: "Linear Interacting Peptides"
-    ted_domain:
-      color: "#2E8B57"  # Sea Green
-      label: "Structured Domain"
     low_complexity_domain:
       color: "#FF9933"  # Amber/Dark Orange
       label: "Low Complexity Domain"
