@@ -255,41 +255,67 @@ rare_variant_annotations:
     encode_ca_tf:
       color: "#1D6498"
       label: "Accessible Region with TF Binding"
-
-  vep_consequences:
-    consequence_frameshift_variant:
-      color: "#E31A1C"  # Dark Red
-      label: "VEP Frameshift"
-    consequence_stop_gained:
-      color: "#FB9A99"  # Light Red
-      label: "VEP Stop Gained"
-    consequence_splice_donor_variant:
-      color: "#6A1B9A"  # Deep Purple
-      label: "VEP Splice Donor"
-    consequence_splice_acceptor_variant:
-      color: "#AB47BC"  # Lighter Orchid/Purple
-      label: "VEP Splice Acceptor"
-    # --- Start/Stop Lost Family (Oranges/Gold) ---
-    consequence_start_lost:
-      color: "#E65100"  # Dark Orange
-      label: "VEP Start Lost"
-    consequence_stop_lost:
-      color: "#FFB300"  # Golden Yellow
-      label: "VEP Stop Lost"
-    consequence_missense_variant:
-      color: "#1E90FF"  # Dodger Blue
-      label: "VEP Missense"
-    consequence_synonymous_variant:
-      color: "#C6DBEF" # light blue
-      label: "VEP Synonymous"
   
-  naive:
-    relative_cds_position:
-      color: "#b5de2b"
-      label: "Relative CDS\nPosition"
-      direction: -1
+  indel_lengths:
+    1bp_del:
+      color: "#C6DBEF"
+      label: "1bp deletion"
+    1bp_ins:
+      color: "#C6DBEF"
+      label: "1bp insertion"
+    2_5bp_del:
+      color: "#C6DBEF"
+      label: "2-5bp deletion"
+    2_5bp_ins:
+      color: "#C6DBEF"
+      label: "2-5bp insertion"
+    gt_5bp_del:
+      color: "#C6DBEF"
+      label: ">5bp deletion"
+    gt_5bp_ins:
+      color: "#C6DBEF"
+      label: ">5bp insertion"
 
-  regulatory_nondir:
-    abexp_abs_max:
-      color: "#80CBC4"  # Pale Teal (Low/Min)
-      label: "AbExp abs max"
+  coding_indels:
+    inframe_deletion:
+      color: "#C6DBEF"
+      label: "inframe deletion"
+    inframe_insertion:
+      color: "#C6DBEF"
+      label: "inframe insertion"
+    consequence_synonymous_variant:
+      color: "#C6DBEF"
+      label: "synonymous"
+    consequence_missense_variant:
+      color: "#C6DBEF"
+      label: "missense"
+    loftee_hc:
+      color: "#1E90FF"  # Dodger Blue
+      label: "LOFTEE HC"
+
+  # vep_consequences:
+  #   consequence_frameshift_variant:
+  #     color: "#E31A1C"  # Dark Red
+  #     label: "VEP Frameshift"
+  #   consequence_stop_gained:
+  #     color: "#FB9A99"  # Light Red
+  #     label: "VEP Stop Gained"
+  #   consequence_splice_donor_variant:
+  #     color: "#6A1B9A"  # Deep Purple
+  #     label: "VEP Splice Donor"
+  #   consequence_splice_acceptor_variant:
+  #     color: "#AB47BC"  # Lighter Orchid/Purple
+  #     label: "VEP Splice Acceptor"
+  #   # --- Start/Stop Lost Family (Oranges/Gold) ---
+  #   consequence_start_lost:
+  #     color: "#E65100"  # Dark Orange
+  #     label: "VEP Start Lost"
+  #   consequence_stop_lost:
+  #     color: "#FFB300"  # Golden Yellow
+  #     label: "VEP Stop Lost"
+  #   consequence_missense_variant:
+  #     color: "#1E90FF"  # Dodger Blue
+  #     label: "VEP Missense"
+  #   consequence_synonymous_variant:
+  #     color: "#C6DBEF" # light blue
+  #     label: "VEP Synonymous"

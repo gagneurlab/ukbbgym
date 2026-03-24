@@ -113,3 +113,10 @@ all_non_coding:
   tool_categories:
     - conservation
   x_label: "All non-coding"
+
+all_coding:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==True)"
+  tool_categories:
+    - conservation
+  x_label: "All coding"
