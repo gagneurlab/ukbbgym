@@ -29,30 +29,30 @@ covariates:
 rare_variant_annotations:
   exp_assays:
     scaled_fitness:
-      color: "#66BB6A"  # Light Green
+      color: "#66BB6A"
       label: 'aPCA fitness'
     DMS:
-      color: "#66BB6A"  # Light Green
+      color: "#66BB6A"
       label: 'DMS'
       direction: -1
     DMS_b:
-      color: "#66BB6A"  # Teal/Mint
-      label: 'DMS (combined)'
+      color: "#66BB6A"
+      label: 'DMS'
       direction: -1
     GCK_activity:
-      color: "#66BB6A"  # Light Green
+      color: "#66BB6A"
       label: 'GCK activity'
       direction: -1
     GCK_abundance:
-      color: "#81C784"  # Lighter Green
+      color: "#81C784"
       label: 'GCK abundance'
       direction: -1
     LDL_uptake_functional:
-      color: "#66BB6A"  # Light Green
+      color: "#66BB6A"
       label: 'LDL uptake functional'
       direction: -1
     LDLR_cell_surface_abundance:
-      color: "#81C784"  # Lighter Green
+      color: "#81C784"
       label: 'LDLR cell surface abundance'
       direction: -1
 
