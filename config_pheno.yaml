@@ -59,6 +59,20 @@ rare_variant_annotations:
     #   color: "#1E90FF"  # Dodger Blue
     #   label: "LOFTEE HC"
   
+  clinvar:
+    clinvar_patho:
+      color: "#1E90FF"  # Dodger Blue
+      label: "ClinVar Pathogenic"
+    clinvar_likely_patho:
+      color: "#1E90FF"  # Dodger Blue
+      label: "ClinVar Likely Pathogenic"
+    clinvar_benign:
+      color: "#1E90FF"  # Dodger Blue
+      label: "ClinVar Benign"
+    clinvar_likely_benign:
+      color: "#1E90FF"  # Dodger Blue
+      label: "ClinVar Likely Benign"
+
   dubious_plof:
     start_stop_lost:
       color: "#C6DBEF" # light blue
