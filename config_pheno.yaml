@@ -292,6 +292,23 @@ rare_variant_annotations:
     loftee_hc:
       color: "#1E90FF"  # Dodger Blue
       label: "LOFTEE HC"
+    
+  non_coding_regions:
+    core_promoter:
+      color: "#00A99D"
+      label: "Core promoter (TSS±50bp)"
+    proximal_promoter:
+      color: "#00A99D"
+      label: "Proximal promoter (TSS±500bp)"
+    encode_promoter:
+      color: "#FF8C00"
+      label: "Promoter region (ENCODE)"
+    encode_enhancer:
+      color: "#1D6498"
+      label: "Enhancer region (ENCODE)"
+    encode_any_tf:
+      color: "#41AB5D"  # Medium Green
+      label: "TF binding region (ENCODE)"
 
   # vep_consequences:
   #   consequence_frameshift_variant:
