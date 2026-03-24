@@ -94,8 +94,8 @@ proximal_promoter:
 core_promoter:
   variant_filtering:
     - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('dist2tssv39').abs() <= 50"
     - "pl.col('pangolin_score') < 0.2"
-    - "pl.col('dist2tss_gencode39').abs() <= 50"
   tool_categories:
     - regulatory
     - conservation
