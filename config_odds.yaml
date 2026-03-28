@@ -134,6 +134,13 @@ rare_variant_annotations:
       color: "#7CB342"
       label: "AbExp max"
       direction: -1
+    
+    abs_zscore_diff:
+      color: "#1f77b4"
+      label: 'AG abs score diff'
+    abs_delta_log10_median_of_exon_medians:
+      color: "#7CB342"
+      label: 'AG delta log10(median)'
   
   # naive:
   #   relative_cds_position:
