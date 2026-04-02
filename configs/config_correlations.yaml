@@ -27,11 +27,17 @@ covariates:
   - genetic_pc_20
 
 correlation_categories:
-  plof: "#C73E3A"   #(crimson)
-  missense: "#F4B942"   #(amber)
-  splicing: "#2A9D8F"   #(teal)
-  conservation: "#7B6D8D"   #(mauve)
-  regulatory: "#4A90A4"   #(ocean blue)
+  plof: "#fb9a99"
+  missense: "#fdbf6f"
+  splicing: "#b2df8a" #"#b3de69"
+  conservation: "#cab2d6"
+  regulatory: "#a6cee3"
+# correlation_categories:
+#   plof: "#fb8072"
+#   missense: "#fdb462"
+#   splicing: "#b3de69"
+#   conservation: "#bc80bd"
+#   regulatory: "#80b1d3"
 
 rare_variant_annotations:
   plof:
@@ -103,9 +109,9 @@ rare_variant_annotations:
     delta_score:
       color: "#28A745"
       label: "SpliceAI"
-    # absplice_dna_max:
-    #   color: "#28A745"
-    #   label: "AbSplice (max)"
+    absplice_dna_max:
+      color: "#28A745"
+      label: "AbSplice (max)"
     absplice2_max:
       color: "#28A745"
       label: "AbSplice2 (max)"
