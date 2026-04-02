@@ -290,7 +290,7 @@ rare_variant_annotations:
       color: "#C6DBEF"
       label: "missense"
     loftee_hc:
-      color: "#1E90FF"  # Dodger Blue
+      color: "#E31A1C"  # Dodger Blue
       label: "LOFTEE HC"
     
   non_coding_regions:
