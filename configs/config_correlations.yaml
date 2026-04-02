@@ -26,62 +26,18 @@ covariates:
   - genetic_pc_19
   - genetic_pc_20
 
+correlation_categories:
+  plof: "#C73E3A"   #(crimson)
+  missense: "#F4B942"   #(amber)
+  splicing: "#2A9D8F"   #(teal)
+  conservation: "#7B6D8D"   #(mauve)
+  regulatory: "#4A90A4"   #(ocean blue)
+
 rare_variant_annotations:
   plof:
     loftee_hc:
       color: "#E31A1C" # Dark Red
       label: "LOFTEE HC"
-
-  plof_consequences:
-    consequence_frameshift_variant:
-      color: "#E31A1C"  # Dark Red
-      label: "VEP Frameshift"
-    consequence_stop_gained:
-      color: "#FB9A99"  # Light Red
-      label: "VEP Stop Gained"
-    consequence_splice_donor_variant:
-      color: "#6A1B9A"  # Deep Purple
-      label: "VEP Splice Donor"
-    consequence_splice_acceptor_variant:
-      color: "#AB47BC"  # Lighter Orchid/Purple
-      label: "VEP Splice Acceptor"
-    # --- Start/Stop Lost Family (Oranges/Gold) ---
-    consequence_start_lost:
-      color: "#E65100"  # Dark Orange
-      label: "VEP Start Lost"
-    consequence_stop_lost:
-      color: "#FFB300"  # Golden Yellow
-      label: "VEP Stop Lost"
-    # loftee_lc:
-    #   color: "#C6DBEF" # light blue
-    #   label: "LOFTEE LC"
-    # loftee_hc:
-    #   color: "#1E90FF"  # Dodger Blue
-    #   label: "LOFTEE HC"
-  
-  clinvar:
-    clinvar_patho:
-      color: "#1E90FF"  # Dodger Blue
-      label: "ClinVar Pathogenic"
-    clinvar_likely_patho:
-      color: "#1E90FF"  # Dodger Blue
-      label: "ClinVar Likely Pathogenic"
-    clinvar_benign:
-      color: "#1E90FF"  # Dodger Blue
-      label: "ClinVar Benign"
-    clinvar_likely_benign:
-      color: "#1E90FF"  # Dodger Blue
-      label: "ClinVar Likely Benign"
-
-  dubious_plof:
-    start_stop_lost:
-      color: "#C6DBEF" # light blue
-      label: "Start/Stop Lost"
-
-  genetic_diversity:
-    cadd_raw:
-      color: "chocolate"
-      label: "CADD Raw"
 
   missense:
     am_pathogenicity: 
@@ -113,40 +69,6 @@ rare_variant_annotations:
     # score_pai3d: 
     #   color: "#feb72d"
     #   label: "PrimateAI-3D"
-
-  protein_domains:
-    ted_domain:
-      color: "#2E8B57"  # Sea Green
-      label: "Structured Domain"
-    non_ted_domain:
-      color: "#2E8B57"  # Sea Green
-      label: "Non Structured Domain"
-    # mobi_curated_disorder_priority:
-    #   color: "#E31A1C"  # Dark Red
-    #   label: "Disordered Domain"
-    mobi_full_disorder_priority:
-      color: "#E31A1C"  # Dark Red
-      label: "Disordered Domain"
-    mobi_full_lip_priority:
-      color: "#1E90FF"  # Dodger Blue
-      label: "Linear Interacting Peptides"
-    low_complexity_domain:
-      color: "#FF9933"  # Amber/Dark Orange
-      label: "Low Complexity Domain"
-  
-  loftee_protein_domains:
-    loftee_disorder:
-      color: "#E31A1C"  # Dark Red
-      label: "Disordered Domain"
-    loftee_lip:
-      color: "#1E90FF"  # Dodger Blue
-      label: "Linear Interacting Peptides"
-    loftee_ted:
-      color: "#2E8B57"  # Sea Green
-      label: "Structured Domain"
-    loftee_low_complexity:
-      color: "#FF9933"  # Amber/Dark Orange
-      label: "Low Complexity Domain"
 
   conservation:
     gpn_score: 
@@ -208,6 +130,92 @@ rare_variant_annotations:
       color: "#1F77B4"
       label: "Flashzoi min\nacross RNA (GTEx)"
       direction: -1
+
+  # Other annotations
+  genetic_diversity:
+    cadd_raw:
+      color: "chocolate"
+      label: "CADD Raw"
+
+  plof_consequences:
+    consequence_frameshift_variant:
+      color: "#E31A1C"  # Dark Red
+      label: "VEP Frameshift"
+    consequence_stop_gained:
+      color: "#FB9A99"  # Light Red
+      label: "VEP Stop Gained"
+    consequence_splice_donor_variant:
+      color: "#6A1B9A"  # Deep Purple
+      label: "VEP Splice Donor"
+    consequence_splice_acceptor_variant:
+      color: "#AB47BC"  # Lighter Orchid/Purple
+      label: "VEP Splice Acceptor"
+    # --- Start/Stop Lost Family (Oranges/Gold) ---
+    consequence_start_lost:
+      color: "#E65100"  # Dark Orange
+      label: "VEP Start Lost"
+    consequence_stop_lost:
+      color: "#FFB300"  # Golden Yellow
+      label: "VEP Stop Lost"
+    # loftee_lc:
+    #   color: "#C6DBEF" # light blue
+    #   label: "LOFTEE LC"
+    # loftee_hc:
+    #   color: "#1E90FF"  # Dodger Blue
+    #   label: "LOFTEE HC"
+  
+  clinvar:
+    clinvar_patho:
+      color: "#1E90FF"  # Dodger Blue
+      label: "ClinVar Pathogenic"
+    clinvar_likely_patho:
+      color: "#1E90FF"  # Dodger Blue
+      label: "ClinVar Likely Pathogenic"
+    clinvar_benign:
+      color: "#1E90FF"  # Dodger Blue
+      label: "ClinVar Benign"
+    clinvar_likely_benign:
+      color: "#1E90FF"  # Dodger Blue
+      label: "ClinVar Likely Benign"
+
+  dubious_plof:
+    start_stop_lost:
+      color: "#C6DBEF" # light blue
+      label: "Start/Stop Lost"
+
+  protein_domains:
+    ted_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    non_ted_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "Non Structured Domain"
+    # mobi_curated_disorder_priority:
+    #   color: "#E31A1C"  # Dark Red
+    #   label: "Disordered Domain"
+    mobi_full_disorder_priority:
+      color: "#E31A1C"  # Dark Red
+      label: "Disordered Domain"
+    mobi_full_lip_priority:
+      color: "#1E90FF"  # Dodger Blue
+      label: "Linear Interacting Peptides"
+    low_complexity_domain:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "Low Complexity Domain"
+  
+  loftee_protein_domains:
+    loftee_disorder:
+      color: "#E31A1C"  # Dark Red
+      label: "Disordered Domain"
+    loftee_lip:
+      color: "#1E90FF"  # Dodger Blue
+      label: "Linear Interacting Peptides"
+    loftee_ted:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    loftee_low_complexity:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "Low Complexity Domain"
 
   5utr:
     five_prime_utr_variant_consequence_uaug_gained:
