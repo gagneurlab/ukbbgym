@@ -1,0 +1,149 @@
+rare_variant_annotations:
+  # plof:
+  #   loftee_hc:
+  #     color: "#DD4344"
+  #     label: "LOFTEE HC"
+      
+  missense:
+    # YELLOWS - ClinVar-based tools (curated databases)
+    clinpred_score:
+      color: "#FFDC80"  # Pale Yellow (lighter end)
+      # color: "#FFFF00"  # Pure Bright Yellow
+      label: "ClinPred"
+    bayes_del:
+      color: "#FFBF00"  # Gold Yellow
+      label: "BayesDel"
+    polyphen:
+      color: "#FF90AA"  # Pink
+      label: "PolyPhen2"
+    revel_score:
+      color: "#FF7000"  # Dark Orange
+      label: "REVEL"
+    
+    # BROWN/REDS - Curation-free tools (AI/evolutionary models)
+    am_pathogenicity:
+      color: "#E63946"  # Crimson Red
+      label: "AlphaMissense"
+    cpt1_llr:
+      color: "#AF0000"  # Dark Red
+      label: "CPT-1"
+    esmscoremissense:
+      color: "#CD853F"  # Peru Brown 
+      label: "ESM1v"
+      direction: -1
+    esm1b_llr:
+      color: "#8B4513"  # Saddle Brown
+      label: "ESM1b"
+      direction: -1
+
+  genetic_diversity:
+    cadd_raw:
+      color: "chocolate"
+      label: "CADD Raw"
+
+  conservation:
+    gpn_score: 
+        color: "#807DBA"  # Vibrant Magenta/Pink-Purple
+        label: "GPN-MSA"
+        direction: -1
+    # Vertebrates - Blues
+    verphylop: 
+      color: "#08306B"  # Darkest Blue
+      label: "Vertebrate PhyloP"
+    # zooverphylop:
+    #   color: "#2879B9"  # Medium Blue
+    #   label: "Zoonomia Vertebrate PhyloP"
+    
+    # Mammals - Teals/Cyans
+    mamphylop: 
+      color: "#006B6B"  # Teal
+      label: "Mammalian PhyloP"
+    
+    # Primates - Purples
+    priphylop:
+      color: "#3F007D"  # Darkest Purple
+      label: "Primate PhyloP"
+    # zoopriphylop:
+    #   color: "#807DBA"  # Medium-Light Purple
+    #   label: "Zoonomia Primate PhyloP"
+
+  splicing:
+    delta_score:
+      color: "#8BC34A"  # Bright Mint Green
+      label: "SpliceAI"
+    absplice_dna_max:
+      color: "#1B5E20"  # Very Dark Green
+      label: "AbSplice (max)"
+    pangolin_score:
+      color: "#26C6DA"  # Bright Cyan
+      label: "Pangolin"
+    absplice2_max:
+      color: "#00838F"  # Very Dark Teal
+      label: "AbSplice2 (max)"
+  
+  regulatory_nondir:
+    promoterai_abs:
+      color: "#80CBC4"  # Pale Teal (Low/Min)
+      label: "PromoterAI abs"
+    abexp_abs_max:
+      color: "#b5de2b"
+      label: "AbExp abs max"
+  
+  3utr:
+    aparent2:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "Aparent 2"
+      # direction: -1
+
+  regulatory:
+    # promoterai:
+    #   color: "#1f77b4"
+    #   label: "PromoterAI"
+    #   direction: -1
+    promoterai_under:
+      color: "#FFA500"
+      label: "PromoterAI"
+      direction: -1
+    promoterai_over:
+      color: "#FFA500"
+      label: "PromoterAI"
+      # direction: -1
+    
+    # Flashzoi - Yellow-Green
+    fz_gtex_min:
+      color: "#9467BD"
+      label: "Flashzoi min\nacross RNA (GTEx)"
+      direction: -1
+    fz_gtex_max:
+      color: "#9467BD" #"#558B2F"
+      label: "Flashzoi max\nacross RNA (GTEx)"
+    fz_all_min:
+      color: "#00A99D"
+      label: "Flashzoi min\nacross RNA (all)"
+      direction: -1
+    fz_all_max:
+      color: "#00A99D"
+      label: "Flashzoi max\nacross RNA (all)"
+    
+    # AbExp - Purple
+    abexp_min:
+      # color: 
+      color: "#1f77b4"
+      label: "AbExp min"
+    abexp_max:
+      color: "#7CB342"
+      label: "AbExp max"
+      direction: -1
+    
+    abs_zscore_diff:
+      color: "#1f77b4"
+      label: 'AG abs score diff'
+    abs_delta_log10_median_of_exon_medians:
+      color: "#7CB342"
+      label: 'AG delta log10(median)'
+  
+  # naive:
+  #   relative_cds_position:
+  #     color: "#b5de2b"
+  #     label: "Relative CDS\nPosition"
+  #     direction: -1

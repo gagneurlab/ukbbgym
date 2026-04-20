@@ -1,0 +1,48 @@
+{
+  "name": "correlations_olink",
+  "title": "Variant Annotation Correlations (Olink Proteomics)",
+  "inputSpec": [
+    {"name": "associations_parquet", "class": "file", "patterns": ["*.parquet"], "help": "Gene-protein associations with LOFTEE correlation direction. Columns: region, phenotype, correlation."},
+    {"name": "annotations_parquet", "class": "file", "patterns": ["*.parquet"], "help": "Variant annotations with all built-in scores. Columns: id, region, + score columns."},
+    {"name": "appv_parquet", "class": "file", "patterns": ["*.parquet"], "help": "Average protein per variant (PROTRIDER-corrected). Columns: id, phenotype, mean_pheno_value, n_individuals."},
+    {"name": "custom_scores_parquet", "class": "file", "optional": true, "patterns": ["*.parquet"], "help": "Custom model scores. Format: id + optional region + float columns per model."},
+    {"name": "model_labels", "class": "string", "optional": true, "help": "Comma-separated display names for custom score columns, in column order."},
+    {"name": "model_directions", "class": "string", "optional": true, "help": "Comma-separated 1 or -1 per custom model. Default: 1 for all."},
+    {"name": "fill_missing_scores", "class": "boolean", "optional": true, "default": false, "help": "If true, fill custom score nulls with 0.0. If false, variants without score excluded for that model."},
+    {"name": "annotation_categories", "class": "string", "optional": true, "default": "plof,missense,conservation,splicing,regulatory", "help": "Comma-separated annotation categories to include."},
+    {"name": "variant_class", "class": "string", "optional": true, "default": "all_variants", "help": "Preset variant class name from bundled config, or 'other'."},
+    {"name": "variant_class_config_yaml", "class": "file", "optional": true, "patterns": ["*.yaml", "*.yml"], "help": "Required if variant_class='other'. YAML in same format as bundled config."},
+    {"name": "annotation_config_yaml", "class": "file", "optional": true, "patterns": ["*.yaml", "*.yml"], "help": "Override bundled annotation config (label/color/direction per tool)."},
+    {"name": "mac_threshold", "class": "int", "optional": true, "default": 20, "help": "Max n_individuals per variant."},
+    {"name": "only_snps", "class": "boolean", "optional": true, "default": true, "help": "Exclude indels (ref/alt length > 1)."},
+    {"name": "only_clinvar", "class": "boolean", "optional": true, "default": false, "help": "Include only ClinVar-annotated variants."},
+    {"name": "exclude_clinvar", "class": "boolean", "optional": true, "default": false, "help": "Exclude ClinVar-annotated variants."}
+  ],
+  "outputSpec": [
+    {"name": "results_parquet", "class": "file", "patterns": ["*.parquet"]},
+    {"name": "boxplot_svg", "class": "file", "patterns": ["*.svg"]},
+    {"name": "heatmap_svg", "class": "file", "patterns": ["*.svg"]}
+  ],
+  "runSpec": {
+    "interpreter": "python3",
+    "version": "0",
+    "file": "correlations_olink.py",
+    "distribution": "Ubuntu",
+    "release": "24.04",
+    "execDepends": [
+      {"name": "polars==1.33.0", "package_manager": "pip"},
+      {"name": "scipy", "package_manager": "pip"},
+      {"name": "numpy", "package_manager": "pip"},
+      {"name": "plotnine", "package_manager": "pip"},
+      {"name": "pyyaml", "package_manager": "pip"}
+    ]
+  },
+  "regionalOptions": {
+    "aws:eu-west-2": {
+      "systemRequirements": {
+        "main": {"instanceType": "mem3_ssd1_v2_x16"}
+      }
+    }
+  },
+  "access": {"network": ["*"]}
+}

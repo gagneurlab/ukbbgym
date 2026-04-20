@@ -1,0 +1,51 @@
+{
+  "name": "top_n_vars_pheno",
+  "title": "Top-N Variant Benchmarking (Quantitative Traits)",
+  "inputSpec": [
+    {"name": "associations_parquet", "class": "file", "patterns": ["*.parquet"]},
+    {"name": "annotations_parquet", "class": "file", "patterns": ["*.parquet"]},
+    {"name": "appv_parquet", "class": "file", "patterns": ["*.parquet"]},
+    {"name": "custom_scores_parquet", "class": "file", "optional": true, "patterns": ["*.parquet"]},
+    {"name": "model_labels", "class": "string", "optional": true},
+    {"name": "model_directions", "class": "string", "optional": true},
+    {"name": "fill_missing_scores", "class": "boolean", "optional": true, "default": false},
+    {"name": "annotation_categories", "class": "string", "optional": true, "default": "plof,missense,conservation,splicing,regulatory"},
+    {"name": "variant_class", "class": "string", "optional": true, "default": "all_variants"},
+    {"name": "variant_class_config_yaml", "class": "file", "optional": true, "patterns": ["*.yaml", "*.yml"]},
+    {"name": "annotation_config_yaml", "class": "file", "optional": true, "patterns": ["*.yaml", "*.yml"]},
+    {"name": "mac_threshold", "class": "int", "optional": true, "default": 20},
+    {"name": "only_snps", "class": "boolean", "optional": true, "default": true},
+    {"name": "only_clinvar", "class": "boolean", "optional": true, "default": false},
+    {"name": "exclude_clinvar", "class": "boolean", "optional": true, "default": false},
+    {"name": "target_k", "class": "string", "optional": true, "default": "5,10", "help": "Comma-separated top-N window sizes."},
+    {"name": "max_gene_rank", "class": "int", "optional": true, "default": 50, "help": "Max rank depth for line plot."}
+  ],
+  "outputSpec": [
+    {"name": "cum_stats_parquet", "class": "file", "patterns": ["*.parquet"]},
+    {"name": "gene_topn_parquet", "class": "file", "patterns": ["*.parquet"]},
+    {"name": "lineplot_svg", "class": "file", "patterns": ["*.svg"]},
+    {"name": "heatmap_svg", "class": "file", "patterns": ["*.svg"]}
+  ],
+  "runSpec": {
+    "interpreter": "python3",
+    "version": "0",
+    "file": "top_n_vars_traits.py",
+    "distribution": "Ubuntu",
+    "release": "24.04",
+    "execDepends": [
+      {"name": "polars==1.33.0", "package_manager": "pip"},
+      {"name": "scipy", "package_manager": "pip"},
+      {"name": "numpy", "package_manager": "pip"},
+      {"name": "plotnine", "package_manager": "pip"},
+      {"name": "pyyaml", "package_manager": "pip"}
+    ]
+  },
+  "regionalOptions": {
+    "aws:eu-west-2": {
+      "systemRequirements": {
+        "main": {"instanceType": "mem3_ssd1_v2_x16"}
+      }
+    }
+  },
+  "access": {"network": ["*"]}
+}

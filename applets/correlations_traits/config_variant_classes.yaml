@@ -1,0 +1,122 @@
+missense:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "Missense"
+
+missense_structured:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('ted_domain') == True"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "Structured domain (missense)"
+
+missense_non_structured:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('ted_domain') == False"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "Non-structured domain (missense)"
+
+missense_disordered:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('mobi_full_disorder_priority') == True"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "Disordered domain (missense)"
+
+missense_lip:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('mobi_full_lip_priority') == True"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "LIP domain (missense)"
+
+intron:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('consequence_intron_variant') == True"
+  tool_categories:
+    - splicing
+    - conservation
+  x_label: "Intronic"
+
+enhancer_encode:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('encode_enhancer') == True"
+  tool_categories:
+    - regulatory
+    - conservation
+  x_label: "Enhancer (pELS & dELS)"
+
+promoter_encode:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('encode_promoter') == True"
+  tool_categories:
+    - regulatory
+    - conservation
+  x_label: "Promoter (PLS & CA-H3K4me3)"
+
+tf_encode:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('encode_any_tf') == True"
+  tool_categories:
+    - regulatory
+    - conservation
+  x_label: "TF binding region (TC & CA-TF)"
+
+proximal_promoter:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('promoterai_is_na') == False"
+  tool_categories:
+    - regulatory
+    - conservation
+  x_label: "Proximal promoter"
+
+core_promoter:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('dist2tssv39').abs() <= 50"
+    - "pl.col('pangolin_score') < 0.2"
+  tool_categories:
+    - regulatory
+    - conservation
+  x_label: "Core promoter"
+
+all_variants:
+  variant_filtering:
+  tool_categories:
+    - conservation
+  x_label: "All"
+
+all_non_coding:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+  tool_categories:
+    - conservation
+  x_label: "All non-coding"
+
+all_coding:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==True)"
+  tool_categories:
+    - conservation
+  x_label: "All coding"
