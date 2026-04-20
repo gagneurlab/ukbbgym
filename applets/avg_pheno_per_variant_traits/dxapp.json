@@ -1,0 +1,52 @@
+{
+  "name": "avg_pheno_per_variant",
+  "title": "Average Phenotype Per Variant (quantitative, INT)",
+  "inputSpec": [
+    {"name": "phenotypes_parquet",   "class": "file", "patterns": ["*.parquet"]},
+    {"name": "genotypes_parquet",    "class": "file", "patterns": ["*.parquet"]},
+    {"name": "vep_parquet",          "class": "file", "patterns": ["*.parquet"]},
+    {"name": "associations_parquet", "class": "file", "patterns": ["*.parquet"]},
+    {
+      "name": "samples_txt",
+      "class": "file",
+      "optional": true,
+      "patterns": ["*.txt"],
+      "help": "Optional sample filtering (one sample ID per line, no header); if omitted, all samples from phenotypes will be used"
+    },
+    {
+      "name": "mac_threshold",
+      "class": "int",
+      "optional": true,
+      "help": "Optional MAC filtering threshold; if omitted, no filtering applied"
+    },
+    {
+      "name": "pheno_chunk_size",
+      "class": "int",
+      "optional": true,
+      "default": 10
+    }
+  ],
+  "outputSpec": [
+    {"name": "appv_parquet", "class": "file", "patterns": ["*.parquet"]}
+  ],
+  "runSpec": {
+    "interpreter": "python3",
+    "version": "0",
+    "file": "avg_pheno_per_variant_traits.py",
+    "distribution": "Ubuntu",
+    "release": "24.04",
+    "execDepends": [
+      {"name": "polars==1.33.0", "package_manager": "pip"},
+      {"name": "scipy", "package_manager": "pip"},
+      {"name": "numpy", "package_manager": "pip"}
+    ]
+  },
+  "regionalOptions": {
+    "aws:eu-west-2": {
+      "systemRequirements": {
+        "main": {"instanceType": "mem3_ssd1_v2_x16"}
+      }
+    }
+  },
+  "access": {"network": ["*"]}
+}
