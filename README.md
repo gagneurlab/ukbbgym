@@ -7,4 +7,3 @@
 
 Then, pre-commit will always run when you commit.
 
-Please install the all-polars-transpose branch of anngeno: [eh-feature/all-polars-transpose](https://github.com/bfclarke/anngeno/tree/eh-feature/all-polars-transpose)
