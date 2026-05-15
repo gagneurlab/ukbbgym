@@ -1,9 +1,10 @@
-site_name: UKB-GYM Documentation
+site_name: UKBBGym Documentation
 site_description: Benchmarking variant annotation scoring models against LOFTEE correlations in quantitative traits and Olink proteomics
 repo_url: https://github.com/ShubhankarLondhe/ukbgym
 
 theme:
   name: material
+  logo: assets/logo.png
   features:
     - navigation.tabs
     - navigation.sections

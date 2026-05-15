@@ -1,10 +1,12 @@
-# Welcome to UKB-GYM
+![UKBBGym Logo](assets/logo.png)
 
-UKB-GYM provides a suite of DNAnexus applets and utility scripts for benchmarking variant annotation scoring models against LOFTEE correlations in quantitative traits and Olink proteomics. 
+# Welcome to UKBBGym
+
+UK Biobank Gym (UKBBGym) is a reusable population-scale benchmarking framework that evaluates variant deleteriousness predictors against human population phenotypes. By anchoring evaluation in observed per-variant phenotypic effects—spanning 670 gene-trait associations and 1,076 gene-protein abundance associations across over 40 million naturally occurring rare variants in the UK Biobank—UKBBGym avoids the ascertainment biases of clinical-label benchmarks. It provides a standardized set of associations, metrics, and reproducible workflows on the UK Biobank Research Analysis Platform (RAP) to directly compare computational scoring methods and experimental assays on a shared, population-derived ground truth.
 
 ## Overview
 
-Variant effect predictors are vital for interpreting genetic variants. UKB-GYM provides a standardized pipeline to compare these predictors using large-scale association data from the UK Biobank (UKB). 
+Variant effect predictors are vital for interpreting genetic variants. UKBBGym provides a standardized pipeline to compare these predictors using large-scale association data from the UK Biobank (UKB). To guard against confounding associations, variants evaluated in UKBBGym do not occur in more than 20 carriers.
 
 The workflow is divided into two major phases:
 1. **Data Processing:** Processing UKB raw data into structured parquets and aggregating phenotype effects per variant (`avg_pheno_per_variant` applets).
