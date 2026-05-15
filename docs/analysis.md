@@ -1,4 +1,4 @@
-# Analysis Applets
+# Benchmarking Applets
 
 Once your data is processed, you can benchmark various variant annotation scoring models against LOFTEE correlations. This is handled by four dedicated DNAnexus applets.
 
