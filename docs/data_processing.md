@@ -10,9 +10,9 @@ The initial data processing steps—which convert UK Biobank raw BGEN/VCF format
 
 ## 2. Average Phenotype Per Variant (APPV)
 
-Once the upstream pipeline provides the initial association Parquet files, they must be converted into the specific format required by the UKB-GYM analysis applets. This is done by computing the average phenotype value for each variant.
+Once the upstream pipeline provides the initial association Parquet files, they must be converted into the specific format required by the UKBBGym analysis applets. This is done by computing the average phenotype value for each variant.
 
-UKB-GYM provides two dedicated DNAnexus applets for this step:
+UKBBGym provides two dedicated DNAnexus applets for this step:
 - `avg_pheno_per_variant_traits`: For quantitative trait phenotypes.
 - `avg_pheno_per_variant_olink`: For Olink proteomics data.
 

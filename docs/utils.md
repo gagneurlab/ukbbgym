@@ -18,4 +18,4 @@ The notebooks in this folder handle:
 
 Before variant scores can be analyzed, the raw UKB genetic data (often stored as BCF files) must be joined with consequence and scoring annotations.
 - The `bcf2parquet` scripts handle the conversion of binary format files into the optimized Parquet structures required by the applets.
-- The `annotations` notebooks add standard UKB-GYM variant annotations (e.g., from VEP, structural prediction models, or conservation scores) to the resulting Parquet files.
+- The `annotations` notebooks add standard UKBBGym variant annotations (e.g., from VEP, structural prediction models, or conservation scores) to the resulting Parquet files.

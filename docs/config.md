@@ -1,6 +1,6 @@
 # Configuration Options
 
-UKB-GYM applets are highly customizable through YAML configuration files found in the `configs/` directory. While the applets come bundled with default configurations, you can override these defaults by providing your own YAML files via the CLI or GUI.
+UKBBGym applets are highly customizable through YAML configuration files found in the `configs/` directory. While the applets come bundled with default configurations, you can override these defaults by providing your own YAML files via the CLI or GUI.
 
 ## 1. config_variant_classes.yaml
 
