@@ -2,11 +2,28 @@
 
 ## Overview
 
-Four published DNAnexus applets for benchmarking variant annotation scoring models against LOFTEE correlations in quantitative traits and Olink proteomics.
+Six published DNAnexus applets for benchmarking variant annotation scoring models against LOFTEE correlations in quantitative traits and Olink proteomics, as well as for preparing variant-level phenotype aggregates.
 
 ## Applets
 
-### 1. `correlations_pheno`
+### 1. `avg_pheno_per_variant_traits`
+**Average Phenotype Per Variant for quantitative traits**
+
+Computes the aggregated mean phenotype value and individual count per variant from the initial processed UK Biobank parquet files.
+
+**Key Inputs:** Initial association parquets from upstream processing
+**Key Outputs:** `appv_parquet` containing `id`, `phenotype`, `mean_pheno_value`, and `n_individuals`.
+
+---
+
+### 2. `avg_pheno_per_variant_olink`
+**Average Phenotype Per Variant for Olink proteomics**
+
+Identical logic to `avg_pheno_per_variant_traits` but designed for PROTRIDER-corrected protein abundance data.
+
+---
+
+### 3. `correlations_traits`
 **Spearman correlations for quantitative trait phenotypes**
 
 Computes how well each annotation score correlates with average phenotype values for variants in a gene-trait association set.
@@ -26,18 +43,18 @@ Computes how well each annotation score correlates with average phenotype values
 
 ---
 
-### 2. `correlations_olink`
+### 4. `correlations_olink`
 **Spearman correlations for Olink proteomics**
 
-Identical logic to `correlations_pheno` but for PROTRIDER-corrected protein abundance data (no INT transformation).
+Identical logic to `correlations_traits` but for PROTRIDER-corrected protein abundance data (no INT transformation).
 
-**Differences from pheno:**
+**Differences from traits:**
 - APPV phenotypes are already normalized (PROTRIDER), not INT-transformed
 - All else identical
 
 ---
 
-### 3. `top_n_vars_pheno`
+### 5. `top_n_vars_traits`
 **Top-N variant benchmarking for quantitative traits**
 
 Ranks variants by annotation scores within each gene and computes cumulative phenotype effects at each rank, then compares across annotations.
@@ -59,16 +76,16 @@ Ranks variants by annotation scores within each gene and computes cumulative phe
 
 ---
 
-### 4. `top_n_vars_olink`
+### 6. `top_n_vars_olink`
 **Top-N variant benchmarking for Olink proteomics**
 
-Identical logic to `top_n_vars_pheno` but for PROTRIDER-corrected protein data.
+Identical logic to `top_n_vars_traits` but for PROTRIDER-corrected protein data.
 
 ---
 
-## Shared Input Specification
+## Shared Input Specification (Analysis Applets)
 
-All four applets accept the same core inputs:
+The analysis applets (`correlations` and `top_n_vars`) accept the same core inputs:
 
 | Input | Required | Type | Description |
 |-------|----------|------|-------------|
@@ -117,16 +134,16 @@ chr1:101:C:G         ENSG0000001     0.45        0.51
 ## Configuration Files
 
 ### `config_correlations.yaml` (for correlations applets)
-Defines annotation metadata for correlation-based analysis. Used by correlations_pheno/olink.
+Defines annotation metadata for correlation-based analysis. Used by correlations_traits/olink.
 - Keys: annotation categories (plof, missense, conservation, splicing, regulatory, etc.)
 - Per-annotation: `color` (hex), `label` (display name), optional `direction` (1 or -1)
 
 ### `config_odds.yaml` (for top-N applets)
-Defines annotation metadata for top-N analysis. Used by top_n_vars_pheno/olink.
+Defines annotation metadata for top-N analysis. Used by top_n_vars_traits/olink.
 - Same structure as config_correlations.yaml but with different color/label choices
 
 ### `config_variant_classes.yaml` (shared)
-Defines preset variant filtering classes. Used by all four applets.
+Defines preset variant filtering classes. Used by all analysis applets.
 - Keys: class names (missense, intron, enhancer_encode, etc.)
 - Per-class: `variant_filtering` (list of Polars filter expressions as strings), `tool_categories` (which to include), `x_label` (display name)
 
@@ -135,13 +152,14 @@ All configs are bundled in each applet; users can override via optional YAML inp
 ## Building and Running
 
 ### Build an applet
+Note: All applets are publicly available. However, if building from source:
 ```bash
-dx build applets/correlations_pheno/ --destination project-XXX:/applets/ -f
+dx build applets/correlations_traits/ --destination project-XXX:/applets/ -f
 ```
 
 ### Run via CLI
 ```bash
-dx run correlations_pheno \
+dx run correlations_traits \
   -i associations_parquet=file-XXX \
   -i annotations_parquet=file-YYY \
   -i appv_parquet=file-ZZZ \
@@ -153,7 +171,7 @@ dx run correlations_pheno \
 
 ### Run with custom scores
 ```bash
-dx run top_n_vars_pheno \
+dx run top_n_vars_traits \
   -i associations_parquet=file-XXX \
   -i annotations_parquet=file-YYY \
   -i appv_parquet=file-ZZZ \
@@ -184,8 +202,9 @@ dx run top_n_vars_pheno \
 All applets run on `mem3_ssd1_v2_x16` (128 GB) in eu-west-2.
 
 **Approximate runtime:**
-- correlations_pheno/olink: ~40 minutes
-- top_n_vars_pheno/olink: ~30 minutes
+- correlations_traits/olink: ~40 minutes
+- top_n_vars_traits/olink: ~30 minutes
+- avg_pheno_per_variant: ~1-3 hours (depending on data scale)
 
 (Runtime depends on number of genes, variants, and annotations selected)
 
