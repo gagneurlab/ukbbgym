@@ -1,0 +1,94 @@
+# Default fill values for annotation columns.
+# For each key:
+#   - An _is_na indicator column is created (1 = was null before fill)
+#   - The column is then filled with this value
+# Consequence_* and five_prime_utr_* columns are always filled with 0 (no _is_na).
+
+# ── VEP-derived ─────────────────────────────────────────────────────────────
+blosum62: 0.0
+spliceai_delta_score: 0.0
+relative_cds_position: 0.0
+dist_to_tss: 0.0
+gene_length: 0.0
+variant_length: 1
+is_indel: 0
+is_insertion: 0
+is_deletion: 0
+next_in_frame_relative: 0.0
+
+# ── PolyPhen2 (from VEP) ────────────────────────────────────────────────────
+polyphen_score: 0.0
+
+# ── AlphaMissense ───────────────────────────────────────────────────────────
+am_pathogenicity: 0.0
+
+# ── ClinVar ─────────────────────────────────────────────────────────────────
+clinvar_patho: 0
+clinvar_likely_patho: 0
+clinvar_benign: 0
+clinvar_likely_benign: 0
+
+# ── ENCODE cCREs ────────────────────────────────────────────────────────────
+encode_pls: 0
+encode_pels: 0
+encode_dels: 0
+encode_ca: 0
+encode_ca_ctcf: 0
+encode_ca_tf: 0
+encode_ca_h3k4me3: 0
+encode_tf: 0
+not_annotated_in_encode: 0
+
+# ── REVEL ───────────────────────────────────────────────────────────────────
+revel_score: 0.0
+
+# ── ClinPred ────────────────────────────────────────────────────────────────
+clinpred_score: 0.0
+
+# ── BayesDel ────────────────────────────────────────────────────────────────
+bayes_del: -1.29334
+
+# ── CPT-1 ───────────────────────────────────────────────────────────────────
+cpt1_llr: 0.0
+
+# ── popEVE ───────────────────────────────────────────────────────────
+popeve: 2.521
+
+# ── AbSplice (v1) ───────────────────────────────────────────────────────────
+absplice_dna_max: 0.0
+
+# ── AbSplice2 ───────────────────────────────────────────────────────────────
+absplice2_max: 0.0
+
+# ── GPN-MSA ─────────────────────────────────────────────────────────────────
+gpn_score: 0.0
+
+# ── AbExp ───────────────────────────────────────────────────────────────────
+abexp_abs_max: 0.0
+abexp_min: 0.0
+
+# ── Pangolin ────────────────────────────────────────────────────────────────
+pangolin_score: 0.0
+
+# ── CADD ────────────────────────────────────────────────────────────────────
+cadd_raw: 0.0
+
+# ── PhyloP ──────────────────────────────────────────────────────────────────
+phylop_100way: 0.0
+phylop_mammalian: 0.0
+phylop_primate: 0.0
+zoonomia_phylop: 0.0
+
+# ── PromoterAI ──────────────────────────────────────────────────────────────
+promoterai: 0.0
+
+# ── Protein domains ─────────────────────────────────────────────────────────
+mobi_full_disorder_priority: 0
+mobi_curated_disorder_priority: 0
+mobi_full_lip_priority: 0
+ted_domain: 0
+low_complexity_domain: 0
+
+# ── LOFTEE ──────────────────────────────────────────────────────────────────
+loftee_hc: 0
+loftee_lc: 0
