@@ -1,47 +1,43 @@
 #!/bin/bash
-#SBATCH --job-name=add_missense_annotations
-#SBATCH --output=logs/add_missense_annotations/%j.out
+#SBATCH --job-name=ukbgym_annos
+#SBATCH --output=PATH_TO_FILE
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=128G
-#SBATCH --partition=cpu_p
 #SBATCH --time=24:00:00
 
 # ── Usage ─────────────────────────────────────────────────────────────────────
 #
-#   sbatch run_add_missense_annotations.sh \
-#       --input  /path/to/vep.parquet \
-#       --output /path/to/output_annotated.parquet \
-#       [--download-dir /path/to/download_cache] \
-#       [--vep-raw   /path/to/raw_vep.parquet]
+#   sbatch run_add_more_annotations.sh --input  PATH_TO_FILE --output PATH_TO_FILE --download-dir PATH_TO_FILE --no-cadd --no-gpn-msa --no-phylop --no-alphamissense --no-cpt1 --no-next-in-frame
 #
-#   Or run directly (no SLURM):
-#       bash run_add_missense_annotations.sh --input ... --output ...
+#   Or run directly — activate the correct conda env first, then:
+#       bash run_add_more_annotations.sh --input ... --output ...
 #
-# Per-annotation toggles (pass to skip a step whose columns are already present):
+# Per-annotation toggles (pass to skip steps whose columns are already present):
 #   --no-cadd --no-gpn-msa --no-phylop --no-alphamissense --no-cpt1
 #   --no-popeve --no-revel --no-clinpred --no-bayesdel
-#   --no-plddt --no-pioneer --no-clinvar
+#   --no-plddt --no-pioneer --no-clinvar --no-next-in-frame
 #
 # ─────────────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PYTHON=/opt/modules/i12g/anaconda/envs/sl-ukg/bin/python3
+if [[ -n "${SLURM_JOB_ID:-}" && -n "${SLURM_SUBMIT_DIR:-}" ]]; then
+    SCRIPT_DIR="${SLURM_SUBMIT_DIR}"
+else
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
 
 # ── Defaults ──────────────────────────────────────────────────────────────────
 INPUT=""
 OUTPUT=""
-DOWNLOAD_DIR=""
-VEP_RAW=""
-FASTA=""
+DOWNLOAD_DIR="PATH_TO_FILE"
 
-ADD_ALPHAMISSENSE=False
-ADD_CPT1=False
-ADD_CADD=False
-ADD_GPN_MSA=False
-ADD_PHYLOP=False
+ADD_CADD=True
+ADD_GPN_MSA=True
+ADD_PHYLOP=True
+ADD_ALPHAMISSENSE=True
+ADD_CPT1=True
 ADD_POPEVE=True
 ADD_REVEL=True
 ADD_CLINPRED=True
@@ -49,6 +45,7 @@ ADD_BAYESDEL=True
 ADD_PLDDT=True
 ADD_PIONEER=True
 ADD_CLINVAR=True
+ADD_NEXT_IN_FRAME=True
 
 # ── Argument parsing ──────────────────────────────────────────────────────────
 while [[ $# -gt 0 ]]; do
@@ -56,8 +53,6 @@ while [[ $# -gt 0 ]]; do
         --input)          INPUT="$2";        shift 2 ;;
         --output)         OUTPUT="$2";       shift 2 ;;
         --download-dir)   DOWNLOAD_DIR="$2"; shift 2 ;;
-        --vep-raw)        VEP_RAW="$2";      shift 2 ;;
-        --fasta)          FASTA="$2";        shift 2 ;;
         --no-alphamissense) ADD_ALPHAMISSENSE=False; shift ;;
         --no-popeve)        ADD_POPEVE=False;        shift ;;
         --no-revel)         ADD_REVEL=False;         shift ;;
@@ -70,6 +65,7 @@ while [[ $# -gt 0 ]]; do
         --no-plddt)         ADD_PLDDT=False;         shift ;;
         --no-pioneer)       ADD_PIONEER=False;       shift ;;
         --no-clinvar)       ADD_CLINVAR=False;        shift ;;
+        --no-next-in-frame) ADD_NEXT_IN_FRAME=False;  shift ;;
         *) echo "Unknown argument: $1" >&2; exit 1 ;;
     esac
 done
@@ -83,26 +79,23 @@ fi
 OPTIONAL_ARGS=""
 [[ -n "$OUTPUT"       ]] && OPTIONAL_ARGS+="    output_path='${OUTPUT}',"$'\n'
 [[ -n "$DOWNLOAD_DIR" ]] && OPTIONAL_ARGS+="    download_dir='${DOWNLOAD_DIR}',"$'\n'
-[[ -n "$VEP_RAW"      ]] && OPTIONAL_ARGS+="    vep_raw_parquet='${VEP_RAW}',"$'\n'
-[[ -n "$FASTA"        ]] && OPTIONAL_ARGS+="    fasta_path='${FASTA}',"$'\n'
 
-echo "=== add_missense_variant_annotations ==="
+echo "=== add_more_annotations ==="
 echo "  input:        $INPUT"
 echo "  output:       ${OUTPUT:-<auto>}"
-echo "  download_dir: ${DOWNLOAD_DIR:-<cwd>/tmp}"
-echo "  vep_raw:      ${VEP_RAW:-<none>}"
+echo "  download_dir: ${DOWNLOAD_DIR}"
 echo "  toggles: alphamissense=$ADD_ALPHAMISSENSE popeve=$ADD_POPEVE revel=$ADD_REVEL"
 echo "           clinpred=$ADD_CLINPRED bayesdel=$ADD_BAYESDEL cpt1=$ADD_CPT1"
 echo "           cadd=$ADD_CADD gpn_msa=$ADD_GPN_MSA phylop=$ADD_PHYLOP"
-echo "           plddt=$ADD_PLDDT pioneer=$ADD_PIONEER clinvar=$ADD_CLINVAR"
+echo "           plddt=$ADD_PLDDT pioneer=$ADD_PIONEER clinvar=$ADD_CLINVAR next_in_frame=$ADD_NEXT_IN_FRAME"
 echo ""
 
-mkdir -p logs/add_missense_annotations
+mkdir -p PATH_TO_FILE
 
-"$PYTHON" - <<PYEOF
+python3 - <<PYEOF
 import sys
 sys.path.insert(0, '${SCRIPT_DIR}')
-import add_missense_variant_annotations as ann
+import add_more_annotations as ann
 
 out = ann.main(
     '${INPUT}',
@@ -119,6 +112,7 @@ ${OPTIONAL_ARGS}    add_alphamissense=${ADD_ALPHAMISSENSE},
     add_plddt=${ADD_PLDDT},
     add_pioneer=${ADD_PIONEER},
     add_clinvar=${ADD_CLINVAR},
+    add_next_in_frame=${ADD_NEXT_IN_FRAME},
 )
 print(f"Done: {out}")
 PYEOF

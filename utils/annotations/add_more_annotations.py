@@ -183,6 +183,10 @@ GENCODE_GTF_URL = (
     "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_40/"
     "gencode.v40.annotation.gtf.gz"
 )
+GENCODE_FASTA_URL = (
+    "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_40/"
+    "GRCh38.primary_assembly.genome.fa.gz"
+)
 
 # ── Utilities ──────────────────────────────────────────────────────────────
 def run(cmd: str) -> None:
@@ -1920,7 +1924,6 @@ def _next_inframe_atg_distance(seq: str, search_init: int = 3) -> int:
 
 def _compute_next_in_frame(
     annos: pl.LazyFrame,
-    fasta_path: str,
 ) -> pl.LazyFrame:
     """Add next_in_frame_relative for start_lost SNVs (polars-native + pyfaidx).
 
@@ -2007,7 +2010,12 @@ def _compute_next_in_frame(
     start_lost = start_lost.join(gene_cds_len, on="region", how="left")
 
     # ── Fetch sequences and find next ATG ────────────────────────────────
-    fasta = pyfaidx.Fasta(fasta_path, sequence_always_upper=True)
+    fasta_gz = os.path.join(WORK_DIR, "GRCh38.primary_assembly.genome.fa.gz")
+    if not os.path.exists(fasta_gz):
+        if not aria2c_download(GENCODE_FASTA_URL, fasta_gz):
+            logger.warning("  next_in_frame: FASTA download failed; skipping")
+            return annos
+    fasta = pyfaidx.Fasta(fasta_gz, sequence_always_upper=True)
     records = []
     for row in start_lost.iter_rows(named=True):
         var_id    = row["id"]
@@ -2059,7 +2067,7 @@ def _compute_next_in_frame(
 def step0b_structural_features(
     annos: pl.LazyFrame,
     work_dir: str,
-    fasta_path: str | None = None,
+    add_next_in_frame: bool = True,
 ) -> pl.LazyFrame:
     """VEP structural features: indel flags, relative_cds_position, dist_to_tss,
     gene_length, gene_name, and (optionally) next_in_frame_relative.
@@ -2074,10 +2082,8 @@ def step0b_structural_features(
 
     dist_to_tss / gene_length / gene_name: from the Gencode GTF, joined on region.
 
-    next_in_frame_relative: only computed when fasta_path is provided and
-        pyfaidx is installed. Only affects start_lost SNVs.
-        On AoU the reference FASTA is typically at:
-        /mnt/disks/share/references/GRCh38/GRCh38.primary_assembly.genome.fa
+    next_in_frame_relative: downloaded and computed automatically for start_lost SNVs.
+        Pass add_next_in_frame=False to main() to skip entirely.
     """
     logger.info("Step 0b: VEP structural features")
     schema = set(annos.collect_schema().names())
@@ -2155,20 +2161,9 @@ def step0b_structural_features(
     except Exception as e:
         logger.warning(f"  GTF-derived features failed: {e}")
 
-    # ── next_in_frame_relative (start_lost SNVs only, needs FASTA) ────────
-    if fasta_path:
-        if not os.path.exists(fasta_path):
-            logger.warning(
-                f"  next_in_frame_relative skipped: FASTA not found at {fasta_path}. "
-                "Provide the correct path via fasta_path= argument."
-            )
-        else:
-            annos = _compute_next_in_frame(annos, fasta_path)
-    else:
-        logger.info(
-            "  next_in_frame_relative skipped (no fasta_path supplied). "
-            "Pass fasta_path= to step0b_structural_features to enable."
-        )
+    # ── next_in_frame_relative (start_lost SNVs only) ────────────────────
+    if add_next_in_frame:
+        annos = _compute_next_in_frame(annos)
 
     return annos
 
@@ -2178,9 +2173,7 @@ def main(
     vep_parquet: str,
     fill_null_defaults_path: str = "fill_null_defaults.yaml",
     output_path: str | None = None,
-    fasta_path: str | None = None,
     download_dir: str | None = None,
-    vep_raw_parquet: str | None = None,
     *,
     add_alphamissense: bool = True,
     add_popeve: bool = True,
@@ -2194,6 +2187,7 @@ def main(
     add_plddt: bool = True,
     add_pioneer: bool = True,
     add_clinvar: bool = True,
+    add_next_in_frame: bool = True,
 ) -> str:
     """Annotate the VEP parquet with effect-prediction scores and write it out.
 
@@ -2208,25 +2202,12 @@ def main(
     output_path:
         Where to write the final parquet. Defaults to
         ./{input_stem}_annotated.parquet in the current working directory.
-    fasta_path:
-        Path to the GRCh38 reference FASTA (must be indexed with .fai).
-        Used only for next_in_frame_relative on start_lost SNVs.
-        Defaults to None (feature skipped). Locate your FASTA on the
-        workbench and pass the path explicitly.
     download_dir:
         Directory under which the large reference/score files are downloaded.
         They land in ``{download_dir}/tmp``. That ``tmp`` dir is deleted only
         after a fully successful run; if the pipeline errors out it is kept so
         the rerun reuses already-downloaded files. Defaults to the current
         working directory, i.e. ``./tmp``.
-    vep_raw_parquet:
-        Optional path to the raw per-transcript VEP output parquet (with
-        ``Protein_position`` and ``Amino_acids`` columns). When the main input
-        lacks an absolute ``protein_position`` / ``amino_acids`` (e.g. it only
-        carries ``relprotpos``), these are joined back on
-        ``(chrom, pos, ref, alt, region)`` — the canonical transcript per
-        (variant, gene) — so the per-residue steps (CPT-1, pLDDT, PIONEER) can
-        run instead of being skipped. Default None.
     add_alphamissense, add_revel, add_clinpred, add_bayesdel, add_cpt1,
     add_cadd, add_gpn_msa, add_phylop, add_plddt, add_pioneer, add_clinvar:
         Per-annotation toggles (keyword-only, all default True). Set one to
@@ -2367,42 +2348,13 @@ def main(
         )
 
     # ── Attach absolute protein_position / amino_acids from raw VEP ──────
-    # The processed input may only carry relprotpos (a 0-1 fraction), which is
-    # insufficient for the per-residue steps (CPT-1, pLDDT, PIONEER). If a raw
-    # VEP parquet is supplied, join its Protein_position ("273/393") and
-    # Amino_acids ("R/H") on (chrom, pos, ref, alt, region), picking the
-    # canonical transcript per (variant, gene) so the join stays 1:1.
-    if vep_raw_parquet is not None and "region" in schema_names:
-        logger.info("=== Attaching protein_position / amino_acids from raw VEP ===")
-        pmap = (
-            pl.scan_parquet(vep_raw_parquet)
-            .filter(pl.col("Protein_position").is_not_null())
-            .select(
-                chrom=pl.lit("chr")
-                + pl.col("CHROM").cast(pl.Utf8).str.replace(r"^chr", ""),
-                pos=pl.col("POS").cast(pl.Int64),
-                ref=pl.col("REF"),
-                alt=pl.col("ALT"),
-                region=pl.col("Gene"),
-                protein_position=pl.col("Protein_position"),
-                amino_acids=pl.col("Amino_acids"),
-                _canon=(pl.col("CANONICAL") == "YES").cast(pl.Int8),
-            )
-            .sort("_canon", descending=True)
-            .unique(subset=["chrom", "pos", "ref", "alt", "region"], keep="first")
-            .drop("_canon")
-        )
-        annos = _idempotent_join(
-            annos, pmap, on=["chrom", "pos", "ref", "alt", "region"]
-        )
-
     n_rows = annos.select(pl.len()).collect().item()
     logger.info(f"Loaded {n_rows:,} rows")
 
     # ── Group 0: VEP / LOFTEE post-processing ────────────────────────────
     logger.info("=== Group 0: VEP / LOFTEE post-processing ===")
     annos = step0a_vep_loftee_dummies(annos)
-    annos = step0b_structural_features(annos, WORK_DIR, fasta_path=fasta_path)
+    annos = step0b_structural_features(annos, WORK_DIR, add_next_in_frame=add_next_in_frame)
 
     # ── Group 1: Missense / protein-function predictors ─────────────────
     logger.info("=== Group 1: Missense predictors ===")
@@ -2450,12 +2402,12 @@ def main(
         annos = step4d_clinvar(annos, clinvar_path)
 
     # ── Collect and write ─────────────────────────────────────────────────
-    logger.info("=== Collecting and writing output parquet ===")
+    logger.info("=== Sinking output parquet ===")
     gc.collect()
     if output_path is None:
         stem = os.path.splitext(os.path.basename(vep_parquet))[0]
         output_path = f"{stem}_annotated.parquet"
-    annos.collect().write_parquet(output_path)
+    annos.sink_parquet(output_path)
     logger.info(f"Output written to {output_path}")
 
     # Success: remove the scratch download dir. (On failure we never reach
