@@ -133,6 +133,10 @@ UNIPROT_IDMAP_URL = (
     "https://ftp.uniprot.org/pub/databases/uniprot/current_release/"
     "knowledgebase/idmapping/by_organism/HUMAN_9606_idmapping.dat.gz"
 )
+# popEVE / EVE / ESM1v per-variant VCF (GRCh38, ~1.4 GB)
+POPEVE_URL = (
+    "https://data.evemodel.org/popeve/v1.1/downloads/grch38_popEVE_ukbb_20250715.vcf.gz"
+)
 # CPT-1 per-protein scores from Zenodo (record 8140323)
 CPT1_ZENODO_URLS = [
     "https://zenodo.org/records/8140323/files/CPT1_score_EVE_set.zip?download=1",
@@ -775,6 +779,60 @@ def step1d_bayesdel(annos: pl.LazyFrame, bayesdel_path: str) -> pl.LazyFrame:
         logger.info("  BayesDel OK")
     except Exception as e:
         logger.warning(f"  BayesDel failed: {e}")
+    return annos
+
+
+def step1e_popeve(annos: pl.LazyFrame, popeve_path: str) -> pl.LazyFrame:
+    """Add popEVE / EVE / ESM1v scores from a VCF (joined on chrom, pos, ref, alt).
+
+    Output columns: popeve, eve, esm1v, pop_adjusted_eve, pop_adjusted_esm1v
+    """
+    logger.info("Step 1e: Merging popEVE scores")
+    try:
+        vcf = (
+            pl.scan_csv(
+                popeve_path,
+                separator="\t",
+                comment_prefix="##",
+                has_header=True,
+                schema_overrides={
+                    "#CHROM": pl.Utf8,
+                    "POS": pl.Int64,
+                    "REF": pl.Utf8,
+                    "ALT": pl.Utf8,
+                    "INFO": pl.Utf8,
+                },
+            )
+            .select(
+                chrom=pl.lit("chr")
+                + pl.col("#CHROM").cast(pl.Utf8).str.replace(r"^chr", ""),
+                pos=pl.col("POS"),
+                ref=pl.col("REF"),
+                alt=pl.col("ALT"),
+                # Use (?:^|;) anchors so standalone EVE= / ESM1v= don't match the
+                # pop-adjusted_ prefixed variants that also contain those substrings.
+                popeve=pl.col("INFO")
+                .str.extract(r"popEVE=([^;]+)")
+                .cast(pl.Float32),
+                eve=pl.col("INFO")
+                .str.extract(r"(?:^|;)EVE=([^;]+)")
+                .cast(pl.Float32),
+                esm1v=pl.col("INFO")
+                .str.extract(r"(?:^|;)ESM1v=([^;]+)")
+                .cast(pl.Float32),
+                pop_adjusted_eve=pl.col("INFO")
+                .str.extract(r"pop-adjusted_EVE=([^;]+)")
+                .cast(pl.Float32),
+                pop_adjusted_esm1v=pl.col("INFO")
+                .str.extract(r"pop-adjusted_ESM1v=([^;]+)")
+                .cast(pl.Float32),
+            )
+            .unique(subset=["chrom", "pos", "ref", "alt"], keep="first")
+        )
+        annos = _idempotent_join(annos, vcf, on=["chrom", "pos", "ref", "alt"])
+        logger.info("  popEVE OK")
+    except Exception as e:
+        logger.warning(f"  popEVE failed: {e}")
     return annos
 
 
@@ -2125,6 +2183,7 @@ def main(
     vep_raw_parquet: str | None = None,
     *,
     add_alphamissense: bool = True,
+    add_popeve: bool = True,
     add_revel: bool = True,
     add_clinpred: bool = True,
     add_bayesdel: bool = True,
@@ -2243,6 +2302,13 @@ def main(
         if gdrive_download(BAYESDEL_GDRIVE_ID, bayesdel_gz):
             bayesdel_path = bayesdel_gz
 
+    # popEVE / EVE / ESM1v per-variant VCF (~1.4 GB)
+    popeve_path = None
+    if add_popeve:
+        popeve_gz = f"{WORK_DIR}/grch38_popEVE.vcf.gz"
+        if aria2c_download(POPEVE_URL, popeve_gz):
+            popeve_path = popeve_gz
+
     # CPT-1 per-protein CSVs from Zenodo 8140323 (three zips, ~2.4 GB total)
     cpt1_dir = f"{WORK_DIR}/cpt1"
     cpt1_ok = False
@@ -2348,6 +2414,8 @@ def main(
         annos = step1c_clinpred(annos, clinpred_path)
     if bayesdel_path:
         annos = step1d_bayesdel(annos, bayesdel_path)
+    if add_popeve and popeve_path:
+        annos = step1e_popeve(annos, popeve_path)
     if cpt1_ok:
         annos = step1f_cpt1(annos, cpt1_dir, uniprot_map_df)
 
