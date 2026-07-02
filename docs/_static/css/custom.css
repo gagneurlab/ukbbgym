@@ -1,0 +1,4 @@
+/* Reduce the font size in data frames / tables for readability */
+div.cell_output table.dataframe {
+    font-size: 0.8em;
+}
