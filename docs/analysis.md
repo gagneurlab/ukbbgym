@@ -66,4 +66,4 @@ dx run top_n_vars_traits \
 
 The applets generate detailed metrics and publish-ready SVG plots:
 - **results_parquet / cum_stats_parquet:** Tables containing all computed metrics, z-scores, and standard errors.
-- **SVG Plots:** Beautifully formatted boxplots, line plots, and pairwise Wilcoxon heatmaps for easy interpretation of the benchmarking results.
+- **SVG Plots:** Boxplots, line plots, and pairwise Wilcoxon heatmaps for interpretation of the benchmarking results.

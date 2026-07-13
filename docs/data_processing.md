@@ -4,9 +4,11 @@ Before running the core analysis and benchmarking applets, the raw UK Biobank da
 
 ## 1. Raw Data to Initial Parquets
 
-The initial data processing steps—which convert UK Biobank raw BGEN/VCF formats and phenotype data into optimized Parquet formats—are maintained in the `ukb_gagneur` repository. 
+The initial data processing steps, which convert UK Biobank raw BGEN/VCF formats and phenotype data into optimized Parquet formats, are maintained in the `ukb_gagneur` repository.
 
-> **Note:** The specifics of this upstream pipeline are abstracted here. The resulting output from this step is a set of initial Parquet files containing associations and basic annotations.
+```{note}
+The specifics of this upstream pipeline are abstracted here. The resulting output from this step is a set of initial Parquet files containing associations and basic annotations.
+```
 
 ## 2. Average Phenotype Per Variant (APPV)
 
