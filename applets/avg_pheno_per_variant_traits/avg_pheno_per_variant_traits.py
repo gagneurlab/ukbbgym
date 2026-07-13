@@ -60,6 +60,7 @@ def load_phenotypes_int(path, samples, pheno_list):
         .drop_nulls()
         .lazy()
         .with_columns(
+            sample = pl.col("sample").cast(pl.Utf8),
             r=pl.col("pheno_value").rank().over("phenotype"),
             n=pl.len().over("phenotype"),
         )
