@@ -2,11 +2,9 @@
 
 <img src="assets/logo.png" alt="UKBBGym" width="140" align="right">
 
-Population-scale phenotype benchmark for variant effect predictors: *Population-scale
-phenotypes provide a direct benchmark of variant effects in human carriers* (Londhe, Holtkamp,
-Tsitsiridis, Starovoit, Hingerl, Tomaz da Silva, Stegle, Gagneur).
+Population-scale phenotype benchmark for variant effect predictors.
 
-UKBBGym scores variant deleteriousness predictors against **phenotypes observed in human
+UKBBGym evaulates variant scoring methods against **phenotypes observed in human
 carriers**, rather than against curated clinical labels or cell-culture assays. For every
 ultra-rare variant (allele count ≤ 20) within ±5 kb of a gene body, the phenotype is averaged
 across its heterozygous carriers, after correction for covariates and common-variant polygenic
