@@ -1,0 +1,125 @@
+rare_variant_annotations:
+  plof:
+    loftee_hc:
+      color: "#E31A1C" # Dark Red
+      label: "LOFTEE HC"
+
+  missense:
+    polyphen:
+      color: "#feb72d"
+      label: "PolyPhen2"
+    sift:
+      color: "#feb72d"
+      label: "SIFT"
+      direction: -1
+    am_pathogenicity: 
+      color: "#feb72d"
+      label: "AlphaMissense"
+    # esmscoremissense: 
+    #   color: "#feb72d"
+    #   label: "ESM1v"
+    #   direction: -1
+    esm1v:
+      color: "#feb72d"
+      label: "ESM1v"
+      direction: -1
+    msa_pairformer_llr:
+      color: "#feb72d"
+      label: "MSA Pairformer"
+      direction: -1
+    cpt1_llr:
+      color: "#feb72d"
+      label: "CPT-1"
+    revel_score:
+      color: "#feb72d"
+      label: "REVEL"
+    clinpred_score:
+      color: "#feb72d"
+      label: "ClinPred"
+    bayes_del:
+      color: "#feb72d"
+      label: "BayesDel"
+    popeve:
+      color: "#feb72d"
+      label: "popEVE"
+      direction: -1
+
+  genetic_diversity:
+    cadd_raw:
+      color: "chocolate"
+      label: "CADD Raw"
+
+  var_length:
+    variant_length:
+      color: "#C6DBEF"
+      label: "Variant Length"
+
+  gnomad:
+    gnomade_af:
+      color: "#00838F"  # Very Dark Green
+      label: "gnomADe AF"
+      direction: -1
+    gnomadg_af:
+      color: "#00838F"  # Very Dark Teal
+      label: "gnomADg AF"
+      direction: -1
+
+  conservation:
+    gpn_score: 
+        color: "#942C80"  # Vibrant Magenta/Pink-Purple
+        label: "GPN-MSA"
+        direction: -1
+    verphylop: 
+      color: "#942C80"  # Darkest Blue
+      label: "Vertebrate PhyloP"
+    mamphylop: 
+      color: "#942C80"  # Teal
+      label: "Mammalian PhyloP"
+    priphylop:
+      color: "#942C80"  # Darkest Purple
+      label: "Primate PhyloP"
+
+  splicing:
+    pangolin_score:
+      color: "#28A745"
+      label: "Pangolin"
+    delta_score:
+      color: "#28A745"
+      label: "SpliceAI"
+    absplice_dna_max:
+      color: "#28A745"
+      label: "AbSplice (max)"
+    absplice2_max:
+      color: "#28A745"
+      label: "AbSplice2 (max)"
+  
+  exp_assays:
+    scaled_fitness:
+      color: "#66BB6A"
+      label: 'aPCA fitness'
+    DMS:
+      color: "#66BB6A"
+      label: 'DMS'
+      direction: -1
+    DMS_b:
+      color: "#66BB6A"
+      label: "PTEN VAMP-seq\n(Matreyek et al., 2018)"
+      direction: -1
+    GCK_activity:
+      color: "#66BB6A"
+      label: "GCK activity\n(Gersing et al., 2023)"
+      direction: -1
+    GCK_abundance:
+      color: "#81C784"
+      label: "GCK abundance\n(Gersing et al., 2024)"
+      direction: -1
+    LDL_uptake_functional:
+      color: "#66BB6A"
+      label: "LDL uptake functional\n(Tabet et al., 2025)"
+      direction: -1
+    LDLR_cell_surface_abundance:
+      color: "#81C784"
+      label: "LDLR cell surface abundance\n(Tabet et al., 2025)"
+      direction: -1
+
+

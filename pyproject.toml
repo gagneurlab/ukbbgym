@@ -1,0 +1,52 @@
+[project]
+name = "ukbbgym"
+version = "0.1.0"
+description = "UKBBGym: population-scale phenotype benchmark for variant effect predictors, plus its reconstruction from public summary statistics (Genebass, All of Us All-by-All)"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+
+# Core analysis stack: what the figure notebooks under genebass/analysis and
+# all_x_all/analysis need. Assumes the master table already exists (see
+# "Getting to the input data" in README.md) — everything required to *produce*
+# it from raw sources is optional: the annotation extra below, and the
+# separate Hail environment.
+dependencies = [
+    "polars>=1.33",
+    "pyarrow>=15",
+    # pandas 3.0 changes the default string dtype and copy semantics; the
+    # notebooks were developed against 2.x, so stay there.
+    "pandas>=2.2,<3",
+    "numpy>=1.26",
+    "scipy>=1.13",
+    "scikit-learn>=1.5",
+    "statsmodels>=0.14",
+    "matplotlib>=3.9",
+    "plotnine>=0.13",
+    "colormaps>=0.4",
+    "tqdm>=4.66",
+    "pyyaml>=6.0",
+    "ipykernel>=6.29",
+    "jupyterlab>=4.2",
+]
+
+[project.optional-dependencies]
+# Only needed to regenerate annotations, not to run the figure notebooks:
+# utils/annotations/* reads bigWig / FASTA / tabix reference files,
+# fetches records over HTTP and does gene subsetting in DuckDB.
+annotation = [
+    "pyBigWig>=0.3.22",
+    "pyfaidx>=0.8",
+    "pysam>=0.22",
+    "biopython>=1.83",
+    "duckdb>=1.0",
+    "requests>=2.32",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+# Notebook-first repo: there is no importable package to install, only the
+# dependency set above.
+bypass-selection = true

@@ -1,0 +1,258 @@
+rare_variant_annotations:
+  loftee:
+    loftee_hc:
+      color: "#E31A1C"  # Dark Red
+      label: "LOFTEE HC"
+    # loftee_lc:
+    #   color: "#FB9A99"  # Light Red
+    #   label: "LOFTEE LC"
+  
+  plof_consequences:
+    consequence_frameshift_variant:
+      color: "#E31A1C"  # Dark Red
+      label: "VEP Frameshift"
+    consequence_stop_gained:
+      color: "#FB9A99"  # Light Red
+      label: "VEP Stop Gained"
+    consequence_splice_donor_variant:
+      color: "#6A1B9A"  # Deep Purple
+      label: "VEP Splice Donor"
+    consequence_splice_acceptor_variant:
+      color: "#AB47BC"  # Lighter Orchid/Purple
+      label: "VEP Splice Acceptor"
+    consequence_start_lost:
+      color: "#E65100"  # Dark Orange
+      label: "VEP Start Lost"
+    consequence_stop_lost:
+      color: "#FFB300"  # Golden Yellow
+      label: "VEP Stop Lost"
+    # loftee_hc:
+    #   color: "#1E90FF"  # Dodger Blue
+    #   label: "LOFTEE HC"
+    # loftee_lc:
+    #   color: "#C6DBEF" # light blue
+    #   label: "LOFTEE LC"
+
+  missense:
+    consequence_missense_variant:
+      color: "#1E90FF"  # Dodger Blue
+      label: "VEP Missense"
+
+  protein_domains:
+    mobi_curated_disorder_priority:
+      color: "#E31A1C"  # Dark Red
+      label: "Disordered\n(MobiDB)"
+    mobi_full_lip_priority:
+      color: "#1E90FF"  # Dodger Blue
+      label: "Linear Interacting\nPeptides"
+    ted_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain\n(TED)"
+    non_ted_domain:
+      color: "#2E8B57"  # Sea Green
+      label: "Non Structured Domain\n(TED)"
+    low_complexity_domain:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "Low complexity\n(LCD-composer)"
+    low_plddt:
+      color: "#9467bd"  # Purple
+      label: "Disordered\n(pLDDT≤70)"
+    high_plddt:
+      color: "#9467bd"  # Purple
+      label: "Structured\n(pLDDT>70)"
+    is_pioneer_interface_high:
+      color: "#17becf"  # Teal/Cyan
+      label: "Interface\n(PIONEER High)"
+    interface_genomics2proteins:
+      color: "#17becf"  # Teal/Cyan
+      label: "Interface\n(Genomics2Proteins)"
+    has_inter_chain_hydrogen_bond_pdb:
+      color: "#17becf"
+      label: "Has inter-chain\nH-bond (PDB)"
+    has_inter_chain_non_bonded_interaction_pdb:
+      color: "#17becf"
+      label: "Has inter-chain non bonded\ninteraction (PDB)"
+    # has_inter_chain_disulfide_bond_pdb:
+    #   color: "#17becf"
+    #   label: "Has inter-chain\ndi-S bond (PDB)"
+    has_inter_chain_salt_bridge_pdb:
+      color: "#17becf"
+      label: "Has inter-chain\nsalt bridge (PDB)"
+
+  clinvar:
+    clinvar_patho:
+      color: "#17becf"  # Teal/Cyan
+      label: "Pathogenic"
+    clinvar_likely_patho:
+      color: "#17becf"  # Teal/Cyan
+      label: "Likely Pathogenic"
+    clinvar_benign:
+      color: "#17becf"  # Teal/Cyan
+      label: "Benign"
+    clinvar_likely_benign:
+      color: "#17becf"  # Teal/Cyan
+      label: "Likely Benign"
+
+  
+  loftee_protein_domains:
+    loftee_disorder:
+      color: "#E31A1C"  # Dark Red
+      label: "Disordered domain"
+    loftee_lip:
+      color: "#1E90FF"  # Dodger Blue
+      label: "LIP domain"
+    loftee_ted:
+      color: "#2E8B57"  # Sea Green
+      label: "Structured Domain"
+    loftee_low_complexity:
+      color: "#FF9933"  # Amber/Dark Orange
+      label: "Low complexity domain"
+
+  splicing:
+    consequence_splice_donor_variant:
+      color: "#6A1B9A"  # Deep Purple
+      label: "VEP Splice Donor"
+    consequence_splice_acceptor_variant:
+      color: "#AB47BC"  # Lighter Orchid/Purple
+      label: "VEP Splice Acceptor"
+    canonical_splice_variant:
+      color: "#E31A1C"  # Dark Red
+      label: "Canonical splice variant"
+
+  non_coding_regions:
+    not_annotated_in_encode:
+      color: "black"
+      label: "Region not annotated in ENCODE"
+    core_promoter:
+      color: "#00A99D"
+      label: "Core promoter (TSS±50bp)"
+    encode_promoter:
+      color: "#FF8C00"
+      label: "Promoter region (ENCODE)"
+    encode_enhancer:
+      color: "#1D6498"
+      label: "Enhancer region (ENCODE)"
+    encode_any_tf:
+      color: "#41AB5D"  # Medium Green
+      label: "TF binding region (ENCODE)"
+
+  in_or_del:
+    deletion:
+      color: "#005A32"  # Deep Forest Green
+      label: "Deletion"
+    insertion:
+      color: "#08519C"  # Deep Navy Blue
+      label: "Insertion"
+  
+  indel_lengths:
+    deletion_gt2bp:
+      color: "#41AB5D"  # Medium Green
+      label: ">=2bp Deletion"
+    deletion_gt5bp:
+      color: "#C7E9C0"  # Very Light Green
+      label: ">=5bp Deletion"
+    insertion_gt2bp:
+      color: "#6BAED6"  # Medium Blue
+      label: ">=2bp Insertion"
+    insertion_gt5bp:
+      color: "#C6DBEF"  # Very Light Blue.  "#1E90FF" # Dodger Blue
+      label: ">=5bp Insertion"
+  
+  encode_boolean:
+    not_annotated_in_encode:
+      color: "black"
+      label: "Region not annotated in ENCODE"
+    encode_annotated:
+      color: "peru"
+      label: "Enhancers, Promoters, and TF binding sites"
+  
+  encode_indels:
+    encode_snp:
+      color: "peru"
+      label: "ENCODE annotated SNP"
+    encode_deletion:
+      color: "#005A32"  # Deep Forest Green
+      label: "ENCODE annotated Deletion"
+    encode_insertion:
+      color: "#08519C"  # Deep Navy Blue
+      label: "ENCODE annotated Insertion"
+    # not_annotated_in_encode:
+    #   color: "black"
+    #   label: "Region not annotated in ENCODE"
+    
+  encode_deletions:
+    encode_snp:
+      color: "peru"
+      label: "ENCODE annotated SNP"
+    encode_deletion:
+      color: "#238B45"  # Dark Green
+      label: "ENCODE region Deletion"
+    encode_deletion_gt2bp:
+      color: "#41AB5D"  # Medium Green
+      label: "ENCODE region Deletion (>=2bp)"
+    encode_deletion_gt5bp:
+      color: "#C7E9C0"  # Very Light Green
+      label: "ENCODE region Deletion (>=5bp)"
+
+  all_encode_annotations:
+    # --- Promoter/Enhancer Spectrum ---
+    encode_pls:
+      color: "#E41A1C"  # Red (Standard for Active Promoters)
+      label: "Promoter-Like Signature"
+    encode_pels:
+      color: "#FF8C00"
+      label: "Proximal Enhancer-Like Signature"
+    encode_dels:
+      color: "#FFD700"
+      label: "Distal Enhancer-Like Signature"
+    # --- Structural/Basal Marks ---
+    encode_ca_ctcf:
+      color: "#4DAF4A"  # Green (Standard for CTCF/Insulator elements)
+      label: "Accessible Region with CTCF Binding"
+    encode_ca:
+      color: "#377EB8"  # Medium Blue (For Chromatin Accessible Only)
+      label: "Chromatin Accessible"
+    encode_ca_tf:
+      color: "#1D6498"
+      label: "Accessible Region with TF Binding"
+    # --- Factor/Histone-Specific Marks ---
+    encode_ca_h3k4me3:
+      color: "#A65628"  # Brown (Promoter-like mark, distinct from PLS)
+      label: "Accessible Region with Promoter Mark"
+    encode_tf:
+      color: "#984EA3"  # Purple (For Transcription Factor Binding)
+      label: "Transcription Factor Binding Only"
+
+  indel_cds:
+    deletion_x3bp:
+      color: "#C7E9C0"
+      label: "Deletion\n(multiple of 3)"
+    deletion_not_x3bp:
+      color: "#238B45"
+      label: "Deletion\n(NOT multiple of 3)"
+    insertion_x3bp:
+      color: "#C6DBEF"
+      label: "Insertion\n(multiple of 3)"
+    insertion_not_x3bp:
+      color: "#3182BD"
+      label: "Insertion\n(NOT multiple of 3)"
+
+  5utr_annotator:
+    # --- 5' UTR Frameshift (Distinct Cyan/Teal) ---
+    five_prime_utr_variant_consequence_uframeshift:
+      color: "#00A99D" # Teal (Kept original, but now distinct from all other indels)
+      label: "5UTR Frameshift"
+    # --- 5' UTR Gained Events (Bright Yellow/Gold) ---
+    five_prime_utr_variant_consequence_uaug_gained:
+      color: "#FFD700"  # Gold (AUG Start Gained)
+      label: "5UTR Start Gain"
+    five_prime_utr_variant_consequence_ustop_gained:
+      color: "#FFA500"  # Orange (uSTOP Gained)
+      label: "5UTR Stop Gain"
+    # --- 5' UTR Lost Events (Duller Yellow/Orange) ---
+    five_prime_utr_variant_consequence_uaug_lost:
+      color: "#DAA520"  # Goldenrod (AUG Start Lost)
+      label: "5UTR Start Lost"
+    five_prime_utr_variant_consequence_ustop_lost:
+      color: "#B8860B"  # Dark Goldenrod (uSTOP Lost)
+      label: "5UTR Stop Lost"

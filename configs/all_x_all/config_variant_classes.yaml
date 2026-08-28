@@ -1,0 +1,80 @@
+all_variants:
+  variant_filtering:
+  tool_categories:
+    - conservation
+  x_label: "All"
+  
+coding:
+  variant_filtering:
+    any_of:
+      - "pl.col('consequence_stop_gained')==True"
+      - "pl.col('consequence_frameshift_variant')==True"
+      - "pl.col('consequence_synonymous_variant')==True"
+      - "pl.col('consequence_protein_altering_variant')==True"
+      - "pl.col('consequence_missense_variant')==True"
+      - "pl.col('consequence_splice_region_variant')==True"
+      - "pl.col('consequence_splice_acceptor_variant')==True"
+      - "pl.col('consequence_splice_donor_variant')==True"
+      - "pl.col('consequence_splice_donor_region_variant')==True"
+      - "pl.col('consequence_splice_donor_5th_base_variant')==True"
+      - "pl.col('consequence_splice_polypyrimidine_tract_variant')==True"
+      - "pl.col('consequence_start_lost')==True"
+      - "pl.col('consequence_stop_lost')==True"
+      - "pl.col('consequence_start_retained_variant')==True"
+      - "pl.col('consequence_stop_retained_variant')==True"
+      - "pl.col('consequence_inframe_deletion')==True"
+      - "pl.col('consequence_inframe_insertion')==True"
+      - "pl.col('consequence_coding_sequence_variant')==True"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "coding"
+  
+missense:
+  variant_filtering:
+    all_of:
+      - "pl.col('consequence_missense_variant') == True"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "Missense"
+
+missense_structured:
+  variant_filtering:
+    all_of:
+      - "pl.col('consequence_missense_variant') == True"
+      - "pl.col('ted_domain') == True"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "Structured domain (missense)"
+
+missense_non_structured:
+  variant_filtering:
+    all_of:
+      - "pl.col('consequence_missense_variant') == True"
+      - "pl.col('ted_domain') == False"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "Non-structured domain (missense)"
+
+missense_disordered:
+  variant_filtering:
+    all_of:
+      - "pl.col('consequence_missense_variant') == True"
+      - "pl.col('mobi_full_disorder_priority') == True"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "Disordered domain (missense)"
+
+missense_lip:
+  variant_filtering:
+    all_of:
+      - "pl.col('consequence_missense_variant') == True"
+      - "pl.col('mobi_full_lip_priority') == True"
+  tool_categories:
+    - missense
+    - conservation
+  x_label: "LIP domain (missense)"

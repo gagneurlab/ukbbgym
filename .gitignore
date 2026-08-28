@@ -1,0 +1,13 @@
+# Python environments (see "Environment setup" in README.md)
+.venv/
+.venv-hail/
+__pycache__/
+*.py[cod]
+
+# local data / figure output
+data/
+paper_figures/
+figures/
+
+.ipynb_checkpoints/
+.DS_Store

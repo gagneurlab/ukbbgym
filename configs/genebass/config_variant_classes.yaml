@@ -1,0 +1,219 @@
+missense:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+  tool_categories:
+    - missense
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Missense"
+
+missense_plddt_high:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('plddt') > 70"
+  tool_categories:
+    - missense
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Structured; pLDDT>70 (missense)"
+
+missense_plddt_low:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('plddt') <= 70"
+  tool_categories:
+    - missense
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Disordered; pLDDT≤70 (missense)"
+
+missense_interface:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('is_pioneer_interface_high') == True"
+  tool_categories:
+    - missense
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Interface (missense)"
+
+missense_interface_all:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "(pl.col('is_pioneer_interface_high') == True) | (pl.col('has_inter_chain_non_bonded_interaction_pdb') == True) | (pl.col('has_inter_chain_hydrogen_bond_pdb') == True) | (pl.col('interface_genomics2proteins') == True)"
+  tool_categories:
+    - missense
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "All interface annotations (missense)"
+
+missense_structured:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('ted_domain') == True"
+  tool_categories:
+    - missense
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Structured domain (missense)"
+
+missense_non_structured:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('ted_domain') == False"
+  tool_categories:
+    - missense
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Non-structured domain (missense)"
+
+missense_disordered:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('mobi_full_disorder_priority') == True"
+  tool_categories:
+    - missense
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Disordered domain (missense)"
+
+missense_lip:
+  variant_filtering:
+    - "pl.col('consequence_missense_variant') == True"
+    - "pl.col('mobi_full_lip_priority') == True"
+  tool_categories:
+    - missense
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "LIP domain (missense)"
+
+intron:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('consequence_intron_variant') == True"
+  tool_categories:
+    - splicing
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Intronic"
+
+enhancer_encode:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('encode_enhancer') == True"
+  tool_categories:
+    - regulatory
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Enhancer (pELS & dELS)"
+
+promoter_encode:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('encode_promoter') == True"
+  tool_categories:
+    - regulatory
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Promoter (PLS & CA-H3K4me3)"
+
+tf_encode:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('encode_any_tf') == True"
+  tool_categories:
+    - regulatory
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "TF binding region (TC & CA-TF)"
+
+proximal_promoter:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('dist2tssv39').abs() <= 500"
+    - "pl.col('pangolin_score') < 0.2"
+    - "pl.col('promoterai_is_na') == False"
+  tool_categories:
+    - regulatory
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Proximal promoter"
+
+core_promoter:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+    - "pl.col('dist2tssv39').abs() <= 50"
+    - "pl.col('pangolin_score') < 0.2"
+  tool_categories:
+    - regulatory
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "Core promoter"
+
+loftee_hc:
+  variant_filtering:
+    - "pl.col('loftee_hc') == 1"
+    - "pl.col('loftee_hc_is_na') == 0"
+  tool_categories:
+    - conservation
+    - genetic_diversity
+    - gnomad
+    - var_length
+  x_label: "LOFTEE HC pLoF"
+
+indel:
+  variant_filtering:
+    - "pl.col('is_indel') == 1"
+    - "pl.col('is_indel_is_na') == 0"
+  tool_categories:
+    # - genetic_diversity
+    - gnomad
+    - plof
+    - var_length
+    # - conservation
+  x_label: "Indel"
+
+all_variants:
+  variant_filtering:
+  tool_categories:
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "All"
+
+all_non_coding:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==False) & (pl.col('mane_cds')==False) & (pl.col('non_mane_cds')==False)"
+  tool_categories:
+    - conservation
+    - genetic_diversity
+    - gnomad
+  x_label: "All non-coding"
+
+all_coding:
+  variant_filtering:
+    - "(pl.col('vep_cds_relaxed')==True)"
+  tool_categories:
+    - conservation
+    - missense
+    - genetic_diversity
+    - gnomad
+  x_label: "All coding"

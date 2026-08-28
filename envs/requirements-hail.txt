@@ -1,0 +1,20 @@
+# Separate environment for the Hail/Spark query notebooks:
+#   aou_sumstats/all_by_all/*.ipynb
+#   genebass_sumstats/utils/read_hail_sumstats.ipynb
+#   genebass_sumstats/utils/missenseLC_assocs/get_genebass_*.ipynb
+#
+# Kept out of pyproject.toml on purpose: hail pins an older pyspark/numpy range
+# that would drag the core analysis environment backwards.
+#
+# Requires Python 3.11 and a Java 11 JDK on PATH (Hail 0.2.139 pulls pyspark 3.5
+# and recommends Temurin 11). These notebooks read TB-scale MatrixTables and are
+# normally run on the All of Us workbench or a cluster with the data mounted,
+# not on a laptop.
+hail>=0.2.130
+bokeh>=3.1
+polars>=1.33
+pyarrow>=15
+pandas>=2.2
+tqdm>=4.66
+pyyaml>=6.0
+ipykernel>=6.29
