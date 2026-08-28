@@ -12,7 +12,18 @@ rare_variant_annotations:
       color: "#feb72d"
       label: "SIFT"
       direction: -1
-    am_pathogenicity: 
+    # all_x_all's own annotation parquet names these two columns polyphen_score/sift_score
+    # instead of polyphen/sift -- both spellings are kept so pick_annos()'s schema
+    # intersection silently picks whichever one exists in a given setup's data, rather than
+    # this predictor going missing for one setup over a naming difference.
+    polyphen_score:
+      color: "#feb72d"
+      label: "PolyPhen2"
+    sift_score:
+      color: "#feb72d"
+      label: "SIFT"
+      direction: -1
+    am_pathogenicity:
       color: "#feb72d"
       label: "AlphaMissense"
     # esmscoremissense: 

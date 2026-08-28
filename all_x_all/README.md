@@ -43,9 +43,11 @@ run them on the Workbench's Spark cluster, not interactively on a small instance
 ## `analysis/correlations/`
 
 - [`pheno_correlations_META.ipynb`](analysis/correlations/pheno_correlations_META.ipynb) — the
-  correlation heatmap. Reads [`../configs/all_x_all/`](../configs/all_x_all/) for the predictor
-  set and variant-class filters (same YAML structure as `../configs/genebass/`, but scored
-  against AbA's column names — e.g. `polyphen_score` rather than genebass's `polyphen`).
+  correlation heatmap. Reads the shared [`../configs/`](../configs/) for the predictor set and
+  variant-class filters — the same files `../genebass/` uses. The one real difference, a naming
+  mismatch (AbA's annotation parquet calls a column `polyphen_score` where genebass's calls it
+  `polyphen`), is handled by `../configs/config_correlations.yaml` listing both spellings; see
+  [`../configs/README.md`](../configs/README.md).
 - [`dataframe_from_heatmap.py`](analysis/correlations/dataframe_from_heatmap.py) — helper the
   notebook imports for the pairwise heatmap's row/column tool ordering.
 

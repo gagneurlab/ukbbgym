@@ -19,7 +19,8 @@ Takes the output of vep_loftee_parallel (VEP + LOFTEE + gnomAD AFs + structural 
     bayes_del (BayesDel noAF)
     cpt1_llr (CPT-1 per-protein, Zenodo 8140323)
     gpn_score (GPN-MSA, remote tabix via HuggingFace bgz)
-    cadd_raw (CADD v1.7 GRCh38, remote tabix)
+    cadd_raw (CADD v1.7 GRCh38, remote tabix; SNVs from whole_genome_SNVs.tsv.gz,
+              indels from the gnomAD v4.0 genomes indel file)
     phylop_100way (UCSC bigWig, remote pyBigWig)
 
   Step 4 — Derived columns:
@@ -154,6 +155,12 @@ GPN_MSA_TBI_URL = GPN_MSA_URL + ".tbi"
 CADD_SNV_URL = (
     "https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh38/"
     "whole_genome_SNVs.tsv.gz"
+)
+# CADD has no whole-genome indel score set; the closest coverage is this
+# gnomAD v4.0 genomes indel file.
+CADD_INDEL_URL = (
+    "https://krishna.gs.washington.edu/download/CADD/v1.7/GRCh38/"
+    "gnomad.genomes.r4.0.indel.tsv.gz"
 )
 # PhyloP 100-way vertebrate conservation (UCSC bigWig, accessed remotely)
 PHYLOP_100WAY_URL = (
@@ -1108,7 +1115,10 @@ def _tabix_fetch_scores(
 def step2a_cadd(annos: pl.LazyFrame) -> pl.LazyFrame:
     """
     Add CADD raw scores via remote tabix queries against the CADD GRCh38 server.
-    SNVs use whole_genome_SNVs.tsv.gz.
+    SNVs use whole_genome_SNVs.tsv.gz; indels use the gnomAD v4.0 genomes indel
+    file (CADD publishes no whole-genome indel score set, only this
+    gnomAD-variant one — so indel coverage is limited to variants gnomAD has
+    scored, unlike the SNV file's full-genome coverage).
     Output column: cadd_raw.
     """
     logger.info("Step 2a: Merging CADD scores (local tabix)")
@@ -1119,20 +1129,25 @@ def step2a_cadd(annos: pl.LazyFrame) -> pl.LazyFrame:
         snvs = variants.filter(
             (pl.col("ref").str.len_bytes() == 1) & (pl.col("alt").str.len_bytes() == 1)
         )
-        n_indels = len(variants) - len(snvs)
-        if n_indels > 0:
-            logger.info(
-                f"  CADD: {n_indels:,} indels skipped (whole_genome_SNVs.tsv.gz "
-                f"covers SNVs only); {len(snvs):,} SNVs queried"
-            )
+        indels = variants.filter(
+            (pl.col("ref").str.len_bytes() != 1) | (pl.col("alt").str.len_bytes() != 1)
+        )
 
         frames = []
         if not snvs.is_empty():
             cadd_local = _ensure_local_tabix(CADD_SNV_URL)
             if cadd_local is None:
-                logger.warning("  CADD: download failed, skipping")
-                return annos
-            frames.append(_tabix_fetch_scores(cadd_local, snvs, "rawscore", "cadd_raw"))
+                logger.warning("  CADD: SNV download failed, skipping SNVs")
+            else:
+                frames.append(_tabix_fetch_scores(cadd_local, snvs, "rawscore", "cadd_raw"))
+
+        if not indels.is_empty():
+            logger.info(f"  CADD: {len(indels):,} indels — querying gnomAD indel file")
+            cadd_indel_local = _ensure_local_tabix(CADD_INDEL_URL)
+            if cadd_indel_local is None:
+                logger.warning(f"  CADD: indel download failed, skipping {len(indels):,} indels")
+            else:
+                frames.append(_tabix_fetch_scores(cadd_indel_local, indels, "rawscore", "cadd_raw"))
 
         if not frames:
             logger.warning("  CADD: no scores retrieved")

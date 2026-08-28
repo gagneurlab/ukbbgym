@@ -23,7 +23,7 @@ only needed if you want to rebuild it from scratch.
    Every other analysis notebook needs an additional file or two — see the table below and the
    *needs* column in *Analysis notebooks*.
 3. Open any notebook under [`analysis/`](analysis/) with the `.venv` kernel and run top to bottom.
-   Each notebook resolves the repo root, `configs/genebass/` and `utils/variant_filtering.py`
+   Each notebook resolves the repo root, `configs/` and `utils/variant_filtering.py`
    automatically, regardless of where you cloned the repo — `data/<file>.parquet` at the repo
    root is the convention every notebook expects its inputs at.
 4. Figures are written to `paper_figures/` at the repo root.
@@ -38,7 +38,6 @@ only needed if you want to rebuild it from scratch.
 | `clinvar_significance_vep_annotations_processed_cadd_fill_na_20260804.parquet` | `other_benchmarks/clinvar_spearman_scatterplot_master_file.ipynb` (17,683-gene ClinVar label set; broader than the master table's `clinical_significance` column, see the notebook's own note) | not yet published |
 | `proteingym_SNVs_with_readout_annotated_20260716.parquet` | `other_benchmarks/proteingym_snr_master_file.ipynb`, `other_benchmarks/proteingym_correlations_master_file.ipynb`, `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` | not yet published |
 | `DMS_Marsh_VEP.parquet`, `LDLR_Roth_Science_2025.parquet` | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` (additional experimental DMS assays) | not yet published |
-| `regenie_127phenotypes_lofteeHC_mac20_EUR_miss20per.parquet`, `regenie_127phenotypes_mac20_lofteeHC_EUR_correlations.parquet` | `other_benchmarks/proteingym_correlations_master_file.ipynb` (association files, read directly rather than only via the master table) | individual-level UK Biobank output — not publicly distributed, see `../ukbb/` |
 
 Only the first row currently has a publication plan. The rest are flagged here rather than
 silently left for a `FileNotFoundError` — treat any notebook past the first three as
@@ -64,7 +63,11 @@ Step 2 needs the UKB annotation, association and LOFTEE-correlation parquets, wh
 available from the primary UK Biobank pipeline (`../ukbb/`) and are not publicly distributed.
 **If you're using the published master table, skip both steps.**
 
-Every notebook under [analysis/](analysis/) reads **only** the master table — no further joins.
+Every notebook under [analysis/](analysis/) reads the master table, plus — for some notebooks —
+the additional `data/` inputs listed in the inventory above. None does a further join against
+the raw annotation/association files directly; anything beyond the master table is a standalone
+file read wholesale (ClinVar labels, ProteinGym, the null-trait panel, …), not a join key into
+`ANNO_PATH`/`ASSOC_PATH`/`CORR_PATH`.
 
 ### Path conventions
 
@@ -125,7 +128,7 @@ Flat parquet with one row per (variant, phenotype), restricted to the 2,289 asso
 
 **Notebook:** [utils/02_create_master_table.ipynb](utils/02_create_master_table.ipynb)
 
-One table every analysis can use without a further join. Gene- and phenotype-level values (`phenotype`, `loftee_corr_dir`, …) are repeated on every variant row of the gene; that redundancy is deliberate, since it removes a join from every notebook. Only presentation metadata (`label`, `color`, `category`, `direction`) stays in [`../configs/genebass/`](../configs/genebass/).
+One table every analysis can use without a further join. Gene- and phenotype-level values (`phenotype`, `loftee_corr_dir`, …) are repeated on every variant row of the gene; that redundancy is deliberate, since it removes a join from every notebook. Only presentation metadata (`label`, `color`, `category`, `direction`) stays in [`../configs/`](../configs/).
 
 **Grain:** one row per `(id, region)`.
 
@@ -139,7 +142,7 @@ One table every analysis can use without a further join. Gene- and phenotype-lev
 | `APPV_PATH` | `<data_root>/genebass/genebass_betas/genebass_betas_127phenos_allvars.parquet` — step 1 |
 | `ASSOC_PATH` | `<data_root>/association_files/`<br>`regenie_127phenotypes_lofteeHC_mac20_EUR_miss20per.parquet` |
 | `CORR_PATH` | `<data_root>/association_files/`<br>`regenie_127phenotypes_mac20_lofteeHC_EUR_correlations.parquet` |
-| `CFG_DIR` | [`../configs/genebass/`](../configs/genebass/) |
+| `CFG_DIR` | [`../configs/`](../configs/) |
 
 Note the spelling of the data root on the Gagneur cluster: the mount holding the annotation file is spelled `ukbbgym` (two b's); the similarly named `ukbgym` mount is a different filesystem and does not hold it.
 
@@ -155,7 +158,7 @@ Note the spelling of the data root on the Gagneur cluster: the mount holding the
 ## Analysis notebooks
 
 Every notebook under [`analysis/`](analysis/) reads the master table (`MASTER_PATH`, set at the
-top of its first cell) and its own [`../configs/genebass/`](../configs/genebass/) YAML — no
+top of its first cell) and the shared [`../configs/`](../configs/) YAML — no
 further joins against the annotation/association files. Some also read one or more of the
 additional `data/` files in the inventory above; the *Needs* column says whether the published
 master table alone is enough.
@@ -168,6 +171,13 @@ master table alone is enough.
 | [`noise_ceiling/noise_ceiling_one_region.ipynb`](analysis/noise_ceiling/noise_ceiling_one_region.ipynb) | Detectable-variance ceiling and variance captured per predictor, single unsplit population; noise estimated from AC=1 synonymous variants on the null-trait panel | + null-trait panel |
 | [`noise_ceiling/noise_ceiling_TED_contrast.ipynb`](analysis/noise_ceiling/noise_ceiling_TED_contrast.ipynb) | Same ceiling framework, split within vs. outside TED domains | + null-trait panel |
 | [`other_benchmarks/proteingym_snr_master_file.ipynb`](analysis/other_benchmarks/proteingym_snr_master_file.ipynb) | Signal-to-noise of pairwise predictor deltas, ProteinGym vs UKBBGym, percentile bootstrap | + ProteinGym |
-| [`other_benchmarks/proteingym_correlations_master_file.ipynb`](analysis/other_benchmarks/proteingym_correlations_master_file.ipynb) | Per-method mean UKBBGym correlation (Genebass effect sizes) against mean ProteinGym correlation across human assays | + ProteinGym, + association files |
+| [`other_benchmarks/proteingym_correlations_master_file.ipynb`](analysis/other_benchmarks/proteingym_correlations_master_file.ipynb) | Per-method mean UKBBGym correlation (Genebass effect sizes) against mean ProteinGym correlation across human assays | + ProteinGym |
 | [`other_benchmarks/clinvar_spearman_scatterplot_master_file.ipynb`](analysis/other_benchmarks/clinvar_spearman_scatterplot_master_file.ipynb) | Per-gene ClinVar pathogenicity auROC against per-gene Spearman correlation with the phenotype, one point per predictor | + ClinVar labels |
 | [`other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb`](analysis/other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb) | Correlation with experimental deep mutational scanning assays (SGE, MaveDB) across genes | + all-variants master table, + ProteinGym, + DMS assays |
+
+`proteingym_correlations_master_file.ipynb`'s UKBBGym-side correlation now reads directly off
+the master table via the shared `gene_trait_tool_correlations` helper, like every other notebook
+here, instead of separately re-selecting the best trait per gene from the raw association files
+— the master table already applies that same selection at build time (see *Scope* in Step 2
+above), so the gene-trait universe should be identical, but the published figure was produced by
+the old code path and hasn't been re-run against this version to confirm bit-identical output.
