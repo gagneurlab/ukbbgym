@@ -21,7 +21,7 @@ didn't make it into this repo.
 |---|---|
 | `config_correlations.yaml` | predictor set, colors, labels, direction — every `genebass/analysis/*` notebook and both `all_x_all/` notebooks |
 | `config_variant_classes.yaml` | variant-class filter expressions (missense, pLoF, pLDDT strata, TED domain strata, …) |
-| `config_categories.yaml` | annotation category → color mapping; genebass-only consumer (`mean_phenotype_master_table.ipynb`), but colocated here since there's no naming clash and no reason to split it out |
+| `config_categories.yaml` | annotation category → color mapping; genebass-only consumer (`mean_phenotype.ipynb`), but colocated here since there's no naming clash and no reason to split it out |
 
 One real naming difference survives the merge: genebass's annotation parquet names two columns
 `polyphen`/`sift`, while all_x_all's names the same predictors `polyphen_score`/`sift_score`.

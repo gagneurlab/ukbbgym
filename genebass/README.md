@@ -20,9 +20,9 @@ below are only needed if you want to rebuild the master table from scratch.
 2. Log in to Hugging Face with an account that has access to `gagneurlab/ukbbgym` (it's private):
    `.venv/bin/huggingface-cli login`, or export `HF_TOKEN`. No manual download or file placement
    needed — the first notebook you run pulls whatever it needs into `data/` (gitignored) itself.
-   [`correlations_master_table.ipynb`](analysis/correlations_master_table.ipynb),
-   [`mean_phenotype_master_table.ipynb`](analysis/mean_phenotype_master_table.ipynb) and
-   [`protein_domains_correlations_master_file.ipynb`](analysis/protein_domains_correlations_master_file.ipynb)
+   [`correlations.ipynb`](analysis/correlations.ipynb),
+   [`mean_phenotype.ipynb`](analysis/mean_phenotype.ipynb) and
+   [`protein_domains_correlations.ipynb`](analysis/protein_domains_correlations.ipynb)
    need only the master table; every other analysis notebook fetches an additional file or two —
    see the table below and the *needs* column in *Analysis notebooks*.
 3. Open any notebook under [`analysis/`](analysis/) with the `.venv` kernel and run top to bottom,
@@ -47,13 +47,57 @@ genebass/run_all.sh --variant-class indel --mac 10 --min-variants 50 \
 | Flag | Env var | Notebook default |
 |---|---|---|
 | `--variant-class` | `UKBBGYM_VARIANT_CLASS` | `missense` (most notebooks; `indel` for `noise_ceiling_one_region.ipynb`) |
-| `--selected-categories` | `UKBBGYM_SELECTED_CATEGORIES` (comma-separated) | per-notebook — `config_correlations.yaml` categories. **Not** `mean_phenotype_master_table.ipynb` or `noise_ceiling/*` — see below, their category list means something different |
+| `--selected-categories` | `UKBBGYM_SELECTED_CATEGORIES` (comma-separated) | per-notebook — `config_correlations.yaml` categories. **Not** `mean_phenotype.ipynb` or `noise_ceiling/*` — see below, their category list means something different |
 | `--mac` | `UKBBGYM_MAC` | `20` |
 | `--min-variants` | `UKBBGYM_MIN_VARIANTS` | per-notebook (typically `50`–`100`) |
-| `--config-file` | `UKBBGYM_CONFIG_FILE` | per-notebook, always a file under [`../configs/`](../configs/). **Not** `mean_phenotype_master_table.ipynb` — see below |
+| `--config-file` | `UKBBGYM_CONFIG_FILE` | per-notebook, always a file under [`../configs/`](../configs/). **Not** `mean_phenotype.ipynb` — see below |
 | `--master-path` | `UKBBGYM_MASTER_PATH` | `data/genebass_annotated.parquet`, auto-fetched from Hugging Face. **Not** `expAssays_all_genes_correlations_pheno.ipynb` — see below |
 | `--fig-dir` | `UKBBGYM_FIG_DIR` | `paper_figures/` at the repo root |
 | `--only-snps` / `--no-only-snps` | `UKBBGYM_ONLY_SNPS` | per-notebook |
+| `--new-score PATH` | (sets `UKBBGYM_MASTER_PATH`/`UKBBGYM_CONFIG_FILE` itself) | none — run with the existing annotations only |
+| `--new-score-category NAME` | — | `missense` |
+
+### Scoring your own predictor: `--new-score`
+
+To see how a new predictor compares against the existing tools in every plot, without
+touching any notebook: give `run_all.sh` a parquet or CSV(.gz) with one or more score columns
+plus a way to join each score to a variant — either:
+
+- **genomic** — `chrom`, `pos` (or `position`), `ref`, `alt` (tried first; if the file also
+  has `uniprot_id`, that's folded into the key too, so a score given per (variant, isoform)
+  collapses onto one row per variant instead of colliding), or
+- **protein** — `uniprot_id`, `position` (or `protein_position`), `aa_ref`, `aa_alt`, used if
+  no genomic key is found (e.g. a per-protein score with no genomic coordinates at all, like
+  an MSA-based LLR table).
+
+A row that repeats a join key is collapsed to its first occurrence, so the merge can't
+silently duplicate master-table rows. Pass `--on` (`merge_new_score.py`) to force a different
+key if your file uses neither shape.
+
+```bash
+genebass/run_all.sh --new-score /path/to/my_predictor_scores.parquet
+```
+
+Before running any notebook, this:
+
+1. Left-joins your file's new columns onto the master table by the detected key
+   (`merge_new_score()` in [`utils/variant_filtering.py`](../utils/variant_filtering.py)),
+   writing `data/<master file>_plus_<your file's name>.parquet`.
+2. Registers each new column as a predictor under the `missense` category (override with
+   `--new-score-category`) in a copy of `config_correlations.yaml`
+   (`register_score_in_config()`, same file) — written to `configs/_custom_score.yaml`
+   (gitignored, safe to overwrite on the next run).
+3. Points every notebook at that merged table and config for the rest of the run, the same
+   way `--master-path`/`--config-file` would.
+
+`missense` is the default category because it's in every notebook's default
+`selected_categories` — the new score shows up without also passing
+`--selected-categories`. It only reaches notebooks that read `MASTER_PATH`/`CONFIG_FILE` off
+the shared flags — not `mean_phenotype.ipynb`,
+`expAssays_all_genes_correlations_pheno.ipynb`, or the `noise_ceiling/*` unassociated table,
+which use the special-cased env vars below and their own master tables.
+
+If none is specified, `run_all.sh` runs with the existing annotations exactly as before.
 
 **Three notebooks give a same-shaped parameter its own env var instead**, because its default
 isn't the same thing the flag above controls — a shared `--selected-categories`/`--config-file`/
@@ -62,8 +106,8 @@ error. Set these by exporting the env var directly; there's no flag for them:
 
 | Notebook | Env var | What it is |
 |---|---|---|
-| `mean_phenotype_master_table.ipynb` | `UKBBGYM_MEAN_PHENO_CATEGORIES` | categories from `config_categories.yaml` (default `['protein_domains']`), not `config_correlations.yaml` |
-| `mean_phenotype_master_table.ipynb` | `UKBBGYM_MEAN_PHENO_CONFIG_FILE` | defaults to `config_categories.yaml`, not `config_correlations.yaml` |
+| `mean_phenotype.ipynb` | `UKBBGYM_MEAN_PHENO_CATEGORIES` | categories from `config_categories.yaml` (default `['protein_domains']`), not `config_correlations.yaml` |
+| `mean_phenotype.ipynb` | `UKBBGYM_MEAN_PHENO_CONFIG_FILE` | defaults to `config_categories.yaml`, not `config_correlations.yaml` |
 | `noise_ceiling/noise_ceiling_one_region.ipynb`, `noise_ceiling/noise_ceiling_TED_contrast.ipynb` | `UKBBGYM_NOISE_CEILING_CATEGORIES` | defaults to `None` (use the variant class's own `tool_categories`); the shared flag would disable that fallback |
 | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` | `UKBBGYM_EXPASSAYS_MASTER_PATH` | defaults to `genebass_annotated_all.parquet`, the all-variants table, not the shared master table |
 
@@ -71,7 +115,7 @@ To run just one notebook with an override, export the env var(s) yourself and us
 
 ```bash
 UKBBGYM_MAC=10 .venv/bin/jupyter nbconvert --to notebook --execute --inplace \
-    genebass/analysis/correlations_master_table.ipynb
+    genebass/analysis/correlations.ipynb
 ```
 
 A few other notebook-specific knobs aren't on either list above but follow the same
@@ -95,8 +139,8 @@ whoever runs the lab's Hugging Face org for access if you get a 401.
 | `genebass_annotated.parquet` | most `analysis/` notebooks (the master table) |
 | `genebass_unassociated.parquet` | `noise_ceiling/*` (unassociated/null-trait panel, AC=1 synonymous noise estimate) |
 | `genebass_annotated_all.parquet` | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` (all-variants variant of the master table, not restricted to the 670 benchmark genes) |
-| `other_benchmarks/clinvar_annotated.parquet` | `other_benchmarks/clinvar_spearman_scatterplot_master_file.ipynb` (17,683-gene ClinVar label set; broader than the master table's `clinical_significance` column, see the notebook's own note) |
-| `other_benchmarks/proteingym_snv_annotated.parquet` | `other_benchmarks/proteingym_snr_master_file.ipynb`, `other_benchmarks/proteingym_correlations_master_file.ipynb`, `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` |
+| `other_benchmarks/clinvar_annotated.parquet` | `other_benchmarks/clinvar_spearman_scatterplot.ipynb` (17,683-gene ClinVar label set; broader than the master table's `clinical_significance` column, see the notebook's own note) |
+| `other_benchmarks/proteingym_snv_annotated.parquet` | `other_benchmarks/proteingym_snr.ipynb`, `other_benchmarks/proteingym_correlations.ipynb`, `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` |
 | `other_benchmarks/dms_mol_sys_bio_2023.parquet`, `other_benchmarks/ldlr_science_2025.parquet` | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` (additional experimental DMS assays) |
 
 To point a notebook at a file you already have locally under a different name instead of
@@ -225,17 +269,17 @@ master table alone is enough.
 
 | Notebook | Produces | Needs |
 |---|---|---|
-| [`correlations_master_table.ipynb`](analysis/correlations_master_table.ipynb) | Pairwise missense-predictor heatmap: per-gene Spearman correlation with Genebass effect sizes, Wilcoxon signed-rank significance across gene–trait pairs | master table only |
-| [`mean_phenotype_master_table.ipynb`](analysis/mean_phenotype_master_table.ipynb) | Mean direction-corrected carrier phenotype for missense variants stratified by protein structural / interaction annotation | master table only |
-| [`protein_domains_correlations_master_file.ipynb`](analysis/protein_domains_correlations_master_file.ipynb) | Mean Spearman correlation within vs. outside structured domains, and the per-method paired difference, for TED domains and for AlphaFold2 pLDDT > 70 | master table only |
+| [`correlations.ipynb`](analysis/correlations.ipynb) | Pairwise missense-predictor heatmap: per-gene Spearman correlation with Genebass effect sizes, Wilcoxon signed-rank significance across gene–trait pairs | master table only |
+| [`mean_phenotype.ipynb`](analysis/mean_phenotype.ipynb) | Mean direction-corrected carrier phenotype for missense variants stratified by protein structural / interaction annotation | master table only |
+| [`protein_domains_correlations.ipynb`](analysis/protein_domains_correlations.ipynb) | Mean Spearman correlation within vs. outside structured domains, and the per-method paired difference, for TED domains and for AlphaFold2 pLDDT > 70 | master table only |
 | [`noise_ceiling/noise_ceiling_one_region.ipynb`](analysis/noise_ceiling/noise_ceiling_one_region.ipynb) | Detectable-variance ceiling and variance captured per predictor, single unsplit population; noise estimated from AC=1 synonymous variants on the null-trait panel | + null-trait panel |
 | [`noise_ceiling/noise_ceiling_TED_contrast.ipynb`](analysis/noise_ceiling/noise_ceiling_TED_contrast.ipynb) | Same ceiling framework, split within vs. outside TED domains | + null-trait panel |
-| [`other_benchmarks/proteingym_snr_master_file.ipynb`](analysis/other_benchmarks/proteingym_snr_master_file.ipynb) | Signal-to-noise of pairwise predictor deltas, ProteinGym vs UKBBGym, percentile bootstrap | + ProteinGym |
-| [`other_benchmarks/proteingym_correlations_master_file.ipynb`](analysis/other_benchmarks/proteingym_correlations_master_file.ipynb) | Per-method mean UKBBGym correlation (Genebass effect sizes) against mean ProteinGym correlation across human assays | + ProteinGym |
-| [`other_benchmarks/clinvar_spearman_scatterplot_master_file.ipynb`](analysis/other_benchmarks/clinvar_spearman_scatterplot_master_file.ipynb) | Per-gene ClinVar pathogenicity auROC against per-gene Spearman correlation with the phenotype, one point per predictor | + ClinVar labels |
+| [`other_benchmarks/proteingym_snr.ipynb`](analysis/other_benchmarks/proteingym_snr.ipynb) | Signal-to-noise of pairwise predictor deltas, ProteinGym vs UKBBGym, percentile bootstrap | + ProteinGym |
+| [`other_benchmarks/proteingym_correlations.ipynb`](analysis/other_benchmarks/proteingym_correlations.ipynb) | Per-method mean UKBBGym correlation (Genebass effect sizes) against mean ProteinGym correlation across human assays | + ProteinGym |
+| [`other_benchmarks/clinvar_spearman_scatterplot.ipynb`](analysis/other_benchmarks/clinvar_spearman_scatterplot.ipynb) | Per-gene ClinVar pathogenicity auROC against per-gene Spearman correlation with the phenotype, one point per predictor | + ClinVar labels |
 | [`other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb`](analysis/other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb) | Correlation with experimental deep mutational scanning assays (SGE, MaveDB) across genes | + all-variants master table, + ProteinGym, + DMS assays |
 
-`proteingym_correlations_master_file.ipynb`'s UKBBGym-side correlation now reads directly off
+`proteingym_correlations.ipynb`'s UKBBGym-side correlation now reads directly off
 the master table via the shared `gene_trait_tool_correlations` helper, like every other notebook
 here, instead of separately re-selecting the best trait per gene from the raw association files
 — the master table already applies that same selection at build time (see *Scope* in Step 2

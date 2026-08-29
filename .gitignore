@@ -11,3 +11,4 @@ figures/
 
 .ipynb_checkpoints/
 .DS_Store
+configs/_custom_score.yaml

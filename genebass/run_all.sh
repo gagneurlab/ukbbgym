@@ -27,11 +27,22 @@
 #   --master-path PATH          override the shared master table path (default: auto-fetched from Hugging Face into data/genebass_annotated.parquet -- requires a logged-in HF account, see README.md)
 #   --fig-dir PATH              where figures are written (default: paper_figures/)
 #   --only-snps / --no-only-snps
+#   --new-score PATH            merge a new predictor column onto the master table before running
+#                                (parquet/csv with an 'id' column plus one or more score columns --
+#                                see merge_new_score.py) and register it as a predictor, so every
+#                                notebook's plots include it alongside the existing tools. Default:
+#                                none -- run with the existing annotations only.
+#   --new-score-category NAME   config_correlations.yaml category the new score is registered
+#                                under (default: missense -- included in every notebook's default
+#                                selected_categories, so it shows up without --selected-categories)
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PYTHON="$REPO_ROOT/.venv/bin/python"
+
+NEW_SCORE=""
+NEW_SCORE_CATEGORY="missense"
 
 while (($#)); do
     case "$1" in
@@ -44,6 +55,8 @@ while (($#)); do
         --fig-dir)               export UKBBGYM_FIG_DIR="$2"; shift 2 ;;
         --only-snps)             export UKBBGYM_ONLY_SNPS=true; shift ;;
         --no-only-snps)          export UKBBGYM_ONLY_SNPS=false; shift ;;
+        --new-score)             NEW_SCORE="$2"; shift 2 ;;
+        --new-score-category)    NEW_SCORE_CATEGORY="$2"; shift 2 ;;
         *) echo "Unknown option: $1" >&2; exit 1 ;;
     esac
 done
@@ -51,6 +64,17 @@ done
 if [[ ! -x "$PYTHON" ]]; then
     echo "No .venv at $REPO_ROOT/.venv -- run 'uv sync' from the repo root first." >&2
     exit 1
+fi
+
+if [[ -n "$NEW_SCORE" ]]; then
+    echo "=== merging new score: $NEW_SCORE ==="
+    merge_out="$("$PYTHON" "$SCRIPT_DIR/merge_new_score.py" "$NEW_SCORE" \
+        --category "$NEW_SCORE_CATEGORY" \
+        ${UKBBGYM_MASTER_PATH:+--master-path "$UKBBGYM_MASTER_PATH"})" || exit 1
+    export UKBBGYM_MASTER_PATH="$(sed -n 's/^MASTER_PATH=//p' <<< "$merge_out")"
+    export UKBBGYM_CONFIG_FILE="$(sed -n 's/^CONFIG_FILE=//p' <<< "$merge_out")"
+    echo "  master table -> $UKBBGYM_MASTER_PATH"
+    echo "  config file  -> $UKBBGYM_CONFIG_FILE"
 fi
 
 # nbconvert picks a kernel by name from Jupyter's global kernelspec list, not from

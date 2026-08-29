@@ -38,9 +38,9 @@ uv sync                       # creates .venv/ from uv.lock — see "Environment
 
 # Run any of these three with the .venv kernel — no manual download needed, they fetch
 # the master table into data/ (gitignored) on first run:
-#   genebass/analysis/correlations_master_table.ipynb
-#   genebass/analysis/mean_phenotype_master_table.ipynb
-#   genebass/analysis/protein_domains_correlations_master_file.ipynb
+#   genebass/analysis/correlations.ipynb
+#   genebass/analysis/mean_phenotype.ipynb
+#   genebass/analysis/protein_domains_correlations.ipynb
 # Every other genebass/analysis notebook needs one or more additional input files —
 # see the data/ inventory in genebass/README.md.
 ```
