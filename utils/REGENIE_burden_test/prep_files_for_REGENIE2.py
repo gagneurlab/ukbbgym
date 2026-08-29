@@ -4,7 +4,6 @@ import numpy as np
 from bgen import BgenWriter
 import logging
 import sys
-import os
 
 # --- Logging Setup ---
 logging.basicConfig(

@@ -27,6 +27,7 @@ dependencies = [
     "pyyaml>=6.0",
     "ipykernel>=6.29",
     "jupyterlab>=4.2",
+    "huggingface_hub>=0.24",
 ]
 
 [project.optional-dependencies]

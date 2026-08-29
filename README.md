@@ -33,12 +33,11 @@ git clone <this-repo-url>
 cd ukbbgym
 uv sync                       # creates .venv/ from uv.lock — see "Environment setup" below
 
-# Download the published master table (Hugging Face link to be added once published)
-# and place it at:
-mkdir -p data
-mv /path/to/ukbbgym_genebass_20260824.parquet data/
+# Log in to Hugging Face (the master table lives in the private gagneurlab/ukbbgym dataset):
+.venv/bin/huggingface-cli login          # or: export HF_TOKEN=...
 
-# Run any of these three with the .venv kernel — they need only the master table above:
+# Run any of these three with the .venv kernel — no manual download needed, they fetch
+# the master table into data/ (gitignored) on first run:
 #   genebass/analysis/correlations_master_table.ipynb
 #   genebass/analysis/mean_phenotype_master_table.ipynb
 #   genebass/analysis/protein_domains_correlations_master_file.ipynb
@@ -119,9 +118,11 @@ notebooks read TB-scale MatrixTables and are normally run on a cluster with the 
 
 ## Data access
 
-- **genebass** — the built master table (`ukbbgym_genebass_20260824.parquet`) will be published
-  on Hugging Face; the Genebass MatrixTable it can optionally be rebuilt from is available from
-  the Genebass authors on Google Cloud. See [`genebass/README.md`](genebass/README.md).
+- **genebass** — the built master table (`genebass_annotated.parquet`) is published in the
+  private [`gagneurlab/ukbbgym`](https://huggingface.co/datasets/gagneurlab/ukbbgym) Hugging
+  Face dataset and fetched automatically by the notebooks (login required, see below); the
+  Genebass MatrixTable it can optionally be rebuilt from is available from the Genebass authors
+  on Google Cloud. See [`genebass/README.md`](genebass/README.md).
 - **all_x_all** — inputs live only inside the All of Us Researcher Workbench and cannot be
   downloaded; see [`all_x_all/README.md`](all_x_all/README.md).
 - **ukbb** — inputs are individual-level UK Biobank data, accessible only on the RAP under your

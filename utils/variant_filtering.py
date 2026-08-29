@@ -6,8 +6,44 @@ into every analysis notebook. See genebass_sumstats/configs/config_variant_class
 for the variant-class filter definitions these helpers apply.
 """
 
+import os
+from pathlib import Path
+
 import yaml
 import polars as pl
+from huggingface_hub import hf_hub_download
+
+
+def fetch_hf_data(filename, repo_root=None, repo_id='gagneurlab/ukbbgym'):
+    """data/<filename>, downloading it from the private gagneurlab/ukbbgym HF dataset first
+    if missing (needs `huggingface-cli login` or HF_TOKEN -- see genebass/README.md)."""
+    root = Path(repo_root) if repo_root else next(
+        p for p in [Path.cwd(), *Path.cwd().parents] if (p / 'utils' / 'variant_filtering.py').exists())
+    local = root / 'data' / filename
+    if local.exists():
+        return str(local)
+    return hf_hub_download(repo_id=repo_id, repo_type='dataset', filename=filename,
+                            local_dir=str(root / 'data'))
+
+
+def env_override(name, default, cast=str):
+    """Read UKBBGYM_<name> from the environment if set, else return `default` unchanged.
+
+    Lets a notebook's parameter cell double as both its own default (when run interactively)
+    and something a driver script can override without editing the notebook (e.g. run_all.sh
+    exporting UKBBGYM_MAC=10 before invoking nbconvert).
+
+    cast: str (default) | int | bool (case-insensitive '1'/'true'/'yes' -> True, else False) |
+    'list' (comma-split, whitespace-trimmed, empty items dropped).
+    """
+    val = os.environ.get(f'UKBBGYM_{name}')
+    if val is None:
+        return default
+    if cast is bool:
+        return val.strip().lower() in ('1', 'true', 'yes')
+    if cast == 'list':
+        return [x.strip() for x in val.split(',') if x.strip()]
+    return cast(val)
 
 
 def load_config(config_dir, config_file):

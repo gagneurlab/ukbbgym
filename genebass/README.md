@@ -11,37 +11,97 @@ Gene–trait pairs are *selected* by pLoF burden tests, but the benchmark scores
 ## Run this locally
 
 You don't need the ~1 TB Genebass MatrixTable to reproduce the figures — the built master table
-(`ukbbgym_genebass_20260824.parquet`) will be published on Hugging Face. Steps 1 and 2 below are
-only needed if you want to rebuild it from scratch.
+(`genebass_annotated.parquet`) is published in the
+[`gagneurlab/ukbbgym`](https://huggingface.co/datasets/gagneurlab/ukbbgym) Hugging Face dataset,
+and every notebook fetches its own inputs from there automatically on first run. Steps 1 and 2
+below are only needed if you want to rebuild the master table from scratch.
 
 1. From the repo root: `uv sync` (see the root [README](../README.md) for environment details).
-2. Download `ukbbgym_genebass_20260824.parquet` and place it at `data/ukbbgym_genebass_20260824.parquet`
-   relative to the repo root — link to be added once the Hugging Face dataset is published.
-   **This one file is enough for [`correlations_master_table.ipynb`](analysis/correlations_master_table.ipynb),
+2. Log in to Hugging Face with an account that has access to `gagneurlab/ukbbgym` (it's private):
+   `.venv/bin/huggingface-cli login`, or export `HF_TOKEN`. No manual download or file placement
+   needed — the first notebook you run pulls whatever it needs into `data/` (gitignored) itself.
+   [`correlations_master_table.ipynb`](analysis/correlations_master_table.ipynb),
    [`mean_phenotype_master_table.ipynb`](analysis/mean_phenotype_master_table.ipynb) and
-   [`protein_domains_correlations_master_file.ipynb`](analysis/protein_domains_correlations_master_file.ipynb).**
-   Every other analysis notebook needs an additional file or two — see the table below and the
-   *needs* column in *Analysis notebooks*.
+   [`protein_domains_correlations_master_file.ipynb`](analysis/protein_domains_correlations_master_file.ipynb)
+   need only the master table; every other analysis notebook fetches an additional file or two —
+   see the table below and the *needs* column in *Analysis notebooks*.
 3. Open any notebook under [`analysis/`](analysis/) with the `.venv` kernel and run top to bottom,
    or run all of them at once: `genebass/run_all.sh`. It executes every notebook under
-   `analysis/` in place (via `nbconvert`, against the repo's `.venv`) and reports which ones
-   failed — expected for any notebook past the first three until its extra `data/` inputs exist.
+   `analysis/` in place (via `nbconvert`, against the repo's `.venv`), auto-downloading each
+   notebook's inputs as it goes, and reports which notebooks failed.
 4. Figures are written to `paper_figures/` at the repo root.
 
-### `data/` inventory
+### Changing parameters without editing a notebook
 
-| File | Needed by | Hosting |
+Every notebook's parameter cell reads its defaults through `env_override()`
+([`utils/variant_filtering.py`](../utils/variant_filtering.py)) — the current default when its
+`UKBBGYM_<NAME>` environment variable is unset, that variable's value otherwise. `run_all.sh`
+exposes the common ones as flags, applied to every notebook that has that parameter (one without
+it just ignores the flag):
+
+```bash
+genebass/run_all.sh --variant-class indel --mac 10 --min-variants 50 \
+                     --selected-categories "missense,conservation"
+```
+
+| Flag | Env var | Notebook default |
 |---|---|---|
-| `ukbbgym_genebass_20260824.parquet` | most `analysis/` notebooks (the master table) | Hugging Face (link TBD) |
-| `ukbbgym_genebass_null_20260824.parquet` | `noise_ceiling/*` (unassociated/null-trait panel, AC=1 synonymous noise estimate) | not yet published |
-| `ukbbgym_genebass_all_20260824.parquet` | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` (all-variants variant of the master table, not restricted to the 670 benchmark genes) | not yet published |
-| `clinvar_significance_vep_annotations_processed_cadd_fill_na_20260804.parquet` | `other_benchmarks/clinvar_spearman_scatterplot_master_file.ipynb` (17,683-gene ClinVar label set; broader than the master table's `clinical_significance` column, see the notebook's own note) | not yet published |
-| `proteingym_SNVs_with_readout_annotated_20260716.parquet` | `other_benchmarks/proteingym_snr_master_file.ipynb`, `other_benchmarks/proteingym_correlations_master_file.ipynb`, `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` | not yet published |
-| `DMS_Marsh_VEP.parquet`, `LDLR_Roth_Science_2025.parquet` | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` (additional experimental DMS assays) | not yet published |
+| `--variant-class` | `UKBBGYM_VARIANT_CLASS` | `missense` (most notebooks; `indel` for `noise_ceiling_one_region.ipynb`) |
+| `--selected-categories` | `UKBBGYM_SELECTED_CATEGORIES` (comma-separated) | per-notebook — `config_correlations.yaml` categories. **Not** `mean_phenotype_master_table.ipynb` or `noise_ceiling/*` — see below, their category list means something different |
+| `--mac` | `UKBBGYM_MAC` | `20` |
+| `--min-variants` | `UKBBGYM_MIN_VARIANTS` | per-notebook (typically `50`–`100`) |
+| `--config-file` | `UKBBGYM_CONFIG_FILE` | per-notebook, always a file under [`../configs/`](../configs/). **Not** `mean_phenotype_master_table.ipynb` — see below |
+| `--master-path` | `UKBBGYM_MASTER_PATH` | `data/genebass_annotated.parquet`, auto-fetched from Hugging Face. **Not** `expAssays_all_genes_correlations_pheno.ipynb` — see below |
+| `--fig-dir` | `UKBBGYM_FIG_DIR` | `paper_figures/` at the repo root |
+| `--only-snps` / `--no-only-snps` | `UKBBGYM_ONLY_SNPS` | per-notebook |
 
-Only the first row currently has a publication plan. The rest are flagged here rather than
-silently left for a `FileNotFoundError` — treat any notebook past the first three as
-not-yet-runnable until its inputs are published.
+**Three notebooks give a same-shaped parameter its own env var instead**, because its default
+isn't the same thing the flag above controls — a shared `--selected-categories`/`--config-file`/
+`--master-path` would otherwise silently repoint them at the wrong config or table with no
+error. Set these by exporting the env var directly; there's no flag for them:
+
+| Notebook | Env var | What it is |
+|---|---|---|
+| `mean_phenotype_master_table.ipynb` | `UKBBGYM_MEAN_PHENO_CATEGORIES` | categories from `config_categories.yaml` (default `['protein_domains']`), not `config_correlations.yaml` |
+| `mean_phenotype_master_table.ipynb` | `UKBBGYM_MEAN_PHENO_CONFIG_FILE` | defaults to `config_categories.yaml`, not `config_correlations.yaml` |
+| `noise_ceiling/noise_ceiling_one_region.ipynb`, `noise_ceiling/noise_ceiling_TED_contrast.ipynb` | `UKBBGYM_NOISE_CEILING_CATEGORIES` | defaults to `None` (use the variant class's own `tool_categories`); the shared flag would disable that fallback |
+| `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` | `UKBBGYM_EXPASSAYS_MASTER_PATH` | defaults to `genebass_annotated_all.parquet`, the all-variants table, not the shared master table |
+
+To run just one notebook with an override, export the env var(s) yourself and use `.venv/bin/jupyter nbconvert --execute` (or open it interactively — the env var still applies):
+
+```bash
+UKBBGYM_MAC=10 .venv/bin/jupyter nbconvert --to notebook --execute --inplace \
+    genebass/analysis/correlations_master_table.ipynb
+```
+
+A few other notebook-specific knobs aren't on either list above but follow the same
+`UKBBGYM_<NAME>` pattern — check each notebook's `# --- parameters` cell for the exact names
+(e.g. `UKBBGYM_ONLY_CLINVAR`, `UKBBGYM_DOMAIN_TYPE`, `UKBBGYM_CI_FACTOR`, `UKBBGYM_N_BOOT`).
+
+### `data/` inventory — fetched automatically from Hugging Face
+
+Every `data/` input is a file in the private
+[`gagneurlab/ukbbgym`](https://huggingface.co/datasets/gagneurlab/ukbbgym) dataset. You don't
+place any of these by hand: each notebook's parameter cell calls `fetch_hf_data(...)`
+([`utils/variant_filtering.py`](../utils/variant_filtering.py)), which checks `data/<file>`
+first and, if it's missing, downloads it there via `huggingface_hub` — so the first run of a
+given notebook fetches only the file(s) it actually needs, and every run after that is local.
+The dataset is **private**: fetching requires a Hugging Face account with access, logged in
+locally (`huggingface-cli login`, or an `HF_TOKEN`/`HUGGING_FACE_HUB_TOKEN` env var) — ask
+whoever runs the lab's Hugging Face org for access if you get a 401.
+
+| File (local `data/` path = dataset path) | Needed by |
+|---|---|
+| `genebass_annotated.parquet` | most `analysis/` notebooks (the master table) |
+| `genebass_unassociated.parquet` | `noise_ceiling/*` (unassociated/null-trait panel, AC=1 synonymous noise estimate) |
+| `genebass_annotated_all.parquet` | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` (all-variants variant of the master table, not restricted to the 670 benchmark genes) |
+| `other_benchmarks/clinvar_annotated.parquet` | `other_benchmarks/clinvar_spearman_scatterplot_master_file.ipynb` (17,683-gene ClinVar label set; broader than the master table's `clinical_significance` column, see the notebook's own note) |
+| `other_benchmarks/proteingym_snv_annotated.parquet` | `other_benchmarks/proteingym_snr_master_file.ipynb`, `other_benchmarks/proteingym_correlations_master_file.ipynb`, `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` |
+| `other_benchmarks/dms_mol_sys_bio_2023.parquet`, `other_benchmarks/ldlr_science_2025.parquet` | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` (additional experimental DMS assays) |
+
+To point a notebook at a file you already have locally under a different name instead of
+fetching, pass its path via the notebook's own `*_PATH`/`--master-path` override (see
+"Changing parameters without editing a notebook" above) — `fetch_hf_data` is only the default.
 
 ## Pipeline
 
@@ -55,7 +115,7 @@ regenie association + LOFTEE correlation files  ─────────►�
 | Step | Notebook | Output |
 |---|---|---|
 | 1 | [utils/01_read_hail_sumstats.ipynb](utils/01_read_hail_sumstats.ipynb) | `genebass_betas_127phenos_allvars.parquet` — one row per (variant, phenotype) |
-| 2 | [utils/02_create_master_table.ipynb](utils/02_create_master_table.ipynb) | `master_table_<date>.parquet` — one row per (variant, gene), everything joined; this is the file published as `ukbbgym_genebass_20260824.parquet` |
+| 2 | [utils/02_create_master_table.ipynb](utils/02_create_master_table.ipynb) | `master_table_<date>.parquet` — one row per (variant, gene), everything joined; this is the file published on Hugging Face as `genebass_annotated.parquet` |
 
 Step 1 needs the Genebass Hail MatrixTable (available from the Genebass authors on Google Cloud)
 and a Hail/Spark environment — see *Environment setup* in the [root README](../README.md).
