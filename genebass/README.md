@@ -22,10 +22,10 @@ only needed if you want to rebuild it from scratch.
    [`protein_domains_correlations_master_file.ipynb`](analysis/protein_domains_correlations_master_file.ipynb).**
    Every other analysis notebook needs an additional file or two — see the table below and the
    *needs* column in *Analysis notebooks*.
-3. Open any notebook under [`analysis/`](analysis/) with the `.venv` kernel and run top to bottom.
-   Each notebook resolves the repo root, `configs/` and `utils/variant_filtering.py`
-   automatically, regardless of where you cloned the repo — `data/<file>.parquet` at the repo
-   root is the convention every notebook expects its inputs at.
+3. Open any notebook under [`analysis/`](analysis/) with the `.venv` kernel and run top to bottom,
+   or run all of them at once: `genebass/run_all.sh`. It executes every notebook under
+   `analysis/` in place (via `nbconvert`, against the repo's `.venv`) and reports which ones
+   failed — expected for any notebook past the first three until its extra `data/` inputs exist.
 4. Figures are written to `paper_figures/` at the repo root.
 
 ### `data/` inventory

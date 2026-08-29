@@ -55,7 +55,8 @@ and how to rebuild the master table from raw Genebass/UKB inputs instead of the 
 genebass/       Genebass summary-statistics reconstruction — runs locally (see above)
 all_x_all/      All of Us All-by-All reconstruction — correlation heatmap only, Workbench-only
 ukbb/           primary UK Biobank RAP pipeline — applets, docs, RAP-only
-configs/        per-setup YAML: predictor sets, variant-class filters, colors/labels
+configs/        YAML shared by genebass/+all_x_all, plus configs/ukbb/ for the RAP pipeline —
+                predictor sets, variant-class filters, colors/labels
 utils/          code shared across setups: variant_filtering.py, REGENIE burden testing,
                 annotation regeneration, experimental-assay data
 envs/           Hail/Spark environment spec (separate from the core analysis environment)
