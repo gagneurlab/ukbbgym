@@ -25,7 +25,7 @@ individual-level data; not locally runnable.
 ## `annotations/`
 
 Regenerating variant annotations: `add_more_annotations.py` (bulk annotation from bigWig/FASTA/
-tabix reference files), `annotate_clinvar_variants.ipynb`, `annotate_proteingym_variants.ipynb`,
+tabix reference files), `annotate_clinvar_variants.ipynb`,
 `add_ukbgym_annotations_to_bcf2parquet.ipynb`. Needs the `annotation` extra
 (`uv sync --extra annotation` — see the root README) for `pyBigWig`, `pyfaidx`, `pysam`,
 `biopython`, `duckdb`.
@@ -33,5 +33,14 @@ tabix reference files), `annotate_clinvar_variants.ipynb`, `annotate_proteingym_
 ## `exp_assays/`
 
 Experimental deep-mutational-scanning assay data used by the `other_benchmarks` notebooks in
-`../genebass/analysis/` and `../ukbb/analysis/`: `extract_sge_scores.ipynb` (Saturation Genome
-Editing), `mavedb_data.ipynb` (MaveDB), `proteingym_data.ipynb` (ProteinGym).
+`../genebass/analysis/` and `../ukbb/analysis/`: 
+`proteingym_data.ipynb` + `annotate_proteingym_variants.ipynb` (ProteinGym; the
+latter needs the `annotation` extra), `marsh_data.ipynb` (Livesey &amp; Marsh pan-protein DMS
+compilation from Gen. Bio. 2025, per-UniProt predictor CSVs), `ldlr_roth_data.ipynb` (LDLR DMS, Roth et al. 2025,
+supp data S1&ndash;S3).
+
+`proteingym_uniprot_to_hgnc.csv` maps ProteinGym's UniProt entry-name filename tokens to HGNC
+symbols; `build_proteingym_uniprot_to_hgnc.py` regenerates it from the UniProt REST API.
+
+The `*_data.ipynb` notebooks each build the matching file under `../data/other_benchmarks/` and
+end with an assertion that the result reproduces the copy already published on HuggingFace.
