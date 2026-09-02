@@ -141,7 +141,7 @@ whoever runs the lab's Hugging Face org for access if you get a 401.
 | `genebass_annotated_all.parquet` | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` (all-variants variant of the master table, not restricted to the 670 benchmark genes) |
 | `other_benchmarks/clinvar_annotated.parquet` | `other_benchmarks/clinvar_spearman_scatterplot.ipynb` (17,683-gene ClinVar label set; broader than the master table's `clinical_significance` column, see the notebook's own note) |
 | `other_benchmarks/proteingym_snv_annotated.parquet` | `other_benchmarks/proteingym_snr.ipynb`, `other_benchmarks/proteingym_correlations.ipynb`, `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` |
-| `other_benchmarks/dms_mol_sys_bio_2023.parquet`, `other_benchmarks/ldlr_science_2025.parquet` | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` (additional experimental DMS assays) |
+| `other_benchmarks/marsh_gen_bio_2025.parquet`, `other_benchmarks/ldlr_science_2025.parquet` | `other_benchmarks/expAssays_all_genes_correlations_pheno.ipynb` (additional experimental DMS assays) |
 
 To point a notebook at a file you already have locally under a different name instead of
 fetching, pass its path via the notebook's own `*_PATH`/`--master-path` override (see
