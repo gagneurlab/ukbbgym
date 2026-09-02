@@ -9,6 +9,10 @@ blosum62: 0.0
 spliceai_delta_score: 0.0
 relative_cds_position: 0.0
 dist_to_tss: 0.0
+# dist_to_tss_v39 is intentionally NOT filled: it is used only to select the
+# promoter region (filter on |dist| < window). null = gene has no v39 MANE /
+# canonical TSS, which must drop out of that filter, not fill to 0 (= at TSS).
+# Add a fill entry here only if it also becomes a model feature.
 gene_length: 0.0
 variant_length: 1
 is_indel: 0

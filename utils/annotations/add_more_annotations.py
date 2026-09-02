@@ -25,6 +25,8 @@ Takes the output of vep_loftee_parallel (VEP + LOFTEE + gnomAD AFs + structural 
 
   Step 4 — Derived columns:
     indel length categories (1bp_del, 1bp_ins, 2_5bp_del, ...),
+    dist_to_tss_v39 (signed distance to the GENCODE v39 MANE Select TSS;
+      matches the promoter region PromoterAI uses for benchmarking)
 
   Step 5 — Fill nulls + _is_na columns
 
@@ -193,6 +195,13 @@ GENCODE_GTF_URL = (
 GENCODE_FASTA_URL = (
     "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_40/"
     "GRCh38.primary_assembly.genome.fa.gz"
+)
+# Gencode v39 human annotation GTF — used only for dist_to_tss_v39, so the
+# promoter region matches the one PromoterAI uses for benchmarking (its TSS
+# set is GENCODE v39 MANE Select). Kept separate from the v40 GTF above.
+GENCODE_V39_GTF_URL = (
+    "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_39/"
+    "gencode.v39.annotation.gtf.gz"
 )
 
 # ── Utilities ──────────────────────────────────────────────────────────────
@@ -1857,6 +1866,48 @@ def _gtf_gene_features(gtf: pl.DataFrame) -> pl.DataFrame:
     )
 
 
+def _gtf_mane_tss(gtf: pl.DataFrame) -> pl.DataFrame:
+    """Per-gene TSS of the MANE Select transcript (GTF 'transcript' rows).
+
+    For genes with no MANE Select transcript, falls back to the transcript
+    tagged Ensembl_canonical. Used for dist_to_tss_v39 against a GENCODE v39
+    GTF so the promoter region matches PromoterAI's benchmark definition.
+
+    Returns one row per gene: region, _tss_v39, _gene_strand_v39.
+    """
+    tx = (
+        gtf.filter(pl.col("feature") == "transcript")
+        .with_columns(
+            region=pl.col("attributes").str.extract(r'gene_id "([^"]+)"')
+                  .str.split(".").list.first(),
+            gene_type=pl.col("attributes")
+                  .str.extract(r'gene_(?:type|biotype) "([^"]+)"'),
+            _is_mane=pl.col("attributes").str.contains(r'tag "MANE_Select"'),
+            _is_canonical=pl.col("attributes")
+                  .str.contains(r'tag "Ensembl_canonical"'),
+            _tss_v39=pl.when(pl.col("strand") == "+")
+                  .then(pl.col("start"))
+                  .otherwise(pl.col("end")),
+            _gene_strand_v39=pl.col("strand"),
+        )
+        # Same protein-coding restriction as _gtf_gene_features: Ensembl_canonical
+        # (the fallback) also tags lncRNAs / pseudogenes, which are not in scope.
+        .filter(
+            (pl.col("gene_type") == "protein_coding")
+            & (pl.col("_is_mane") | pl.col("_is_canonical"))
+        )
+        # MANE Select wins over Ensembl_canonical; one transcript per gene.
+        .sort(["region", "_is_mane"], descending=[False, True])
+        .unique(subset=["region"], keep="first", maintain_order=True)
+    )
+    n_mane = int(tx.select(pl.col("_is_mane").sum()).item())
+    logger.info(
+        f"  v39 MANE/canonical TSS: {tx.height} genes "
+        f"({n_mane} MANE Select, {tx.height - n_mane} Ensembl_canonical fallback)"
+    )
+    return tx.select(["region", "_tss_v39", "_gene_strand_v39"])
+
+
 def step0a_vep_loftee_dummies(
     annos: pl.LazyFrame, consequence_col: str = "consequence_terms"
 ) -> pl.LazyFrame:
@@ -2140,6 +2191,30 @@ def step0b_structural_features(
             .drop(["_tss", "_gene_strand"])
         )
         logger.info("  dist_to_tss / gene_length / gene_name OK")
+
+        # ── dist_to_tss_v39: signed distance to the v39 MANE Select TSS ───
+        # Separate column so the promoter region matches the one PromoterAI
+        # uses for benchmarking (v39 MANE Select TSS), without disturbing the
+        # v40-derived dist_to_tss above. Sign convention is the same:
+        # negative = upstream of the TSS, positive = downstream.
+        v39_path = os.path.join(work_dir, "gencode.v39.annotation.gtf.gz")
+        if not os.path.exists(v39_path):
+            aria2c_download(GENCODE_V39_GTF_URL, v39_path)
+        if os.path.exists(v39_path):
+            mane = _gtf_mane_tss(_load_gtf_polars(v39_path))
+            annos = (
+                _idempotent_join(annos, mane.lazy(), on=["region"], validate="m:1")
+                .with_columns(
+                    dist_to_tss_v39=pl.when(pl.col("_gene_strand_v39") == "+")
+                    .then(pl.col("pos") - pl.col("_tss_v39"))
+                    .otherwise(pl.col("_tss_v39") - pl.col("pos"))
+                    .cast(pl.Int32)
+                )
+                .drop(["_tss_v39", "_gene_strand_v39"])
+            )
+            logger.info("  dist_to_tss_v39 (GENCODE v39 MANE Select) OK")
+        else:
+            logger.warning("  v39 GTF unavailable; skipping dist_to_tss_v39")
 
         # ── relative_cds_position: cds_start / total CDS length ───────────
         # cds_start is the 1-based nt position of the variant within the CDS
