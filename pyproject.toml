@@ -11,7 +11,10 @@ requires-python = ">=3.11,<3.13"
 # it from raw sources is optional: the annotation extra below, and the
 # separate Hail environment.
 dependencies = [
-    "polars>=1.33",
+    # polars-u64-idx: 64-bit row indices, for DataFrames exceeding ~4.29e9 rows
+    # (drop-in for `polars`; same API). The genome-wide AlphaGenome / GPN-Star
+    # score tables are billions of rows.
+    "polars-u64-idx>=1.33",
     "pyarrow>=15",
     # pandas 3.0 changes the default string dtype and copy semantics; the
     # notebooks were developed against 2.x, so stay there.
