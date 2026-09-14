@@ -26,10 +26,6 @@ rare_variant_annotations:
     am_pathogenicity:
       color: "#feb72d"
       label: "AlphaMissense"
-    # esmscoremissense: 
-    #   color: "#feb72d"
-    #   label: "ESM1v"
-    #   direction: -1
     esm1v:
       color: "#feb72d"
       label: "ESM1v"
@@ -59,6 +55,9 @@ rare_variant_annotations:
     cadd_raw:
       color: "chocolate"
       label: "CADD Raw"
+    alphagenome_avi:
+      color: "chocolate"
+      label: "AVI"
 
   var_length:
     variant_length:
@@ -77,9 +76,21 @@ rare_variant_annotations:
 
   conservation:
     gpn_score: 
-        color: "#942C80"  # Vibrant Magenta/Pink-Purple
-        label: "GPN-MSA"
-        direction: -1
+      color: "#942C80"  # Vibrant Magenta/Pink-Purple
+      label: "GPN-MSA"
+      direction: -1
+    gpn-star-hg38-v100-200m: 
+      color: "#942C80"  # Vibrant Magenta/Pink-Purple
+      label: "GPN-Star (V)"
+      direction: -1
+    gpn-star-hg38-m447-200m: 
+      color: "#942C80"  # Vibrant Magenta/Pink-Purple
+      label: "GPN-Star (M)"
+      direction: -1
+    gpn-star-hg38-p243-200m: 
+      color: "#942C80"  # Vibrant Magenta/Pink-Purple
+      label: "GPN-Star (P)"
+      direction: -1
     verphylop: 
       color: "#942C80"  # Darkest Blue
       label: "Vertebrate PhyloP"
