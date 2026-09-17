@@ -17,7 +17,7 @@ and every notebook fetches its own inputs from there automatically on first run.
 below are only needed if you want to rebuild the master table from scratch.
 
 1. From the repo root: `uv sync` (see the root [README](../README.md) for environment details).
-2. Log in to Hugging Face with an account that has access to `gagneurlab/ukbbgym` (it's private):
+2. Log in to Hugging Face with an account that has access to `gagneurlab/ukbbgym`:
    `.venv/bin/huggingface-cli login`, or export `HF_TOKEN`. No manual download or file placement
    needed — the first notebook you run pulls whatever it needs into `data/` (gitignored) itself.
    [`correlations.ipynb`](analysis/correlations.ipynb),
@@ -124,15 +124,11 @@ A few other notebook-specific knobs aren't on either list above but follow the s
 
 ### `data/` inventory — fetched automatically from Hugging Face
 
-Every `data/` input is a file in the private
-[`gagneurlab/ukbbgym`](https://huggingface.co/datasets/gagneurlab/ukbbgym) dataset. You don't
+Every `data/` input is a file in [`gagneurlab/ukbbgym`](https://huggingface.co/datasets/gagneurlab/ukbbgym) dataset. You don't
 place any of these by hand: each notebook's parameter cell calls `fetch_hf_data(...)`
 ([`utils/variant_filtering.py`](../utils/variant_filtering.py)), which checks `data/<file>`
 first and, if it's missing, downloads it there via `huggingface_hub` — so the first run of a
 given notebook fetches only the file(s) it actually needs, and every run after that is local.
-The dataset is **private**: fetching requires a Hugging Face account with access, logged in
-locally (`huggingface-cli login`, or an `HF_TOKEN`/`HUGGING_FACE_HUB_TOKEN` env var) — ask
-whoever runs the lab's Hugging Face org for access if you get a 401.
 
 | File (local `data/` path = dataset path) | Needed by |
 |---|---|
