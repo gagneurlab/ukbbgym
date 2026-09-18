@@ -1358,27 +1358,31 @@ def step2c3_phylop_primate(annos: pl.LazyFrame) -> pl.LazyFrame:
 
 
 
-# ── Group 3: Derived columns + fill nulls ──
-def step3a_derived_columns(annos: pl.LazyFrame) -> pl.LazyFrame:
+# ── Group 4: Derived columns + fill nulls ──
+def step4a_derived_columns(annos: pl.LazyFrame) -> pl.LazyFrame:
     """Add columns derived from already-merged annotations."""
     logger.info("Step 3a: Adding derived columns")
     schema = set(annos.collect_schema().names())
     exprs = []
 
-    # ENCODE derived columns
-    encode_mapping = {
-        ("encode_pls",): "core_promoter",
-        ("encode_pels",): "proximal_promoter",
-        ("encode_dels",): "encode_enhancer",
-    }
-    for (src,), dst in encode_mapping.items():
-        if src in schema:
-            exprs.append(pl.col(src).cast(pl.Int8).alias(dst))
-    if "encode_pls" in schema and "encode_pels" in schema:
+    # id: disambiguate by region
+    if "id" in schema and "region" in schema:
+        exprs.append((pl.col("id") + "_" + pl.col("region")).alias("id"))
+
+    # ENCODE / promoter / enhancer derived columns
+    if "dist2tssv39" in schema:
         exprs.append(
-            (pl.col("encode_pls") | pl.col("encode_pels"))
+            (pl.col("dist2tssv39").abs() <= 500)
             .cast(pl.Int8)
-            .alias("encode_promoter")
+            .alias("proximal_promoter")
+        )
+    if "encode_pls" in schema:
+        exprs.append(pl.col("encode_pls").cast(pl.Int8).alias("encode_promoter"))
+    if "encode_pels" in schema and "encode_dels" in schema:
+        exprs.append(
+            (pl.col("encode_pels") | pl.col("encode_dels"))
+            .cast(pl.Int8)
+            .alias("encode_enhancer")
         )
     if "encode_tf" in schema and "encode_ca_tf" in schema:
         exprs.append(
@@ -1420,10 +1424,25 @@ def step3a_derived_columns(annos: pl.LazyFrame) -> pl.LazyFrame:
 
     if exprs:
         annos = annos.with_columns(exprs)
+
+    # promoter_variant / enhancer_variant depend on cols just added above
+    schema2 = set(annos.collect_schema().names())
+    exprs2 = []
+    if "proximal_promoter" in schema2 and "encode_promoter" in schema2:
+        exprs2.append(
+            (pl.col("proximal_promoter") | pl.col("encode_promoter"))
+            .cast(pl.Int8)
+            .alias("promoter_variant")
+        )
+    if "encode_enhancer" in schema2:
+        exprs2.append(pl.col("encode_enhancer").cast(pl.Int8).alias("enhancer_variant"))
+    if exprs2:
+        annos = annos.with_columns(exprs2)
+
     return annos
 
 
-def step3b_fill_nulls(
+def step4b_fill_nulls(
     annos: pl.LazyFrame, fill_defaults: dict
 ) -> pl.LazyFrame:
     """
@@ -1463,7 +1482,7 @@ def step3b_fill_nulls(
             col_expr = pl.col(col)
             # Boolean columns (e.g. encode_* cCRE flags) can't be filled with an
             # int default directly ([bool, int] is ambiguous). Cast to Int8 first
-            # so null→0 and True/False→1/0, matching step4c_encode's encoding.
+            # so null→0 and True/False→1/0, matching step3c_encode's encoding.
             if schema_after[col] == pl.Boolean and isinstance(fill_val, int):
                 col_expr = col_expr.cast(pl.Int8)
             annos = annos.with_columns(
@@ -1472,8 +1491,8 @@ def step3b_fill_nulls(
 
     return annos
 
-# ── Group 4: Post-fill protein-domain & external annotations ──
-def step4a_plddt(
+# ── Group 3: Region / structure annotations ──
+def step3a_plddt(
     annos: pl.LazyFrame, uniprot_map: pl.DataFrame, work_dir: str
 ) -> pl.LazyFrame:
     """Add AlphaFold pLDDT per-residue confidence (Float32, 0–100).
@@ -1564,7 +1583,7 @@ def step4a_plddt(
     return annos
 
 
-def step4b_pioneer_interface(
+def step3b_pioneer_interface(
     annos: pl.LazyFrame, uniprot_map: pl.DataFrame, work_dir: str
 ) -> pl.LazyFrame:
     """Add PIONEER High-confidence interface residue flag (Int8, 0/1).
@@ -1672,7 +1691,7 @@ def step4b_pioneer_interface(
     return annos
 
 
-def step4c_encode(annos: pl.LazyFrame, encode_bed_path: str) -> pl.LazyFrame:
+def step3c_encode(annos: pl.LazyFrame, encode_bed_path: str) -> pl.LazyFrame:
     """Add ENCODE cCRE annotations via per-chromosome interval overlap (join_where).
 
     cCREs of different types can overlap, so a single asof join is not sufficient.
@@ -1743,7 +1762,7 @@ def step4c_encode(annos: pl.LazyFrame, encode_bed_path: str) -> pl.LazyFrame:
     return annos
 
 
-def step4d_clinvar(annos: pl.LazyFrame, clinvar_vcf_path: str) -> pl.LazyFrame:
+def step3d_clinvar(annos: pl.LazyFrame, clinvar_vcf_path: str) -> pl.LazyFrame:
     """Add ClinVar clinical_significance and pathogenicity dummy columns."""
     logger.info("Step 4d: Merging ClinVar annotations")
     try:
@@ -1801,6 +1820,216 @@ def step4d_clinvar(annos: pl.LazyFrame, clinvar_vcf_path: str) -> pl.LazyFrame:
         logger.info("  ClinVar OK")
     except Exception as e:
         logger.warning(f"  ClinVar failed: {e}")
+    return annos
+
+
+def _join_protein_domains(
+    annos: pl.LazyFrame, domain_df: pl.DataFrame, flag_cols: list[str]
+) -> pl.LazyFrame:
+    """Left-join per-interval protein-domain flags onto `annos` via prot_pos.
+
+    `domain_df` must have columns region, domain_start, domain_end, plus
+    `flag_cols` (one row per protein interval). A variant whose residue falls
+    in [domain_start, domain_end] gets the flags OR'd (max) across every
+    overlapping interval for its region; everything else gets 0.
+    """
+    schema_names = set(annos.collect_schema().names())
+    if "protein_position" not in schema_names or "region" not in schema_names:
+        logger.warning(f"  protein_position/region absent; setting {flag_cols}=0")
+        return annos.with_columns(
+            [pl.lit(0, dtype=pl.Int8).alias(c) for c in flag_cols]
+        )
+
+    variants = (
+        annos.select(["id", "region", "protein_position"]).unique().collect()
+        .with_columns(
+            prot_pos=pl.col("protein_position").str.extract(r"(\d+)", 0).cast(pl.Int32)
+        )
+        .drop_nulls("prot_pos")
+    )
+
+    hits = (
+        variants.join(domain_df, on="region", how="inner")
+        .filter(
+            (pl.col("prot_pos") >= pl.col("domain_start"))
+            & (pl.col("prot_pos") <= pl.col("domain_end"))
+        )
+        .group_by("id")
+        .agg([pl.col(c).max() for c in flag_cols])
+    )
+
+    flags = (
+        variants.select("id")
+        .join(hits, on="id", how="left")
+        .with_columns([pl.col(c).fill_null(0).cast(pl.Int8) for c in flag_cols])
+    )
+
+    return _idempotent_join(annos, flags.lazy(), on=["id"], validate="m:1")
+
+
+def step3e_mobidb(
+    annos: pl.LazyFrame, mobidb_tsv_path: str, uniprot_map: pl.DataFrame
+) -> pl.LazyFrame:
+    """Add MobiDB curated disorder / LIP region flags (Int8, 0/1).
+
+    Parses the MobiDB human bulk TSV (uniprot_id, feature, protein_regions,
+    disorder_content, disorder_count, length), keeps curated full-disorder,
+    curated-priority-disorder and full-LIP-priority regions, and overlaps
+    them with each variant's protein_position via `uniprot_map`.
+    """
+    logger.info("Step 3e: Merging MobiDB disorder/LIP annotations")
+    flag_cols = [
+        "mobi_full_disorder_priority",
+        "mobi_curated_disorder_priority",
+        "mobi_full_lip_priority",
+    ]
+    try:
+        region_map = (
+            uniprot_map.select(["region", "uniprot_id"]).drop_nulls("uniprot_id").unique()
+        )
+        mobi_df = (
+            pl.read_csv(
+                mobidb_tsv_path,
+                separator="\t",
+                has_header=False,
+                new_columns=[
+                    "uniprot_id", "feature", "protein_regions",
+                    "disorder_content", "disorder_count", "length",
+                ],
+            )
+            .join(region_map, on="uniprot_id", how="inner")
+            .with_columns(pl.col("protein_regions").str.split(","))
+            .explode("protein_regions")
+            .with_columns(
+                pl.col("protein_regions")
+                .str.split_exact("..", 1)
+                .struct.rename_fields(["domain_start", "domain_end"])
+                .alias("_region_struct")
+            )
+            .unnest("_region_struct")
+            .with_columns(
+                [
+                    pl.col("domain_start").cast(pl.Int64),
+                    pl.col("domain_end").cast(pl.Int64),
+                ]
+            )
+            .with_columns(
+                mobi_feature_source=pl.col("feature").str.split("-").list.get(0),
+                mobi_feature_type=pl.col("feature").str.split("-").list.get(1),
+                mobi_feature_subtype=pl.col("feature").str.split("-").list.get(2),
+            )
+            .with_columns(
+                mobi_full_disorder_priority=(pl.col("mobi_feature_source") == "curated")
+                & (pl.col("mobi_feature_type") == "disorder"),
+                mobi_curated_disorder_priority=(pl.col("mobi_feature_source") == "curated")
+                & (pl.col("mobi_feature_type") == "disorder")
+                & (pl.col("mobi_feature_subtype") == "priority"),
+                mobi_full_lip_priority=(pl.col("mobi_feature_type") == "lip")
+                & (pl.col("mobi_feature_subtype") == "priority"),
+            )
+            .filter(
+                pl.col("mobi_full_disorder_priority")
+                | pl.col("mobi_curated_disorder_priority")
+                | pl.col("mobi_full_lip_priority")
+            )
+            .select(["region", "domain_start", "domain_end"] + flag_cols)
+        )
+        annos = _join_protein_domains(annos, mobi_df, flag_cols)
+        logger.info("  MobiDB OK")
+    except Exception as e:
+        logger.warning(f"  MobiDB failed: {e}")
+    return annos
+
+
+def step3f_ted(
+    annos: pl.LazyFrame, ted_txt_path: str, uniprot_map: pl.DataFrame
+) -> pl.LazyFrame:
+    """Add TED (The Encyclopedia of Domains) structured-domain flag (Int8, 0/1).
+
+    Parses the filtered human TED entries file (col 1 = "AF-<uniprot_id>-...",
+    col 4 = "start-end_start-end" consecutive-domain-segment string) and
+    overlaps segments with each variant's protein_position via `uniprot_map`.
+    """
+    logger.info("Step 3f: Merging TED structured-domain annotations")
+    flag_cols = ["ted_domain"]
+    try:
+        region_map = (
+            uniprot_map.select(["region", "uniprot_id"]).drop_nulls("uniprot_id").unique()
+        )
+        ted_df = (
+            pl.read_csv(ted_txt_path, separator="\t", has_header=False)
+            .with_columns(uniprot_id=pl.col("column_1").str.split("-").list.get(1))
+            .with_columns(pl.col("column_4").str.split("_"))
+            .explode("column_4")
+            .with_columns(
+                pl.col("column_4")
+                .str.split_exact("-", 1)
+                .struct.rename_fields(["domain_start", "domain_end"])
+                .alias("_region_struct")
+            )
+            .unnest("_region_struct")
+            .with_columns(
+                [
+                    pl.col("domain_start").cast(pl.Int64),
+                    pl.col("domain_end").cast(pl.Int64),
+                ],
+                ted_domain=pl.lit(True),
+            )
+            .select(["uniprot_id", "domain_start", "domain_end", "ted_domain"])
+            .unique()
+            .join(region_map, on="uniprot_id", how="inner")
+            .select(["region", "domain_start", "domain_end"] + flag_cols)
+        )
+        annos = _join_protein_domains(annos, ted_df, flag_cols)
+        logger.info("  TED OK")
+    except Exception as e:
+        logger.warning(f"  TED failed: {e}")
+    return annos
+
+
+def step3g_lcd_composer(
+    annos: pl.LazyFrame, lcd_composer_tsv_path: str, uniprot_map: pl.DataFrame
+) -> pl.LazyFrame:
+    """Add LCD-Composer low-complexity-domain flag (Int8, 0/1).
+
+    Parses the Cascarina 2021 Supp. Table 3 TSV (LCD-Composer output),
+    restricted to H. sapiens, and overlaps domain boundaries with each
+    variant's protein_position via `uniprot_map`.
+    """
+    logger.info("Step 3g: Merging LCD-Composer low-complexity domain annotations")
+    flag_cols = ["low_complexity_domain"]
+    try:
+        region_map = (
+            uniprot_map.select(["region", "uniprot_id"]).drop_nulls("uniprot_id").unique()
+        )
+        lc_df = (
+            pl.read_csv(lcd_composer_tsv_path, separator="\t")
+            .filter(pl.col("Organism") == "H. sapiens")
+            .rename({"Protein ID": "uniprot_id"})
+            .with_columns(
+                pl.col("Domain Boundaries")
+                .str.strip_chars("()")
+                .str.split_exact("-", 1)
+                .struct.rename_fields(["domain_start", "domain_end"])
+                .alias("_region_struct")
+            )
+            .unnest("_region_struct")
+            .with_columns(
+                [
+                    pl.col("domain_start").cast(pl.Int64),
+                    pl.col("domain_end").cast(pl.Int64),
+                ],
+                low_complexity_domain=pl.lit(True),
+            )
+            .select(["uniprot_id", "domain_start", "domain_end", "low_complexity_domain"])
+            .unique()
+            .join(region_map, on="uniprot_id", how="inner")
+            .select(["region", "domain_start", "domain_end"] + flag_cols)
+        )
+        annos = _join_protein_domains(annos, lc_df, flag_cols)
+        logger.info("  LCD-Composer OK")
+    except Exception as e:
+        logger.warning(f"  LCD-Composer failed: {e}")
     return annos
 
 
@@ -1920,7 +2149,7 @@ def step0a_vep_loftee_dummies(
     per-transcript array extracted from Hail; falls back to 'vep_consequence')
     → one Int8 column per term, named consequence_{term}. Handles both native
     Hail list columns and VEP '&'-joined string columns. These columns are later
-    filled with 0 by step3b_fill_nulls.
+    filled with 0 by step4b_fill_nulls.
     """
     logger.info("Step 0a: LOFTEE dummies + consequence one-hot")
     schema = set(annos.collect_schema().names())
@@ -2277,7 +2506,13 @@ def main(
     add_plddt: bool = True,
     add_pioneer: bool = True,
     add_clinvar: bool = True,
+    add_mobidb: bool = True,
+    add_ted: bool = True,
+    add_lcd_composer: bool = True,
     add_next_in_frame: bool = True,
+    mobidb_tsv_path: str | None = None,
+    ted_txt_path: str | None = None,
+    lcd_composer_tsv_path: str | None = None,
 ) -> str:
     """Annotate the VEP parquet with effect-prediction scores and write it out.
 
@@ -2299,7 +2534,8 @@ def main(
         the rerun reuses already-downloaded files. Defaults to the current
         working directory, i.e. ``./tmp``.
     add_alphamissense, add_revel, add_clinpred, add_bayesdel, add_cpt1,
-    add_cadd, add_gpn_msa, add_phylop, add_plddt, add_pioneer, add_clinvar:
+    add_cadd, add_gpn_msa, add_phylop, add_plddt, add_pioneer, add_clinvar,
+    add_mobidb, add_ted, add_lcd_composer:
         Per-annotation toggles (keyword-only, all default True). Set one to
         False to skip both that annotation's download and its merge step.
         Useful when the input parquet already carries a column (e.g. the
@@ -2308,9 +2544,17 @@ def main(
         steps is redundant (an idempotent join would keep the existing column
         anyway) and only wastes the multi-GB CADD/GPN-MSA/bigWig downloads and
         the slow tabix/bigWig queries. The genuinely new annotations this script
-        adds on top of that schema are REVEL, ClinPred, BayesDel, pLDDT, PIONEER
-        and ClinVar. ``add_phylop`` controls all three conservation bigWigs
-        (vertebrate 100-way, mammalian 17-way, primate 30-way) together.
+        adds on top of that schema are REVEL, ClinPred, BayesDel, pLDDT, PIONEER,
+        ClinVar, MobiDB, TED and LCD-Composer. ``add_phylop`` controls all three
+        conservation bigWigs (vertebrate 100-way, mammalian 17-way, primate
+        30-way) together.
+    mobidb_tsv_path, ted_txt_path, lcd_composer_tsv_path:
+        Local paths to the MobiDB bulk TSV, the filtered human TED entries
+        file, and the Cascarina 2021 Supp. Table 3 (LCD-Composer output) TSV
+        respectively. Static reference files with no scripted download here
+        (ported as-is from add_ukbgym_annotations_to_bcf2parquet.ipynb); pass
+        a path to enable that step, leave None to skip it (logs a warning,
+        that step's flag columns are omitted).
 
     Returns
     -------
@@ -2393,7 +2637,10 @@ def main(
 
     # UniProt ID mapping (used by CPT-1 and the protein-structure steps).
     # Only needed when at least one of those steps will run.
-    if add_cpt1 or add_plddt or add_pioneer:
+    if (
+        add_cpt1 or add_plddt or add_pioneer
+        or add_mobidb or add_ted or add_lcd_composer
+    ):
         logger.info("=== Building UniProt map ===")
         uniprot_map_df = _build_uniprot_map(WORK_DIR)
     else:
@@ -2417,7 +2664,7 @@ def main(
     # ── Harmonize AoU schema to what the downstream steps expect ─────────
     # - pos → Int64 (AoU ships Int32; the score-table joins use Int64 keys)
     # - chrom → 'chr'-prefixed (idempotent), matching every join below
-    # - id → 'chrom:pos:ref:alt' (same format step4d_clinvar builds; required
+    # - id → 'chrom:pos:ref:alt' (same format step3d_clinvar builds; required
     #   because the AoU file has variant_id, not id, and several steps select 'id')
     # - protein_position → str(protein_start) so CPT-1 / pLDDT / PIONEER, which
     #   parse 'protein_position', resolve a residue number on AoU rows
@@ -2472,24 +2719,39 @@ def main(
         annos = step2c2_phylop_mammalian(annos)
         annos = step2c3_phylop_primate(annos)
 
-    # ── Group 3: Derived columns + fill nulls ───────────────────────────
-    logger.info("=== Group 3: Derived columns + fill nulls ===")
-    # ENCODE cCRE annotation (step4c_encode) is regulatory/non-coding and is out
+    # ── Group 3: Region / structure annotations ──────────────────────────
+    logger.info("=== Group 3: Region / structure annotations ===")
+    if add_plddt:
+        annos = step3a_plddt(annos, uniprot_map_df, WORK_DIR)
+    if add_pioneer:
+        annos = step3b_pioneer_interface(annos, uniprot_map_df, WORK_DIR)
+    # ENCODE cCRE annotation (step3c_encode) is regulatory/non-coding and is out
     # of scope for the exome port, so it is NOT called here. The function is left
     # defined for later use. To re-enable: define CCRE_COLUMN_MAP, CCRE_ZERO_COLS_V4
-    # and ENCODE_URL, download the cCRE BED, and call step4c_encode BEFORE
-    # step3a_derived_columns (which reads the encode_* columns it produces).
-    annos = step3a_derived_columns(annos)
-    annos = step3b_fill_nulls(annos, fill_defaults)
-
-    # ── Group 4: Post-fill annotations (no null handling needed) ────────
-    logger.info("=== Group 4: Post-fill annotations ===")
-    if add_plddt:
-        annos = step4a_plddt(annos, uniprot_map_df, WORK_DIR)
-    if add_pioneer:
-        annos = step4b_pioneer_interface(annos, uniprot_map_df, WORK_DIR)
+    # and ENCODE_URL, download the cCRE BED, and call step3c_encode BEFORE
+    # step4a_derived_columns (which reads the encode_* columns it produces).
     if clinvar_ok:
-        annos = step4d_clinvar(annos, clinvar_path)
+        annos = step3d_clinvar(annos, clinvar_path)
+    if add_mobidb:
+        if mobidb_tsv_path:
+            annos = step3e_mobidb(annos, mobidb_tsv_path, uniprot_map_df)
+        else:
+            logger.warning("  mobidb_tsv_path not set; skipping MobiDB")
+    if add_ted:
+        if ted_txt_path:
+            annos = step3f_ted(annos, ted_txt_path, uniprot_map_df)
+        else:
+            logger.warning("  ted_txt_path not set; skipping TED")
+    if add_lcd_composer:
+        if lcd_composer_tsv_path:
+            annos = step3g_lcd_composer(annos, lcd_composer_tsv_path, uniprot_map_df)
+        else:
+            logger.warning("  lcd_composer_tsv_path not set; skipping LCD-Composer")
+
+    # ── Group 4: Derived columns + fill nulls ────────────────────────────
+    logger.info("=== Group 4: Derived columns + fill nulls ===")
+    annos = step4a_derived_columns(annos)
+    annos = step4b_fill_nulls(annos, fill_defaults)
 
     # ── Collect and write ─────────────────────────────────────────────────
     logger.info("=== Sinking output parquet ===")
