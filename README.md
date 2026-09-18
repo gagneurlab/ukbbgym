@@ -24,7 +24,8 @@ The benchmark can be run three ways, depending on what data you have access to:
 | [`ukbb/`](ukbb/README.md) | Individual-level UK Biobank (the primary benchmark) | No | [UK Biobank RAP](https://ukbiobank.dnanexus.com/) only |
 
 `genebass/` is the only setup you can clone and run on a laptop — start there unless you
-specifically have RAP or All of Us Workbench access.
+specifically have UKBB RAP or All of Us Workbench access.
+To run the benchmark on the UKBB RAP, genotype, Olink, and phenotype data processing can be done using applets from this git repository: [gagneurlab/ukbb-utils-gagneur](https://github.com/gagneurlab/ukbb-utils-gagneur)
 
 ## Start here (genebass, local)
 
