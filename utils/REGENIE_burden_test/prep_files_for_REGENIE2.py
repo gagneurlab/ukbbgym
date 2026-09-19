@@ -1,3 +1,4 @@
+import os
 import polars as pl
 import pyranges as pr
 import numpy as np

@@ -12,3 +12,6 @@ figures/
 .ipynb_checkpoints/
 .DS_Store
 configs/_custom_score.yaml
+
+# UKB-Git-Audit-Tool reports (may list candidate participant IDs)
+ukb_audit_reports/
