@@ -40,6 +40,11 @@ repos:
         args: [--assume-in-merge]
   - repo: local
     hooks:
+      - id: audit-public-tree
+        name: Reject private paths and live project IDs
+        entry: python scripts/audit_public_tree.py
+        language: system
+        types: [text]
       - id: forbid-to-commit
         name: Don't commit rej files
         entry: |

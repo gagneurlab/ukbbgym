@@ -48,7 +48,7 @@ REGENIE_EXTRA_OPTIONS=(
 )
 
 # Temporary Directory
-TEMP_DIR="/scratch/tmp/regenie_prs_tmp_${CHUNK}/"
+TEMP_DIR="${TMPDIR:-/tmp}/regenie_prs_tmp_${CHUNK}/"
 
 # Create necessary directories
 mkdir -p "$OUTPUT_DIR"

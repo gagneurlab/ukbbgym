@@ -28,6 +28,9 @@ The workflow has two phases:
 - Basic familiarity with Python and Jupyter notebooks.
 - `dx-toolkit` installed locally if you want to run applets from the CLI rather than the GUI.
 
+Notebook users must set `DNANEXUS_DATA_ROOT` to their complete RAP data root (for example,
+`project-XXX:/path/to/data`). The private project layout is intentionally not stored here.
+
 ## 1. Data processing
 
 Raw UK Biobank BGEN/VCF and phenotype data are first converted into optimized Parquet files by

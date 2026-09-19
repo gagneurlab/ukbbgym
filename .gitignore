@@ -13,6 +13,13 @@ figures/
 .DS_Store
 configs/_custom_score.yaml
 
+# LaTeX build products (may embed local absolute paths)
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.synctex.gz
+
 # UKB-Git-Audit-Tool reports (may list candidate participant IDs)
 ukb_audit_reports/
 

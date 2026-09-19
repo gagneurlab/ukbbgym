@@ -244,8 +244,6 @@ One table every analysis can use without a further join. Gene- and phenotype-lev
 | `CORR_PATH` | `<data_root>/association_files/`<br>`regenie_127phenotypes_mac20_lofteeHC_EUR_correlations.parquet` |
 | `CFG_DIR` | [`../configs/`](../configs/) |
 
-Note the spelling of the data root on the Gagneur cluster: the mount holding the annotation file is spelled `ukbbgym` (two b's); the similarly named `ukbgym` mount is a different filesystem and does not hold it.
-
 ### Build steps
 
 1. **`gene_trait_df`** — FDR ≤ 0.05 → inner join on the LOFTEE correlations → `drop_nans()` → keep the strongest-|corr| phenotype per gene. `loftee_corr_dir = corr / |corr|` carries the sign used for direction correction downstream; `loftee_corr_abs` picks the phenotype and is then dropped.
