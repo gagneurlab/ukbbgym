@@ -32,7 +32,7 @@ To run the benchmark on the UKBB RAP, genotype, Olink, and phenotype data proces
 ```bash
 git clone <this-repo-url>
 cd ukbbgym
-uv sync                       # creates .venv/ from uv.lock — see "Environment setup" below
+uv sync                       # creates .venv/ from pyproject.toml — see "Environment setup" below
 
 # Log in to Hugging Face (the master table lives in the private gagneurlab/ukbbgym dataset):
 .venv/bin/huggingface-cli login          # or: export HF_TOKEN=...
@@ -73,15 +73,17 @@ and reproducing the figures, not producing it. With [uv](https://docs.astral.sh/
 (`curl -LsSf https://astral.sh/uv/install.sh | sh`):
 
 ```bash
-uv sync                       # creates .venv/ from uv.lock, exact pinned versions
+uv sync                       # creates .venv/, resolving versions from pyproject.toml
 ```
 
 When running the notebooks, pick `.venv/bin/python` as the kernel.
 
-**Without the lockfile.** [`pyproject.toml`](pyproject.toml) is self-contained; `uv.lock` only
-records the exact versions that resolution picked, so the figures can be reproduced bit-for-bit
-later. To resolve fresh against the declared ranges instead — with uv, or with plain pip and no
-uv at all:
+**No lockfile.** `uv.lock` is deliberately not tracked (it is gitignored): it embeds per-file sizes
+that the UK Biobank git audit tool flags as candidate participant IDs. [`pyproject.toml`](pyproject.toml)
+is self-contained, and `uv sync` resolves against its declared ranges, writing a local `uv.lock` you can
+ignore. Versions may therefore drift newer over time; cap a package in `pyproject.toml` if a release
+breaks the notebooks. To install into an existing environment instead — with uv, or with plain pip and
+no uv at all:
 
 ```bash
 uv pip install -e .                # into the active environment; add ".[annotation]" for the extra

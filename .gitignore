@@ -15,3 +15,6 @@ configs/_custom_score.yaml
 
 # UKB-Git-Audit-Tool reports (may list candidate participant IDs)
 ukb_audit_reports/
+
+# uv lockfile: per-file sizes trip the UKB-Git-Audit-Tool (7-digit "EID" false positives)
+uv.lock
