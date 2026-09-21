@@ -9,8 +9,8 @@ carriers**, rather than against curated clinical labels or cell-culture assays. 
 ultra-rare variant (allele count ≤ 20) within ±5 kb of a gene body, the phenotype is averaged
 across its heterozygous carriers, after correction for covariates and common-variant polygenic
 risk, and predictors are scored by the rank correlation between their scores and these
-per-variant carrier means. Two phenotype tracks: **670 gene–trait associations** across 95
-quantitative traits, and **1,076 gene–protein abundance associations** from Olink plasma
+per-variant carrier means. Two phenotype tracks: **670 gene–trait associations** across 96
+quantitative traits, and **protein abundance of 1,076 genes** from Olink plasma
 proteomics.
 
 ## Which setup do I want?
