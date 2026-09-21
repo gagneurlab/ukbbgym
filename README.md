@@ -27,7 +27,7 @@ The benchmark can be run three ways, depending on what data you have access to:
 specifically have UKBB RAP or All of Us Workbench access.
 To run the benchmark on the UKBB RAP, genotype, Olink, and phenotype data processing can be done using applets from this git repository: [gagneurlab/ukbb-utils-gagneur](https://github.com/gagneurlab/ukbb-utils-gagneur)
 
-Please cite the Zenodo submission if you use this benchmark: 
+Please cite the Zenodo submission if you use the genebass implementation of this benchmark: 
 [Londhe, S. (2026). Phenotypes of ultra-rare variant carriers benchmark variant effect scores](https://doi.org/10.5281/zenodo.22826446)
 
 ## Start here (genebass, local)
