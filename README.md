@@ -4,7 +4,7 @@
 
 Population-scale phenotype benchmark for variant effect predictors.
 
-UKBBGym evaulates variant scoring methods against **phenotypes observed in human
+UKBBGym evaluates variant scoring methods against **phenotypes observed in human
 carriers**, rather than against curated clinical labels or cell-culture assays. For every
 ultra-rare variant (allele count ≤ 20) within ±5 kb of a gene body, the phenotype is averaged
 across its heterozygous carriers, after correction for covariates and common-variant polygenic
@@ -12,6 +12,8 @@ risk, and predictors are scored by the rank correlation between their scores and
 per-variant carrier means. Two phenotype tracks: **670 gene–trait associations** across 96
 quantitative traits, and **protein abundance of 1,076 genes** from Olink plasma
 proteomics.
+
+[bioRxiv link](https://www.biorxiv.org/content/10.64898/2026.10.01.755962v1)
 
 ## Which setup do I want?
 
