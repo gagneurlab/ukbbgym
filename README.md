@@ -13,7 +13,8 @@ per-variant carrier means. Two phenotype tracks: **670 gene–trait associations
 quantitative traits, and **protein abundance of 1,076 genes** from Olink plasma
 proteomics.
 
-[bioRxiv link](https://www.biorxiv.org/content/10.64898/2026.10.01.755962v1)
+Please cite the preprint if you use this benchmark: 
+[Londhe et al., (2026). Phenotypes of ultra-rare variant carriers benchmark variant effect scores, bioRxiv](https://doi.org/10.64898/2026.10.01.755962)
 
 ## Which setup do I want?
 
@@ -21,16 +22,13 @@ The benchmark can be run three ways, depending on what data you have access to:
 
 | Setup | Data source | Runs locally | Access |
 |---|---|---|---|
-| [`genebass/`](genebass/README.md) | [Genebass](https://genebass.org/) single-variant summary stats (394,841 UKB exomes) | **Yes** | master table published on Hugging Face |
+| [`genebass/`](genebass/README.md) | [Genebass](https://genebass.org/) single-variant summary stats (394,841 UKB exomes) | **Yes** | [Available on HuggingFace](https://huggingface.co/datasets/gagneurlab/ukbbgym) |
 | [`all_x_all/`](all_x_all/README.md) | All of Us All-by-All summary stats | No | [All of Us Researcher Workbench](https://www.researchallofus.org/) only |
 | [`ukbb/`](ukbb/README.md) | Individual-level UK Biobank (the primary benchmark) | No | [UK Biobank RAP](https://ukbiobank.dnanexus.com/) only |
 
 `genebass/` is the only setup you can clone and run on a laptop — start there unless you
 specifically have UKBB RAP or All of Us Workbench access.
 To run the benchmark on the UKBB RAP, genotype, Olink, and phenotype data processing can be done using applets from this git repository: [gagneurlab/ukbb-utils-gagneur](https://github.com/gagneurlab/ukbb-utils-gagneur)
-
-Please cite the Zenodo submission if you use the genebass implementation of this benchmark: 
-[Londhe, S. (2026). Phenotypes of ultra-rare variant carriers benchmark variant effect scores](https://doi.org/10.5281/zenodo.22826446)
 
 ## Start here (genebass, local)
 
