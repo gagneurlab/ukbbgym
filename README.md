@@ -33,23 +33,19 @@ To run the benchmark on the UKBB RAP, genotype, Olink, and phenotype data proces
 ## Start here (genebass, local)
 
 ```bash
-git clone <this-repo-url>
+git clone https://github.com/gagneurlab/ukbbgym.git
 cd ukbbgym
 uv sync                       # creates .venv/ from pyproject.toml — see "Environment setup" below
 
-# Log in to Hugging Face (the master table lives in the private gagneurlab/ukbbgym dataset):
-.venv/bin/huggingface-cli login          # or: export HF_TOKEN=...
+# Run every genebass analysis notebook, writing figures to paper_figures/:
+genebass/run_all.sh
 
-# Run any of these three with the .venv kernel — no manual download needed, they fetch
-# the master table into data/ (gitignored) on first run:
-#   genebass/analysis/correlations.ipynb
-#   genebass/analysis/mean_phenotype.ipynb
-#   genebass/analysis/protein_domains_correlations.ipynb
-# Every other genebass/analysis notebook needs one or more additional input files —
-# see the data/ inventory in genebass/README.md.
+# ...or open any notebook under genebass/analysis/ with the .venv kernel and run it top to
+# bottom. No manual download or login needed: each notebook fetches its inputs from the
+# public gagneurlab/ukbbgym Hugging Face dataset into data/ (gitignored) on first run.
 ```
 
-See [`genebass/README.md`](genebass/README.md) for the method, the notebook-by-figure table,
+See [`genebass/README.md`](genebass/README.md) for the method, a table of what each notebook produces,
 and how to rebuild the master table from raw Genebass/UKB inputs instead of the published one.
 
 ## Repository layout
@@ -63,6 +59,7 @@ configs/        YAML shared by genebass/+all_x_all, plus configs/ukbb/ for the R
 utils/          code shared across setups: variant_filtering.py, REGENIE burden testing,
                 annotation regeneration, experimental-assay data
 envs/           Hail/Spark environment spec (separate from the core analysis environment)
+scripts/        maintainer tooling (pre-commit audit for private paths) — not needed to run anything
 ```
 
 Each directory has its own README with the detail specific to it.
@@ -125,8 +122,8 @@ notebooks read TB-scale MatrixTables and are normally run on a cluster with the 
 ## Data access
 
 - **genebass** — the built master table (`genebass_annotated.parquet`) is published in the
-  private [`gagneurlab/ukbbgym`](https://huggingface.co/datasets/gagneurlab/ukbbgym) Hugging
-  Face dataset and fetched automatically by the notebooks (login required, see below); the
+  public [`gagneurlab/ukbbgym`](https://huggingface.co/datasets/gagneurlab/ukbbgym) Hugging
+  Face dataset and fetched automatically by the notebooks (no login needed); the
   Genebass MatrixTable it can optionally be rebuilt from is available from the Genebass authors
   on Google Cloud. See [`genebass/README.md`](genebass/README.md).
 - **all_x_all** — inputs live only inside the All of Us Researcher Workbench and cannot be

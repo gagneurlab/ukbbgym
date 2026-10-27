@@ -1,8 +1,8 @@
-"""Shared variant-filtering helpers for genebass_sumstats/analysis notebooks.
+"""Shared variant-filtering helpers for the genebass/ and all_x_all/ analysis notebooks.
 
 Consolidates the load_config / add_derived / scan_variants / appv_of / pick_annos /
 coverage-filter boilerplate that used to be copy-pasted (with small, undocumented drift)
-into every analysis notebook. See genebass_sumstats/configs/config_variant_classes.yaml
+into every analysis notebook. See configs/config_variant_classes.yaml
 for the variant-class filter definitions these helpers apply.
 """
 
@@ -15,8 +15,8 @@ from huggingface_hub import hf_hub_download
 
 
 def fetch_hf_data(filename, repo_root=None, repo_id='gagneurlab/ukbbgym'):
-    """data/<filename>, downloading it from the private gagneurlab/ukbbgym HF dataset first
-    if missing (needs `huggingface-cli login` or HF_TOKEN -- see genebass/README.md)."""
+    """data/<filename>, downloading it from the public gagneurlab/ukbbgym HF dataset first
+    if missing (no login needed -- see genebass/README.md)."""
     root = Path(repo_root) if repo_root else next(
         p for p in [Path.cwd(), *Path.cwd().parents] if (p / 'utils' / 'variant_filtering.py').exists())
     local = root / 'data' / filename
@@ -202,7 +202,7 @@ def add_derived(lf):
             promoterai_under = pl.col('promoterai'),
             promoterai_over  = pl.col('promoterai'),
             # NOTE: these regexes are non-exclusive by design (Pathogenic also matches
-            # Likely_pathogenic), matching avg_zscore_categories.ipynb.
+            # Likely_pathogenic), matching genebass/analysis/mean_phenotype.ipynb.
             clinvar_patho        = pl.col('clinical_significance').str.contains('(?i)Pathogenic').fill_null(False),
             clinvar_likely_patho = pl.col('clinical_significance').str.contains('(?i)Likely_pathogenic').fill_null(False),
             clinvar_benign       = pl.col('clinical_significance').str.contains('(?i)Benign').fill_null(False),
