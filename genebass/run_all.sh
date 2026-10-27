@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Run every genebass/analysis notebook top to bottom, in place, regenerating all figures
 # in paper_figures/ at the repo root. Each notebook auto-fetches its own data/ inputs from
-# the private gagneurlab/ukbbgym Hugging Face dataset on first run (see README.md) -- this
-# requires a logged-in HF account with access; a 401 there is allowed to fail a notebook
-# here (reported at the end) rather than aborting the whole run.
+# the public gagneurlab/ukbbgym Hugging Face dataset on first run (see README.md); a failed
+# download is allowed to fail that notebook (reported at the end) rather than aborting the
+# whole run.
 #
 # Each notebook's parameter cell reads its defaults via env_override() (utils/variant_filtering.py),
 # so any of the flags below overrides that one setting in every notebook that has it, without
@@ -24,7 +24,7 @@
 #   --mac N                     rare-variant allele-count cap (default: 20)
 #   --min-variants N            coverage threshold below which a gene/pair is dropped (default: per-notebook)
 #   --config-file NAME          e.g. config_correlations.yaml (default: per-notebook)
-#   --master-path PATH          override the shared master table path (default: auto-fetched from Hugging Face into data/genebass_annotated.parquet -- requires a logged-in HF account, see README.md)
+#   --master-path PATH          override the shared master table path (default: auto-fetched from Hugging Face into data/genebass_annotated.parquet)
 #   --fig-dir PATH              where figures are written (default: paper_figures/)
 #   --only-snps / --no-only-snps
 #   --new-score PATH            merge a new predictor column onto the master table before running
